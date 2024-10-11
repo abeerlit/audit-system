@@ -11,6 +11,9 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        "auth-purple": "#2B3674",
+        "light-blue": "#2AB3E7",
+        "light-gray": "#A3AED0",
       },
     },
   },

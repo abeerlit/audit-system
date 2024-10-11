@@ -1,6 +1,4 @@
-import React from "react";
-
-const AuthImage = ({ className }: { className?: string }) => {
+const AuthLogo = ({ className }: { className?: string }) => {
   return (
     <svg
       className={className}
@@ -37,4 +35,4 @@ const AuthImage = ({ className }: { className?: string }) => {
   );
 };
 
-export default AuthImage;
+export default AuthLogo;
