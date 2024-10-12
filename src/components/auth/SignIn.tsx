@@ -8,8 +8,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const schema = z.object({
-  email: z.string().email({message: "Oops! Invalid email address." }),
-  password: z.string().min(8, { message: "Oops! Password must contain 8 character(s)." }),
+  email: z.string().nonempty({ message: "Email is required." }).email({message: "Oops! Invalid email address." }),
+  password: z.string().nonempty({ message: "Password is required." }).min(8, { message: "Oops! Password must contain 8 character(s)." }),
   keepLoggedIn: z.boolean().default(false),
 });
 
@@ -28,7 +28,7 @@ const SignIn = () => {
     // use local storage to store the data
     localStorage.setItem("user", JSON.stringify(formData));
     toast.success("Login successful!");
-    router.push("/auth/dashboard");
+    router.push("/dashboard");
   };
 
   return (
@@ -111,7 +111,7 @@ const SignIn = () => {
           Sign In
         </button>
 
-        <p className="text-center text-sm text-light-gray">
+        <p className="text-sm text-light-gray">
           Not registered yet?{" "}
           <Link href="/auth/signup" className="text-light-blue text-nowrap font-semibold hover:underline">
             Create an Account

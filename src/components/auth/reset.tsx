@@ -11,21 +11,25 @@ const ResetPassword = () => {
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const [reset, setReset] = React.useState({
     email: "",
-    code: "",
+    code: ["","","",""],
     newPassword: "",
     confirmPassword: "",
-    showNew: false,
-    showConfirm: false,
+    showNew: true,
+    showConfirm: true,
   });
 
   // Handle input change
   const handleChange = (index: number, value: string) => {
-    const newCode = reset.code.split("");
-    newCode[index] = value.replace(/\D/g, "-"); // Allow only digits
-    setReset({ ...reset, code: newCode.join("") });
+    const newCode = [...reset.code];
+    if (value) {
+      newCode[index] = value.replace(/\D/g, ""); // Allow only digits
+    } else {
+      newCode[index] = ""; // Clear the value if backspace is pressed
+    }
+    setReset({ ...reset, code: newCode });
 
     // Focus next input if value is entered
-    if (value && index < inputsRef.current.length - 1) {
+    if (newCode[index] && index < inputsRef.current.length - 1) {
       inputsRef.current[index + 1]?.focus();
     }
 
@@ -57,7 +61,7 @@ const ResetPassword = () => {
 
   // Handle verify code
   const handleVerifyCode = () => {
-    if (reset.code.length < 4) {
+    if (reset.code.join("").length < 4) {
       toast.error("Fill your code");
       return;
     }
@@ -74,16 +78,13 @@ const ResetPassword = () => {
     if (reset.newPassword.trim() === "") {
       toast.error("Please enter your new password.");
       return;
-    }
-    if (reset.confirmPassword.trim() === "") {
+    } else if (reset.confirmPassword.trim() === "") {
       toast.error("Please enter your confirm password.");
       return;
-    }
-    if (reset.newPassword.length < 8 || reset.confirmPassword.length < 8) {
+    } else if (reset.newPassword.length < 8 || reset.confirmPassword.length < 8) {
       toast.error("Passwords must be 8 characters.");
       return;
-    }
-    if (reset.newPassword !== reset.confirmPassword) {
+    } else if (reset.newPassword !== reset.confirmPassword) {
       toast.error("Passwords do not match.");
       return;
     }
@@ -169,13 +170,13 @@ const ResetPassword = () => {
       ) : step === 2 ? (
         <React.Fragment>
           <div className="flex gap-4">
-            {Array.from({ length: 4 }).map((_, index) => (
+            {reset?.code?.map((value, index) => (
               <input
                 key={index}
                 type="text"
                 maxLength={1}
-                value={reset.code[index] || ""}
-                onChange={(e) => handleChange(index, e.target.value)}
+                value={value}
+                onChange={(e) => handleChange(index, e.target.value.trim())}
                 // @ts-expect-error because of the ref
                 ref={(el) => (inputsRef.current[index] = el)}
                 className="w-1/4 h-20 text-center border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-400"
