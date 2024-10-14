@@ -1,11 +1,11 @@
 "use client";
 import AuthLayout from "@/components/auth/layout";
-import SignIn from "@/components/auth/SignIn";
+import Login from "../components/auth/login";
 
 export default function Home() {
   return (
     <AuthLayout>
-      <SignIn />
+      <Login />
     </AuthLayout>
   );
 }
