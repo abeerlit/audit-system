@@ -2,9 +2,20 @@ import Link from "next/link";
 import Logo from "../icons/logo";
 import { sidebarLinks } from "@/constants/sidebarLinks";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+import Modal from "../modal";
+import LogoutIcon from "../icons/dashboard/logout-icon";
+import Logout from "./logout";
 
 const Sidebar = () => {
   const pathname = usePathname();
+  const [state, setState] = useState({
+    logout: {
+      open: false,
+      content: <Logout onClose={() => setState({ ...state, logout: { ...state["logout"], open: false } })} />
+    }
+  });
+  
   return (
     <div className="relative max-h-screen overflow-auto">
       <div className="h-10" />
@@ -29,6 +40,16 @@ const Sidebar = () => {
             )}
           </Link>
         ))}
+        <button 
+          className="flex items-center gap-3 px-4 py-2 font-semibold text-light-gray hover:text-light-blue" 
+          onClick={() => setState({ ...state, logout: { ...state["logout"], open: true } })}
+        >
+          <LogoutIcon className="" />
+          Logout
+        </button>
+        <Modal isOpen={state["logout"]?.open} onClose={() => setState({ ...state, logout: { ...state["logout"], open: false } })}>
+          {state["logout"]?.content}
+        </Modal>
       </div>
     </div>
   );

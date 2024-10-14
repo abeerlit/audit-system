@@ -5,8 +5,8 @@ import { Toaster } from "react-hot-toast";
 const RootLayoutProvider = ({children}: {children: React.ReactNode}) => {
   return (
     <Fragment>
-        {children}
-        <Toaster />
+      {children}
+      <Toaster />
     </Fragment>
   )
 }

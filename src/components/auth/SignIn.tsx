@@ -27,7 +27,7 @@ const SignIn = () => {
     console.log("Form Data:", formData);
     // use local storage to store the data
     localStorage.setItem("user", JSON.stringify(formData));
-    toast.success("Login successful!");
+    toast.success("Login successfully!");
     router.push("/dashboard");
   };
 

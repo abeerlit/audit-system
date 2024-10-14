@@ -2,7 +2,6 @@ import AuditingIcon from "@/components/icons/dashboard/auditing-icon";
 import ChaptersIcon from "@/components/icons/dashboard/chapters-icon";
 import DiscussionsIcon from "@/components/icons/dashboard/discussions-icon";
 import HomeIcon from "@/components/icons/dashboard/home-icon";
-import LogoutIcon from "@/components/icons/dashboard/logout-icon";
 import ProfileIcon from "@/components/icons/dashboard/profile-icon";
 import UsersIcon from "@/components/icons/dashboard/users-icon";
 
@@ -36,10 +35,5 @@ export const sidebarLinks = [
         name: 'Profile',
         href: '/dashboard/profile',
         icon: <ProfileIcon className="" />
-    },
-    {
-        name: 'Logout',
-        href: '/dashboard/logout',
-        icon: <LogoutIcon className="" />
-    },
+    }
 ]
