@@ -22,6 +22,11 @@ model TempUser {
   createdAt DateTime @default(now())
 }
 
+enum Role {
+  admin
+  broker
+  expert
+}
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
@@ -32,7 +37,7 @@ model User {
   specialty String?
   otpVerified Boolean @default(false)
   password String 
-role  String  @default("admin")
+role        Role     @default(admin)
   createdAt DateTime @default(now())
 }
 

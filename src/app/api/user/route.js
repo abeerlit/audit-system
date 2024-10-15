@@ -135,7 +135,6 @@ async function loginUser(data) {
             );
         }
 
-        const { password: _, ...userData } = user;
         const token = jwt.sign(
             {
                 id: user.id,
@@ -146,7 +145,17 @@ async function loginUser(data) {
         return NextResponse.json(
             {
                 token,
-                user: userData,
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    phoneNumber: user.phoneNumber,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    experience: user.experience,
+                    specialty: user.specialty,
+                    otpVerified: user.otpVerified,
+                    role: user.role,
+                },
                 message: 'Login successful',
                 error: false,
             },
