@@ -3,7 +3,12 @@ import prisma from '../../../../../config/prisma';
 
 export async function GET(req, { params }) {
     const { id } = params;
-
+    if (!id || isNaN(id)) {
+        return NextResponse.json(
+            { error: 'Invalid user ID.' },
+            { status: 400 }
+        );
+    }
     try {
         const user = await prisma.user.findUnique({
             where: { id: parseInt(id, 10) },
