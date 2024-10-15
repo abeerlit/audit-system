@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
-import prisma from '../config/prisma';
+// import prisma from '../config/prisma';
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET || 'your-very-strong-secret-key';
 
@@ -11,7 +11,7 @@ async function verifyToken(token) {
         const { payload } = await jwtVerify(token, secret);
         return { payload, error: null };
     } catch (error) {
-        return { payload: null, error: 'Invalid or Expired token' };
+        return { payload: null, error: error.message || 'Invalid or Expired token' };
     }
 }
 
@@ -27,6 +27,7 @@ export async function middleware(request) {
 
     // Verify the JWT
     const { payload, error } = await verifyToken(token);
+    console.log(payload, "payload");
     if (error) {
         return NextResponse.json({ error: true, message: error }, { status: 401 });
     }
