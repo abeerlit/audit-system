@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import prisma from "../../../../config/prisma";
-import { auth_admin } from "@/middleware/auth"
 // GET: Fetch all users
 export async function GET() {
     try {
