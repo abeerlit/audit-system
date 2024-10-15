@@ -37,7 +37,8 @@ model User {
   specialty String?
   otpVerified Boolean @default(false)
   password String 
-role        Role     @default(admin)
+  isActive Boolean @default(true)
+role        Role     @default(broker)
   createdAt DateTime @default(now())
 }
 

@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "Role" AS ENUM ('admin', 'broker', 'expert');
+
 -- CreateTable
 CREATE TABLE "TempUser" (
     "id" SERIAL NOT NULL,
@@ -26,6 +29,7 @@ CREATE TABLE "User" (
     "specialty" TEXT,
     "otpVerified" BOOLEAN NOT NULL DEFAULT false,
     "password" TEXT NOT NULL,
+    "role" "Role" NOT NULL DEFAULT 'admin',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")

@@ -13,7 +13,11 @@ export async function POST(req) {
         return await registerUser(requestData);
     } else if (action === 'login') {
         return await loginUser(requestData);
-    } else if (action === 'forgetPassword') {
+    }
+    else if (action === 'update') {
+        return await updateUser(requestData);
+    }
+    else if (action === 'forgetPassword') {
         return await forgetPassword(requestData);
     } else {
         return NextResponse.json(
@@ -23,6 +27,40 @@ export async function POST(req) {
     }
 }
 
+
+async function updateUser(data) {
+    const { id, firstName, lastName, email, phoneNumber, experience, specialty } = data;
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id },
+        });
+
+        if (!user) {
+            return NextResponse.json(
+                { error: true, message: 'User not found' },
+                { status: 401 }
+            );
+        }
+        const updatedUser = await prisma.user.update({
+            where: { id },
+            data: {
+                firstName,
+                lastName,
+                email,
+                phoneNumber,
+                experience,
+                specialty,
+            },
+        });
+        return NextResponse.json({ updatedUser: updatedUser, error: false, message: "User updated Successfully", }, { status: 201 });
+    }
+    catch (error) {
+        return NextResponse.json(
+            { error: true, message: error.message || 'Error updating user.' },
+            { status: 500 }
+        );
+    }
+}
 // User Registration Function
 async function registerUser(data) {
     const { firstName, lastName, email, password, phoneNumber, experience, specialty } = data;
@@ -226,21 +264,6 @@ async function forgetPassword(data) {
         console.error(error);
         return NextResponse.json(
             { error: true, message: 'Error processing request.' },
-            { status: 500 }
-        );
-    }
-}
-
-// GET: Fetch all users
-export async function GET() {
-    try {
-        const allUsers = await prisma.user.findMany();
-
-        return NextResponse.json(allUsers, { error: false, status: 200 });
-    } catch (error) {
-        console.error(error);
-        return NextResponse.json(
-            { error: true, message: 'Error fetching users.' },
             { status: 500 }
         );
     }
