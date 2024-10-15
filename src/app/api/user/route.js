@@ -232,7 +232,7 @@ async function forgetPassword(data) {
 }
 
 // GET: Fetch all users
-export async function GET(req) {
+export async function GET() {
     try {
         const allUsers = await prisma.user.findMany();
 

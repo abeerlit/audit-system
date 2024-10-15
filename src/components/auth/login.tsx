@@ -48,10 +48,13 @@ const Login = () => {
       toast.dismiss();
       toast.success('Login successfully!');
       router.push('/dashboard');
-    } catch (error: any) {
+    } catch (error) {
       toast.dismiss();
-      toast.error(error.response.data.message);
-
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(error.response.data?.message || 'An error occurred');
+      } else {
+        toast.error('An unexpected error occurred');
+      }
       console.log(error, 'error in catch');
     }
   };

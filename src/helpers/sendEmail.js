@@ -20,8 +20,7 @@ export async function sendEmail(email, html) {
     };
 
     try {
-        let result = await transporter.sendMail(mailOptions);
-        // console.log(result, "result");
+        await transporter.sendMail(mailOptions);
         return { error: false, message: 'Email sent successfully' };
     } catch (error) {
         console.log(error, "error");
