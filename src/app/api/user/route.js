@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import prisma from "../../../../config/prisma";
 import { sendEmail } from "@/helpers/sendEmail";
 import bcrypt from 'bcrypt';
-
+import jwt from 'jsonwebtoken';
+const JWT_SECRET = process.env.JWT_SECRET || "your-very-strong-secret-key"
 export async function POST(req) {
     const requestData = await req.json();
 
@@ -47,7 +48,24 @@ async function registerUser(data) {
 
         let otp = Math.floor(1000 + Math.random() * 9000);
         let otpCode = otp.toString();
-        let emailSent = await sendEmail(firstName, email, otpCode);
+        let emailSent = await sendEmail(email, `  <div class="container">
+        <h1>Verify Your Email</h1>
+        <p>Hello, ${firstName}</p>
+        <p>Thank you for signing up for <strong>Audit System</strong>. To complete your registration, please enter the OTP below in the app to verify your email address:</p>
+
+        <div class="otp-box">
+            ${otpCode}
+        </div>
+
+        <p>If you didn’t sign up for an account, you can safely ignore this email.</p>
+
+        <p>Thank you,<br>The Audit System Team</p>
+
+        <div class="footer">
+            <p>This is an automated message, please do not reply.</p>
+            <p>&copy; 2024 Audit System. All rights reserved.</p>
+        </div>
+    </div>`);
         if (emailSent?.error) {
             return NextResponse.json(
                 { error: true, message: 'OTP could not be sent' },
@@ -118,7 +136,22 @@ async function loginUser(data) {
         }
 
         const { password: _, ...userData } = user;
-        return NextResponse.json(userData, { error: false, message: 'Login successful', status: 200 });
+        const token = jwt.sign(
+            {
+                id: user.id,
+                email: user.email,
+            },
+            JWT_SECRET,
+        );
+        return NextResponse.json(
+            {
+                token,
+                user: userData,
+                message: 'Login successful',
+                error: false,
+            },
+            { status: 200 }
+        );
     } catch (error) {
         console.error(error);
         return NextResponse.json(
@@ -164,9 +197,8 @@ async function forgetPassword(data) {
         });
 
         const emailSent = await sendEmail(
-            user.firstName,
             email,
-            `Your OTP for password reset is: ${otp}\n\nPlease use this code to reset your password.`
+            `<h1>Hello ${user.firstName}</h1> <p>Your OTP for password reset is: ${otp}\n\nPlease use this code to reset your password. </p>`
         );
 
         if (emailSent?.error) {

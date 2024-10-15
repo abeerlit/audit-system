@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from "../../../../../config/prisma";
-
+import jwt from 'jsonwebtoken';
+const JWT_SECRET = process.env.JWT_SECRET || "your-very-strong-secret-key"
 // POST: Handle user registration and password reset OTP verification
 export async function POST(req) {
     const { action, email, otp } = await req.json();
@@ -49,8 +50,22 @@ export async function POST(req) {
             await prisma.tempUser.delete({
                 where: { email },
             });
-
-            return NextResponse.json(newUser, { error: false, message: "User created successfully", status: 201 });
+            const token = jwt.sign(
+                {
+                    id: newUser.id,
+                    email: newUser.email,
+                },
+                JWT_SECRET,
+            );
+            return NextResponse.json(
+                {
+                    token,
+                    user: newUser,
+                    message: "User created successfully",
+                    error: false,
+                },
+                { status: 200 }
+            );
 
         } else if (action === 'resetPassword') {
             // Handle password reset OTP verification
