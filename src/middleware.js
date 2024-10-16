@@ -1,8 +1,18 @@
 import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
-// import prisma from '../config/prisma';
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET || 'your-very-strong-secret-key';
+
+// Helper to extract token from authorization header or cookies
+function extractToken(request, isBackendRoute) {
+    if (isBackendRoute) {
+        const authorization = request.headers.get('authorization') || request.headers.get('Authorization');
+        return authorization ? authorization.split(' ')[1] : null;
+    } else {
+        const localToken = request.cookies.get('auditToken')?.value || '';
+        return localToken ? localToken : null;
+    }
+}
 
 // Function to decode the JWT token
 async function verifyToken(token) {
@@ -15,44 +25,55 @@ async function verifyToken(token) {
     }
 }
 
-// Admin Authentication Middleware
-export async function middleware(request) {
-    const authorization = request.headers.get('authorization') || request.headers.get('Authorization');
-
-    if (!authorization) {
-        return NextResponse.json({ error: true, message: 'Authorization header missing!' }, { status: 401 });
+// Helper to handle frontend redirection for unauthorized users
+function handleFrontendRedirection(pathname, request) {
+    if (pathname.startsWith('/dashboard')) {
+        return NextResponse.redirect(new URL('/', request.url));
     }
-
-    const token = authorization.split(' ')[1];
-
-    // Verify the JWT
-    const { payload, error } = await verifyToken(token);
-    console.log(payload, "payload");
-    if (error) {
-        return NextResponse.json({ error: true, message: error }, { status: 401 });
-    }
-
-    try {
-        // Find the admin user based on decoded payload
-        // const admin = await prisma.user.findUnique({ where: { id: payload.id } });
-        // if (!admin) {
-        //     return NextResponse.json({ error: true, message: 'User does not exist.' }, { status: 401 });
-        // }
-        // if (admin.role !== 'admin') {
-        //     return NextResponse.json({ error: true, message: 'Incorrect user role.' }, { status: 401 });
-        // }
-        // if (!admin.isActive) {
-        //     return NextResponse.json({ error: true, message: 'Account is inactive.' }, { status: 401 });
-        // }
-
-        // If everything is valid, allow the request to continue
-        return NextResponse.next();
-    } catch (error) {
-        return NextResponse.json({ error: true, message: error.message }, { status: 500 });
-    }
+    return NextResponse.next();
 }
 
-// Configure the middleware to only run on certain routes
+// Middleware function
+export async function middleware(request) {
+    const { pathname } = request.nextUrl;
+    const isBackendRoute = pathname.startsWith('/api');
+    const isFrontendRoute = pathname.startsWith('/');
+
+    // Extract token from request
+    const token = extractToken(request, isBackendRoute);
+
+    // Handle missing token
+    if (!token) {
+        if (isBackendRoute) {
+            return NextResponse.json({ error: true, message: 'Authorization header or token missing!' }, { status: 401 });
+        } else if (isFrontendRoute) {
+            return handleFrontendRedirection(pathname, request);
+        }
+    }
+
+    // Verify the JWT token
+    const { payload, error } = await verifyToken(token);
+    if (error) {
+        if (isFrontendRoute) {
+            return handleFrontendRedirection(pathname, request);
+        } else {
+            return NextResponse.json({ error: true, message: error }, { status: 401 });
+        }
+    }
+
+    // Continue with the request if authenticated
+    return NextResponse.next();
+}
+
+// Configure the middleware to run on specific routes
 export const config = {
-    matcher: ['/api/admin/:path*', '/api/callouts/:path*'], // Apply middleware to the specified routes
+    matcher: [
+        '/api/admin/:path*',
+        '/dashboard',
+        '/dashboard/chapters',
+        '/dashboard/users',
+        '/dashboard/auditing',
+        '/dashboard/discussions',
+        '/dashboard/profile',
+    ],
 };

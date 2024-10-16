@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from "../../../../../config/prisma";
+import prisma from "../../../../../../config/prisma";
 import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET || "your-very-strong-secret-key"
 // POST: Handle user registration and password reset OTP verification
@@ -67,7 +67,7 @@ export async function POST(req) {
                 { status: 200 }
             );
 
-        } else if (action === 'resetPassword') {
+        } else if (action === 'forgetPassword') {
             // Handle password reset OTP verification
             const passwordResetUser = await prisma.passwordReset.findUnique({
                 where: { email },

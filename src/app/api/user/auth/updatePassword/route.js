@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from "../../../../../config/prisma";
+import prisma from "../../../../../../config/prisma";
 import bcrypt from 'bcrypt';
 
 // POST: Update user's password
