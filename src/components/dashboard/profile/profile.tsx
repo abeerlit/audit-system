@@ -1,33 +1,30 @@
-import CameraIcon from "@/components/icons/dashboard/camera-icon";
-import Image from "next/image";
-import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import toast from "react-hot-toast";
-import ShowPasswordIcon from "@/components/icons/auth/show-password";
+import CameraIcon from '@/components/icons/dashboard/camera-icon';
+import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import toast from 'react-hot-toast';
+import ShowPasswordIcon from '@/components/icons/auth/show-password';
 
 const schema = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
   email: z
     .string()
-    .min(1, { message: "Email is required." })
-    .email({ message: "Oops! Invalid email address." }),
+    .min(1, { message: 'Email is required.' })
+    .email({ message: 'Oops! Invalid email address.' }),
   phoneNumber: z.string().optional(),
   yearsOfExperience: z.string().optional(),
   hsCodeSpecialty: z.string().optional(),
   // same here
-  password: z
-    .string().optional(),
-  newPassword: z
-    .string().optional(),
-    // .min(1, { message: "Password is required." })
-    // .min(8, { message: "Must contain 8 characters." }),
-  confirmPassword: z
-    .string().optional(),
-    // .min(1, { message: "Password is required." })
-    // .min(8, { message: "Must contain 8 characters." }),
+  password: z.string().optional(),
+  newPassword: z.string().optional(),
+  // .min(1, { message: "Password is required." })
+  // .min(8, { message: "Must contain 8 characters." }),
+  confirmPassword: z.string().optional(),
+  // .min(1, { message: "Password is required." })
+  // .min(8, { message: "Must contain 8 characters." }),
 });
 
 const Profile = () => {
@@ -37,12 +34,12 @@ const Profile = () => {
     confirmPassword: false,
   });
   const [profile, setProfile] = useState({
-    name: "Murphy Rich",
-    email: "murphyrich288@gmail.com",
-    phone: "+880 1924699957",
-    experience: "3+ years",
-    specialization: "Textiles AndTextile Articles",
-    img: "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+    name: 'Murphy Rich',
+    email: 'murphyrich288@gmail.com',
+    phone: '+880 1924699957',
+    experience: '3+ years',
+    specialization: 'Textiles AndTextile Articles',
+    img: 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp',
     file: null,
   });
 
@@ -77,13 +74,13 @@ const Profile = () => {
   // Handle form submission
   const formSubmit = (formData: z.infer<typeof schema>) => {
     // use local storage to store the data
-    localStorage.setItem("user", JSON.stringify(formData));
-    toast.success("Updated successfully!");
+    localStorage.setItem('user', JSON.stringify(formData));
+    toast.success('Updated successfully!');
   };
 
   useEffect(() => {
-    if (typeof window !== "undefined"&&false) {
-      const user = localStorage.getItem("user");
+    if (typeof window !== 'undefined' && false) {
+      const user: any = localStorage.getItem('user');
       if (user) reset(JSON.parse(user));
     }
   }, []);
@@ -121,25 +118,25 @@ const Profile = () => {
         </h2>
         <p className="text-sm text-light-gray text-nowrap">
           <span className="text-auth-purple text-[16px] font-semibold">
-            Phone Number:{" "}
+            Phone Number:{' '}
           </span>
           {profile.phone}
         </p>
         <p className="text-sm text-light-gray text-nowrap">
           <span className="text-auth-purple text-[16px] font-semibold">
-            Email:{" "}
+            Email:{' '}
           </span>
           {profile.email}
         </p>
         <p className="text-sm text-light-gray text-nowrap">
           <span className="text-auth-purple text-[16px] font-semibold">
-            Experience:{" "}
+            Experience:{' '}
           </span>
           {profile.experience}
         </p>
         <p className="text-sm text-light-gray text-nowrap">
           <span className="text-auth-purple text-[16px] font-semibold">
-            Specialization:{" "}
+            Specialization:{' '}
           </span>
           {profile.specialization}
         </p>
@@ -159,7 +156,7 @@ const Profile = () => {
             <input
               type="text"
               id="firstName"
-              {...register("firstName")}
+              {...register('firstName')}
               className="mt-1 w-full border rounded-[16px] p-3"
               placeholder="First Name"
             />
@@ -176,7 +173,7 @@ const Profile = () => {
             <input
               type="text"
               id="lastName"
-              {...register("lastName")}
+              {...register('lastName')}
               className="mt-1 w-full border rounded-[16px] p-3"
               placeholder="Last Name"
             />
@@ -193,9 +190,9 @@ const Profile = () => {
             <input
               type="email"
               id="email"
-              {...register("email")}
+              {...register('email')}
               className={`mt-1 w-full border rounded-[16px] p-3 ${
-                errors.email?.message && "border-red-500 outline-red-500"
+                errors.email?.message && 'border-red-500 outline-red-500'
               }`}
               placeholder="mail@example.com"
             />
@@ -215,7 +212,7 @@ const Profile = () => {
             <input
               type="text"
               id="phoneNumber"
-              {...register("phoneNumber")}
+              {...register('phoneNumber')}
               className="mt-1 w-full border rounded-[16px] p-3"
               placeholder="Phone Number"
             />
@@ -232,7 +229,7 @@ const Profile = () => {
             <input
               type="text"
               id="yearsOfExperience"
-              {...register("yearsOfExperience")}
+              {...register('yearsOfExperience')}
               className="mt-1 w-full border rounded-[16px] p-3"
               placeholder="Years of Experience"
             />
@@ -249,7 +246,7 @@ const Profile = () => {
             <input
               type="text"
               id="hsCodeSpecialty"
-              {...register("hsCodeSpecialty")}
+              {...register('hsCodeSpecialty')}
               className="mt-1 w-full border rounded-[16px] p-3"
               placeholder="HS Code Specialty"
             />
@@ -275,9 +272,9 @@ const Profile = () => {
             </label>
             <div className="relative">
               <input
-                type={showPasswords.showPassword ? "text" : "password"}
+                type={showPasswords.showPassword ? 'text' : 'password'}
                 id="password"
-                {...register("password")}
+                {...register('password')}
                 className={`mt-1 w-full border rounded-[16px] p-3 pe-8`}
                 placeholder="Min. 8 characters"
               />
@@ -294,8 +291,8 @@ const Profile = () => {
                 {/* Show/Hide Password Icon */}
                 <ShowPasswordIcon
                   className={`${
-                    // errors.password ? "text-red-500" : 
-                    "text-[#A3AED0]"
+                    // errors.password ? "text-red-500" :
+                    'text-[#A3AED0]'
                   }`}
                 />
               </button>
@@ -311,9 +308,9 @@ const Profile = () => {
             </label>
             <div className="relative">
               <input
-                type={showPasswords.newPassword ? "text" : "password"}
+                type={showPasswords.newPassword ? 'text' : 'password'}
                 id="newPassword"
-                {...register("newPassword")}
+                {...register('newPassword')}
                 className={`mt-1 w-full border rounded-[16px] p-3 pe-8`}
                 placeholder="Min. 8 characters"
               />
@@ -330,8 +327,8 @@ const Profile = () => {
                 {/* Show/Hide Password Icon */}
                 <ShowPasswordIcon
                   className={`${
-                    // errors.password ? "text-red-500" : 
-                    "text-[#A3AED0]"
+                    // errors.password ? "text-red-500" :
+                    'text-[#A3AED0]'
                   }`}
                 />
               </button>
@@ -347,9 +344,9 @@ const Profile = () => {
             </label>
             <div className="relative">
               <input
-                type={showPasswords.confirmPassword ? "text" : "password"}
+                type={showPasswords.confirmPassword ? 'text' : 'password'}
                 id="confirmPassword"
-                {...register("confirmPassword")}
+                {...register('confirmPassword')}
                 className={`mt-1 w-full border rounded-[16px] p-3 pe-8`}
                 placeholder="Min. 8 characters"
               />
@@ -367,7 +364,7 @@ const Profile = () => {
                 <ShowPasswordIcon
                   className={`${
                     // errors.password ? "text-red-500" :
-                    "text-[#A3AED0]"
+                    'text-[#A3AED0]'
                   }`}
                 />
               </button>
