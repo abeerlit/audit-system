@@ -82,7 +82,7 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined"&&false) {
       const user = localStorage.getItem("user");
       if (user) reset(JSON.parse(user));
     }
