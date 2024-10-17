@@ -9,7 +9,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         <Sidebar />
       </div>
       {/* pathname content */}
-      <div className="w-full overflow-auto lg:p-6 p-4 bg-gray-200">
+      <div className="w-full lg:space-y-6 space-y-4 lg:p-6 p-4 bg-[#F4F7FE] overflow-auto">
         {children}
       </div>
     </div>

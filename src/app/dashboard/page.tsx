@@ -1,9 +1,10 @@
+import Header from "@/components/dashboard/header";
 import DashboardLayout from "@/components/dashboard/layout";
 
 const DashboardPage = () => {
   return (
     <DashboardLayout>
-      Dashboard page here
+      <Header />
     </DashboardLayout>
   )
 }
