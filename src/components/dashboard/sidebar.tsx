@@ -4,7 +4,7 @@ import { sidebarLinks } from "@/constants/sidebarLinks";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import Modal from "../modal";
-import LogoutIcon from "../icons/dashboard/logout-icon";
+import LogoutIcon from "../icons/dashboard/sidebar/logout-icon";
 import Logout from "./logout";
 
 const Sidebar = () => {

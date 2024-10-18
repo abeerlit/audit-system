@@ -31,12 +31,12 @@ async function verifyToken(token: any) {
 }
 
 // Helper to handle frontend redirection for unauthorized users
-function handleFrontendRedirection(pathname: any, request: any) {
-  if (pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/', request.url));
-  }
-  return NextResponse.next();
-}
+// function handleFrontendRedirection(pathname: any, request: any) {
+//   // if (pathname.startsWith('/dashboard')) {
+//   //   return NextResponse.redirect(new URL('/', request.url));
+//   // }
+//   return NextResponse.next();
+// }
 
 // Middleware function
 export async function middleware(request: any) {
@@ -55,7 +55,8 @@ export async function middleware(request: any) {
         { status: 401 }
       );
     } else if (isFrontendRoute) {
-      return handleFrontendRedirection(pathname, request);
+      return NextResponse.next();
+      // return handleFrontendRedirection(pathname, request);
     }
   }
 
@@ -65,7 +66,8 @@ export async function middleware(request: any) {
 
   if (error) {
     if (isFrontendRoute) {
-      return handleFrontendRedirection(pathname, request);
+      return NextResponse.next();
+      // return handleFrontendRedirection(pathname, request);
     } else {
       return NextResponse.json(
         { error: true, message: error },
