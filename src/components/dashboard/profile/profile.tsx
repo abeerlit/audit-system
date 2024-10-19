@@ -65,7 +65,7 @@ const Profile = () => {
   const {
     register,
     handleSubmit,
-    // reset,
+    reset,
     formState: { errors },
   } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -79,10 +79,12 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    // if (typeof window !== "undefined") {
-    //   const user = localStorage.getItem("user");
-    //   if (user) reset(JSON.parse(user));
-    // }
+    if (typeof window !== "undefined") {
+      const user = localStorage.getItem("user");
+      if (user) {
+        reset(JSON.parse(user));
+      } 
+    }
   }, []);
 
   return (

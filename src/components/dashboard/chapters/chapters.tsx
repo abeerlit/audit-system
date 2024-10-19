@@ -96,9 +96,9 @@ const Section: React.FC<SectionProps> = ({
   children,
   sectionNumber,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isItemsVisible, setIsItemsVisible] = useState(false);
+  const [isItemsVisible, setIsItemsVisible] = useState(true);
 
   return (
     <div className="bg-white w-full rounded-2xl mb-4">
