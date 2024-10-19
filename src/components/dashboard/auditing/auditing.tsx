@@ -3,6 +3,7 @@ import TableViewIcon from "@/components/icons/dashboard/auditing/tableview-icon"
 import Image, { StaticImageData } from "next/image";
 import { useState } from "react";
 import image from "@/images/mock-photo.jpg";
+import DropdownIcon from "@/components/icons/dashboard/auditing/dropdown-icon";
 
 interface Product {
   id: string;
@@ -100,26 +101,26 @@ const Auditing = () => {
   const [view, setView] = useState<"table" | "card">("card");
 
   return (
-    <div className="p-4">
+    <div className="">
       <div className="flex justify-between mb-4">
         <button
           type="button"
-          className="px-3 py-1 ms-auto flex items-center font-semibold rounded-full border bg-white text-auth-purple group relative"
+          className="px-3 py-2 ms-auto flex items-center font-semibold rounded-full border bg-white text-auth-purple group relative"
         >
           {view === "table" ? (
             <>
               <TableViewIcon className="mr-2 w-4 h-4" />
               <span>Table View</span>
-              <span className="ms-2">&#x25BC;</span>
+              <DropdownIcon className="ms-4" />
             </>
           ) : (
             <>
               <CardViewIcon className="mr-2 w-4 h-4" />
               <span>Card View</span>
-              <span className="ms-2">&#x25BC;</span>
+              <DropdownIcon className="ms-4" />
             </>
           )}
-          <div className="absolute -mt-1 z-10 top-10 left-0 w-full bg-[#ececec] font-normal rounded-xl overflow-hidden shadow-md hidden group-focus:block">
+          <div className="absolute z-10 top-12 left-0 w-full bg-[#ececec] font-normal rounded-xl overflow-hidden shadow-md hidden group-focus:block">
             <div
               onClick={() => setView("table")}
               className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap"
@@ -164,7 +165,9 @@ const Auditing = () => {
                   </td>
                   <td className="p-4 text-nowrap">{product.price}</td>
                   <td className="p-4 text-nowrap">{product.weight}</td>
-                  <td className="p-4 text-nowrap">{product.hsCode}</td>
+                  <td className="p-4 text-nowrap">
+                    <div className="border rounded-full px-4 py-1">{product.hsCode}</div>
+                  </td>
                   <td className="p-4 text-nowrap relative">
                     <button
                       type="button"
@@ -234,7 +237,7 @@ const Auditing = () => {
                     type="text"
                     id="price"
                     className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1"
-                    value={product.price}
+                    defaultValue={product.price}
                   />
                 </label>
                 <label
@@ -246,7 +249,7 @@ const Auditing = () => {
                     type="text"
                     id="weight"
                     className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1"
-                    value={product.weight}
+                    defaultValue={product.weight}
                   />
                 </label>
                 <label
@@ -258,7 +261,7 @@ const Auditing = () => {
                     type="text"
                     id="hsCode"
                     className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1"
-                    value={product.hsCode}
+                    defaultValue={product.hsCode}
                   />
                 </label>
                 <label
@@ -270,7 +273,7 @@ const Auditing = () => {
                     type="text"
                     id="EditedHsCode"
                     className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1"
-                    value={940367}
+                    defaultValue={940367}
                   />
                 </label>
               </div>

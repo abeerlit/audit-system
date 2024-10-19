@@ -29,7 +29,8 @@ CREATE TABLE "User" (
     "specialty" TEXT,
     "otpVerified" BOOLEAN NOT NULL DEFAULT false,
     "password" TEXT NOT NULL,
-    "role" "Role" NOT NULL DEFAULT 'admin',
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "role" "Role" NOT NULL DEFAULT 'broker',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")

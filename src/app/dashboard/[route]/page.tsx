@@ -1,6 +1,7 @@
 "use client";
 import Auditing from "@/components/dashboard/auditing/auditing";
 import Chapters from "@/components/dashboard/chapters/chapters";
+import Discussion from "@/components/dashboard/discussion/discussion";
 import Header from "@/components/dashboard/header";
 import DashboardLayout from "@/components/dashboard/layout";
 import Profile from "@/components/dashboard/profile/profile";
@@ -17,7 +18,7 @@ const DynamicPage = () => {
       {params.route === "chapters" && <Chapters />}
       {params.route === "users" && <UsersManagement />}
       {params.route === "auditing" && <Auditing />}
-      {params.route === "discussions" && <div>discussions</div>}
+      {params.route === "discussions" && <Discussion />}
     </DashboardLayout>
   );
 };

@@ -5,7 +5,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex min-h-screen max-h-screen overflow-auto">
       {/* sidebar */}
-      <div className="min-w-[230px]">
+      <div className="min-w-[230px] max-sm:min-w-[100px]">
         <Sidebar />
       </div>
       {/* pathname content */}
