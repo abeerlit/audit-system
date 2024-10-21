@@ -1,4 +1,6 @@
+import Modal from "@/components/modal";
 import React, { useState } from "react";
+import UploadData from "./upload-data";
 
 interface SectionProps {
   sectionTitle: string;
@@ -243,8 +245,16 @@ const ChapterHeader: React.FC<{
 );
 
 const Chapters: React.FC = () => {
+  // isOpen
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <div className=" min-w-fit">
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+        <UploadData onClose={() => setIsOpen(false)} />
+      </Modal>
+      <div className="text-right pb-4">
+        <button onClick={() => setIsOpen(true)} className="bg-light-blue text-white font-bold rounded-2xl p-2 px-6">+ Upload Data</button>
+      </div>
       {sectionsData.map((section, index) => (
         <Section
           key={index}

@@ -9,7 +9,7 @@ const PerformanceGraph = () => {
   const labels = ["Accepted", "Skipped", "Edited", "Flagged"];
 
   const data = {
-    // labels: ["Accepted", "Skipped", "Edited", "Flagged"],
+    // labels: labels,
     datasets: [
       {
         label: "Items",
@@ -29,7 +29,7 @@ const PerformanceGraph = () => {
           return labels[context.dataIndex] + '\n' + value; // Just show the value
         },
         font: {
-          weight: '500',
+          weight: 500,
           size: 14,
         },
       },
@@ -41,35 +41,35 @@ const PerformanceGraph = () => {
   return (
     <div className="bg-white p-6 rounded-3xl shadow-md grid grid-cols-2 gap-4">
       <div className="">
-        <h2 className="text-lg font-semibold mb-4">Performance</h2>
-        <select className="mb-4 rounded-md p-2 text-sm bg-[#F4F7FE] font-bold text-light-gray">
+        <h2 className="text-xl font-semibold text-auth-purple mb-4">Performance</h2>
+        <select className="mb-4 rounded-lg p-2 text-sm bg-[#F4F7FE] font-bold text-light-gray">
           <option>Last month</option>
           <option>This month</option>
         </select>
         <div className="grid grid-cols-2 border-gray-100 border rounded-xl shadow-sm p-2">
           <div className="flex p-2 border-gray-100 border-e border-b">
-            <span className="w-4 h-4 mt-1 bg-green-600 rounded-full mr-2"></span>
+            <span className="w-3 h-3 mt-1 bg-green-600 rounded-full mr-2"></span>
             <div className="text-left">
               <span className="block text-sm text-light-gray">Accepted</span>
               <span className="block text-xl font-bold text-auth-purple">67</span>
             </div>
           </div>
           <div className="flex p-2 border-gray-100 border-b ps-4">
-            <span className="w-4 h-4 mt-1 bg-gray-500 rounded-full mr-2"></span>
+            <span className="w-3 h-3 mt-1 bg-gray-500 rounded-full mr-2"></span>
             <div className="text-left">
               <span className="block text-sm text-light-gray">Skipped</span>
               <span className="block text-xl font-bold text-auth-purple">113</span>
             </div>
           </div>
           <div className="flex p-2 border-gray-100 border-e">
-            <span className="w-4 h-4 mt-1 bg-yellow-500 rounded-full mr-2"></span>
+            <span className="w-3 h-3 mt-1 bg-yellow-500 rounded-full mr-2"></span>
             <div className="text-left">
               <span className="block text-sm text-light-gray">Edited</span>
               <span className="block text-xl font-bold text-auth-purple">40</span>
             </div>
           </div>
           <div className="flex p-2 ps-4">
-            <span className="w-4 h-4 mt-1 bg-red-500 rounded-full mr-2"></span>
+            <span className="w-3 h-3 mt-1 bg-red-500 rounded-full mr-2"></span>
             <div className="text-left">
               <span className="block text-sm text-light-gray">Flagged</span>
               <span className="block text-xl font-bold text-auth-purple">48</span>

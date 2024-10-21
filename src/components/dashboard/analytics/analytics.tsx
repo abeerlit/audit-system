@@ -17,11 +17,7 @@ const AnalyticsDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-xl font-semibold mb-4">Working Hours Average</h3>
-          <WorkingHoursGraph />
-        </div>
-
+        <WorkingHoursGraph />
         <PerformanceGraph />
       </div>
     </div>
