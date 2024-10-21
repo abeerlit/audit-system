@@ -6,6 +6,8 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ShowPasswordIcon from "../icons/auth/show-password";
+import axios from "axios";
+import Cookies from 'js-cookie';
 
 const schema = z.object({
   firstName: z.string().optional(),
@@ -38,12 +40,34 @@ const SignUpScreen = () => {
   });
 
   // Handle form submission
-  const formSubmit = (formData: z.infer<typeof schema>) => {
-    console.log("Form Data:", formData);
-    // use local storage to store the data
-    localStorage.setItem("user", JSON.stringify(formData));
-    toast.success("Sign Up successful!");
-    router.push("/dashboard");
+  const formSubmit = async (formData: z.infer<typeof schema>) => {
+    // console.log("Form Data:", formData);
+    try {
+      toast.loading('Signing Up...');
+      const response = await axios.post('/api/user/auth', {
+        email: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phoneNumber: formData.phoneNumber,
+        experience: formData?.yearsOfExperience ? +formData.yearsOfExperience : 0,
+        specialty: formData?.hsCodeSpecialty,
+        action: 'register',
+      });
+      console.log(response.data, 'response');
+      Cookies.set('auditToken', response.data.token);
+      toast.dismiss();
+      toast.success("Sign Up successful!");
+      router.replace('/dashboard');
+    } catch (error) {
+      toast.dismiss();
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(error.response.data?.message || 'An error occurred');
+      } else {
+        toast.error('An unexpected error occurred');
+      }
+      console.log(error, 'error in catch');
+    }
   };
 
   return (

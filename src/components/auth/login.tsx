@@ -47,7 +47,7 @@ const Login = () => {
       Cookies.set('auditToken', response.data.token);
       toast.dismiss();
       toast.success('Login successfully!');
-      router.push('/dashboard');
+      router.replace('/dashboard');
     } catch (error) {
       toast.dismiss();
       if (axios.isAxiosError(error) && error.response) {
