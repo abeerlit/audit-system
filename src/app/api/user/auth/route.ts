@@ -96,39 +96,39 @@ async function registerUser(data: any) {
       );
     }
 
-    const otp = Math.floor(1000 + Math.random() * 9000);
-    const otpCode = otp.toString();
-    const emailSent = await sendEmail(
-      email,
-      `  <div class="container">
-        <h1>Verify Your Email</h1>
-        <p>Hello, ${firstName}</p>
-        <p>Thank you for signing up for <strong>Audit System</strong>. To complete your registration, please enter the OTP below in the app to verify your email address:</p>
+    // const otp = Math.floor(1000 + Math.random() * 9000);
+    // const otpCode = otp.toString();
+    // const emailSent = await sendEmail(
+    //   email,
+    //   `  <div class="container">
+    //     <h1>Verify Your Email</h1>
+    //     <p>Hello, ${firstName}</p>
+    //     <p>Thank you for signing up for <strong>Audit System</strong>. To complete your registration, please enter the OTP below in the app to verify your email address:</p>
 
-        <div class="otp-box">
-            ${otpCode}
-        </div>
+    //     <div class="otp-box">
+    //         ${otpCode}
+    //     </div>
 
-        <p>If you didn’t sign up for an account, you can safely ignore this email.</p>
+    //     <p>If you didn’t sign up for an account, you can safely ignore this email.</p>
 
-        <p>Thank you,<br>The Audit System Team</p>
+    //     <p>Thank you,<br>The Audit System Team</p>
 
-        <div class="footer">
-            <p>This is an automated message, please do not reply.</p>
-            <p>&copy; 2024 Audit System. All rights reserved.</p>
-        </div>
-    </div>`
-    );
-    if (emailSent?.error) {
-      return NextResponse.json(
-        { error: true, message: 'OTP could not be sent' },
-        { status: 400 }
-      );
-    }
+    //     <div class="footer">
+    //         <p>This is an automated message, please do not reply.</p>
+    //         <p>&copy; 2024 Audit System. All rights reserved.</p>
+    //     </div>
+    // </div>`
+    // );
+    // if (emailSent?.error) {
+    //   return NextResponse.json(
+    //     { error: true, message: 'OTP could not be sent' },
+    //     { status: 400 }
+    //   );
+    // }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await prisma.tempUser.create({
+    const newUser = await prisma.user.create({
       data: {
         email,
         phoneNumber,
@@ -136,17 +136,28 @@ async function registerUser(data: any) {
         lastName,
         experience,
         specialty,
-        otp: otp,
+        otpVerified: true,
+
+        // otp: otp,
         password: hashedPassword,
       },
     });
-
-    return NextResponse.json({
-      user: newUser,
-      error: false,
-      message: 'OTP Sent Successfully',
-      status: 201,
-    });
+    const token = jwt.sign(
+      {
+        id: newUser.id,
+        email: newUser.email,
+      },
+      JWT_SECRET
+    );
+    return NextResponse.json(
+      {
+        user: newUser,
+        token: token,
+        error: false,
+        message: 'User created successfully',
+      },
+      { status: 200 }
+    );
   } catch (error: any) {
     console.error(error);
     if (error.code === 'P2002') {
