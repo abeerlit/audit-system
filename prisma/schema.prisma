@@ -50,3 +50,27 @@ model PasswordReset {
   isVerified  Boolean @default(false)
   createdAt   DateTime @default(now())
 }
+
+model ChapterItem {
+id Int @id @default(autoincrement())
+chapter_id Int @unique
+item_name String 
+item_link String?
+item_image String?
+item_price Float?
+item_weight Float?
+item_detail String?
+search_sentence String?
+original_hs_code Int
+broker_hs_code Int?
+expert_hs_code Int?
+created_timestamp DateTime @default(now())
+broker_update_timestamp DateTime? @default(now())
+expert_update_timestamp DateTime? @default(now())
+status String?
+expert_status String?
+
+
+
+
+}
