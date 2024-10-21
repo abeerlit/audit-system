@@ -22,10 +22,7 @@ const AnalyticsDashboard = () => {
           <WorkingHoursGraph />
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-xl font-semibold mb-4">Performance</h3>
-          <PerformanceGraph />
-        </div>
+        <PerformanceGraph />
       </div>
     </div>
   );
