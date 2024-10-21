@@ -1,88 +1,76 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET || 'your-very-strong-secret-key';
 
-// Helper to extract token from authorization header or cookies
-function extractToken(request: any, isBackendRoute: any) {
+function extractToken(request: NextRequest, isBackendRoute: boolean) {
   if (isBackendRoute) {
-    const authorization =
-      request.headers.get('authorization') ||
-      request.headers.get('Authorization');
-    return authorization ? authorization.split(' ')[1] : null;
+    const authorization = request.headers.get('authorization') || request.headers.get('Authorization');
+    return authorization?.split(' ')[1] ?? null;
   } else {
-    const localToken = request.cookies.get('auditToken')?.value || '';
-    return localToken ? localToken : null;
+    return request.cookies.get('auditToken')?.value ?? null;
   }
 }
 
-// Function to decode the JWT token
-async function verifyToken(token: any) {
+async function verifyToken(token: string) {
   try {
     const secret = new TextEncoder().encode(JWT_SECRET_KEY);
     const { payload } = await jwtVerify(token, secret);
     return { payload, error: null };
-  } catch (error: any) {
+  } catch (error) {
     return {
       payload: null,
-      error: error.message || 'Invalid or Expired token',
+      error: error instanceof Error ? error.message : 'Invalid or Expired token',
     };
   }
 }
 
-// Helper to handle frontend redirection for unauthorized users
-// function handleFrontendRedirection(pathname: any, request: any) {
-//   // if (pathname.startsWith('/dashboard')) {
-//   //   return NextResponse.redirect(new URL('/', request.url));
-//   // }
-//   return NextResponse.next();
-// }
+function handleFrontendRedirection(pathname: string, request: NextRequest, isAuthenticated: boolean) {
+  const publicRoutes = ['/', '/auth/reset', '/auth/signup'];
+  const privateRoute = pathname.startsWith('/dashboard');
 
-// Middleware function
-export async function middleware(request: any) {
-  const { pathname } = request.nextUrl;
-  const isBackendRoute = pathname.startsWith('/api');
-  const isFrontendRoute = pathname.startsWith('/');
-
-  // Extract token from request
-  const token = extractToken(request, isBackendRoute);
-
-  // Handle missing token
-  if (!token) {
-    if (isBackendRoute) {
-      return NextResponse.json(
-        { error: true, message: 'Authorization header or token missing!' },
-        { status: 401 }
-      );
-    } else if (isFrontendRoute) {
-      return NextResponse.next();
-      // return handleFrontendRedirection(pathname, request);
+  console.log(isAuthenticated+'--isAuthenticated', privateRoute+"--private", publicRoutes.includes(pathname)+"--public", pathname+"--pathname");
+  if (isAuthenticated) {
+    // If authenticated and trying to access a public route, redirect to dashboard
+    if (publicRoutes.includes(pathname)) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+  } else {
+    // If not authenticated and trying to access a private route, redirect to login
+    if (privateRoute) {
+      return NextResponse.redirect(new URL('/', request.url));
     }
   }
 
-  // Verify the JWT token
-  const { payload, error } = await verifyToken(token);
-  console.info('Payload:', payload);
-
-  if (error) {
-    if (isFrontendRoute) {
-      return NextResponse.next();
-      // return handleFrontendRedirection(pathname, request);
-    } else {
-      return NextResponse.json(
-        { error: true, message: error },
-        { status: 401 }
-      );
-    }
-  }
-
-  // Continue with the request if authenticated
   return NextResponse.next();
 }
 
-// Configure the middleware to run on specific routes
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const isBackendRoute = pathname.startsWith('/api');
+
+  const token = extractToken(request, isBackendRoute);
+  let isAuthenticated = false;
+
+  // If there's a token, verify it
+  if (token) {
+    const { payload, error } = await verifyToken(token);
+    console.info('Payload:', payload, 'Error:', error);
+    isAuthenticated = !!payload; // Set to true if payload exists
+    if (error) {
+      console.warn('Token error:', error);
+    }
+  }
+
+  // Handle frontend redirection based on authentication status
+  return handleFrontendRedirection(pathname, request, isAuthenticated);
+}
+
 export const config = {
   matcher: [
+    '/',
+    '/auth/reset',
+    '/auth/signup',
     '/api/admin/:path*',
     '/dashboard',
     '/dashboard/chapters',
