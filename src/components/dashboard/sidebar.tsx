@@ -4,7 +4,7 @@ import { sidebarLinks } from "@/constants/sidebarLinks";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import Modal from "../modal";
-import LogoutIcon from "../icons/dashboard/logout-icon";
+import LogoutIcon from "../icons/dashboard/sidebar/logout-icon";
 import Logout from "./logout";
 
 const Sidebar = () => {
@@ -17,7 +17,7 @@ const Sidebar = () => {
   });
   
   return (
-    <div className="relative max-h-screen overflow-auto">
+    <div className="relative max-h-screen min-h-screen overflow-auto">
       <div className="h-10" />
       <Link href="/dashboard">
         <Logo className="text-light-blue mx-10 mb-10 w-[90px] h-[43px]" />
@@ -29,11 +29,13 @@ const Sidebar = () => {
             key={link.href}
             href={link.href}
             className={
-              "flex items-center gap-3 px-4 py-2 font-semibold relative " +
+              "flex items-center text-nowrap gap-3 px-4 py-2 font-semibold relative " +
               (pathname === link.href ? "text-light-blue" : "text-light-gray hover:text-light-blue")
             }
           >
+            <span className="w-5">
             {link.icon}
+            </span>
             {link.name}
             {pathname === link.href && (
               <span className="flex-1 bg-light-blue w-1 h-full rounded-full absolute right-1" />

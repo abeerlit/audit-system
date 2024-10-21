@@ -1,9 +1,9 @@
-import AuditingIcon from "@/components/icons/dashboard/auditing-icon";
-import ChaptersIcon from "@/components/icons/dashboard/chapters-icon";
-import DiscussionsIcon from "@/components/icons/dashboard/discussions-icon";
-import HomeIcon from "@/components/icons/dashboard/home-icon";
-import ProfileIcon from "@/components/icons/dashboard/profile-icon";
-import UsersIcon from "@/components/icons/dashboard/users-icon";
+import AuditingIcon from "@/components/icons/dashboard/sidebar/auditing-icon";
+import ChaptersIcon from "@/components/icons/dashboard/sidebar/chapters-icon";
+import DiscussionsIcon from "@/components/icons/dashboard/sidebar/discussions-icon";
+import HomeIcon from "@/components/icons/dashboard/sidebar/home-icon";
+import ProfileIcon from "@/components/icons/dashboard/sidebar/profile-icon";
+import UsersIcon from "@/components/icons/dashboard/sidebar/users-icon";
 
 export const sidebarLinks = [
     {

@@ -79,14 +79,16 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && false) {
-      const user: any = localStorage.getItem('user');
-      if (user) reset(JSON.parse(user));
+    if (typeof window !== "undefined") {
+      const user = localStorage.getItem("user");
+      if (user) {
+        reset(JSON.parse(user));
+      } 
     }
   }, []);
 
   return (
-    <div className="flex max-md:flex-col max-lg:gap-4 gap-6">
+    <div className="flex flex-col lg:flex-row lg:items-start max-lg:gap-4 gap-6">
       {/* profile here */}
       <div className="flex flex-col gap-3 p-4 md:p-7 bg-white md:rounded-[30px] rounded-[20px]">
         <span className="text-light-gray text-nowrap">Joined 02/06/2023</span>
