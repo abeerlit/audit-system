@@ -6,8 +6,8 @@ import ShowPasswordIcon from '../icons/auth/show-password';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-// import axios from 'axios';
-// import Cookies from 'js-cookie';
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const schema = z.object({
   email: z
@@ -35,31 +35,28 @@ const Login = () => {
 
   // Handle form submission
   const formSubmit = async (formData: z.infer<typeof schema>) => {
-    // try {
-      console.log('Form Data:', formData);
-      // localStorage.setItem('user', JSON.stringify(formData));
-      // toast.loading('Signing in...');
-      toast.success('Login successful!');
-      router.push('/dashboard');
-    //   const response = await axios.post('/api/user/auth', {
-    //     email: formData.email,
-    //     password: formData.password,
-    //     action: 'login',
-    //   });
-    //   console.log(response.data.token, 'response');
-    //   Cookies.set('auditToken', response.data.token);
-    //   toast.dismiss();
-    //   toast.success('Login successfully!');
-    //   router.push('/dashboard');
-    // } catch (error) {
-    //   toast.dismiss();
-    //   if (axios.isAxiosError(error) && error.response) {
-    //     toast.error(error.response.data?.message || 'An error occurred');
-    //   } else {
-    //     toast.error('An unexpected error occurred');
-    //   }
-    //   console.log(error, 'error in catch');
-    // }
+    try {
+      toast.loading('Signing in...');
+      const response = await axios.post('/api/user/auth', {
+        email: formData.email,
+        password: formData.password,
+        action: 'login',
+      });
+      console.log(response.data, 'response');
+      // check log here
+      Cookies.set('auditToken', response.data.token);
+      toast.dismiss();
+      toast.success('Login successfully!');
+      router.replace('/dashboard');
+    } catch (error) {
+      toast.dismiss();
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(error.response.data?.message || 'An error occurred');
+      } else {
+        toast.error('An unexpected error occurred');
+      }
+      console.log(error, 'error in catch');
+    }
   };
 
   return (
