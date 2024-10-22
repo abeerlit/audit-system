@@ -261,6 +261,14 @@ async function forgetPassword(data: any) {
       );
     }
 
+    const userExist = await prisma.passwordReset.findUnique({
+      where: { email },
+    });
+
+    if (userExist) {
+      await prisma.passwordReset.delete({ where: { email } });
+    }
+
     const otp = Math.floor(1000 + Math.random() * 9000);
 
     await prisma.passwordReset.create({

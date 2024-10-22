@@ -1,12 +1,16 @@
+'use client';
+
 import CameraIcon from '@/components/icons/dashboard/camera-icon';
 import Image from 'next/image';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import toast from 'react-hot-toast';
-import ShowPasswordIcon from '@/components/icons/auth/show-password';
+import axios from 'axios';
+import moment from 'moment';
 
+// Validation schemas
 const schema = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
@@ -15,16 +19,23 @@ const schema = z.object({
     .min(1, { message: 'Email is required.' })
     .email({ message: 'Oops! Invalid email address.' }),
   phoneNumber: z.string().optional(),
-  yearsOfExperience: z.string().optional(),
-  hsCodeSpecialty: z.string().optional(),
-  // same here
-  password: z.string().optional(),
-  newPassword: z.string().optional(),
-  // .min(1, { message: "Password is required." })
-  // .min(8, { message: "Must contain 8 characters." }),
-  confirmPassword: z.string().optional(),
-  // .min(1, { message: "Password is required." })
-  // .min(8, { message: "Must contain 8 characters." }),
+  experience: z.string().optional(),
+  specialty: z.string().optional(),
+});
+
+const passwordSchema = z.object({
+  password: z
+    .string()
+    .min(1, { message: 'Password is required.' })
+    .min(8, { message: 'Must contain 8 characters.' }),
+  newPassword: z
+    .string()
+    .min(1, { message: 'Password is required.' })
+    .min(8, { message: 'Must contain 8 characters.' }),
+  confirmPassword: z
+    .string()
+    .min(1, { message: 'Password is required.' })
+    .min(8, { message: 'Must contain 8 characters.' }),
 });
 
 const Profile = () => {
@@ -33,357 +44,329 @@ const Profile = () => {
     newPassword: true,
     confirmPassword: false,
   });
+
   const [profile, setProfile] = useState({
-    name: 'Murphy Rich',
-    email: 'murphyrich288@gmail.com',
+    id: 1,
+    firstName: ' Rayme',
+    lastName: 'Rich',
+    email: 'murphyr,ich288@gmail.com',
     phone: '+880 1924699957',
     experience: '3+ years',
-    specialization: 'Textiles AndTextile Articles',
+    specialty: 'Textiles AndTextile Articles',
     img: 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp',
     file: null,
+    joinedAt: '02/06/2023',
   });
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile) {
-      // @ts-expect-error for file selection
-      setProfile({ ...profile, file: selectedFile });
-    }
-  };
-
-  useEffect(() => {
-    if (profile.file) {
-      const imageUrl = URL.createObjectURL(profile.file);
-      setProfile({ ...profile, img: imageUrl });
-      // Cleanup function to revoke the object URL
-      return () => {
-        URL.revokeObjectURL(imageUrl);
-      };
-    }
-  }, [profile.file]);
 
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<z.infer<typeof schema>>({
+  } = useForm({
     resolver: zodResolver(schema),
   });
 
-  // Handle form submission
-  const formSubmit = (formData: z.infer<typeof schema>) => {
-    // use local storage to store the data
-    localStorage.setItem('user', JSON.stringify(formData));
-    toast.success('Updated successfully!');
-  };
+  const {
+    register: passwordRegister,
+    handleSubmit: handlePasswordSubmit,
+    reset: resetPassword,
+    formState: { errors: passwordErrors },
+  } = useForm({
+    resolver: zodResolver(passwordSchema),
+  });
+
+  const handleFileChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFile = event.target.files?.[0];
+      if (selectedFile) {
+        setProfile((prev: any) => ({ ...prev, file: selectedFile }));
+      }
+    },
+    []
+  );
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const user = localStorage.getItem("user");
-      if (user) {
-        reset(JSON.parse(user));
-      } 
+    if (profile.file) {
+      const imageUrl = URL.createObjectURL(profile.file);
+      setProfile((prev) => ({ ...prev, img: imageUrl }));
+
+      return () => URL.revokeObjectURL(imageUrl); // Cleanup the object URL
     }
-  }, []);
+  }, [profile.file]);
+
+  // Form submission for profile update
+  const formSubmit = useCallback(
+    async (formData: any) => {
+      try {
+        toast.loading('Loading...');
+        const response = await axios.post('/api/user/auth', {
+          ...formData,
+          id: profile.id,
+          experience: +formData.experience || 0,
+          action: 'update',
+        });
+        const updatedUser = response.data.updatedUser;
+
+        toast.dismiss();
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        setProfile({
+          ...updatedUser,
+          img: 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp',
+          file: null,
+        });
+        toast.success('Profile Updated');
+      } catch (error) {
+        toast.dismiss();
+        toast.error(
+          axios.isAxiosError(error) && error.response?.data?.message
+            ? error.response.data.message
+            : 'An error occurred'
+        );
+      }
+    },
+    [profile.id]
+  );
+
+  // Form submission for password update
+  const submitPassword = useCallback(
+    async (formData: any) => {
+      if (formData.newPassword !== formData.confirmPassword) {
+        toast.error('Passwords do not match.');
+        return;
+      }
+
+      const loginUser = JSON.parse(localStorage.getItem('user') || '{}');
+
+      try {
+        toast.loading('Loading...');
+        await axios.post('/api/user/auth/updatePassword', {
+          email: loginUser.email,
+          oldPassword: formData.password,
+          newPassword: formData.newPassword,
+        });
+        toast.dismiss();
+        resetPassword();
+        toast.success('Password Updated');
+      } catch (error) {
+        toast.dismiss();
+        toast.error(
+          axios.isAxiosError(error) && error.response?.data?.message
+            ? error.response.data.message
+            : 'An error occurred'
+        );
+      }
+    },
+    [resetPassword]
+  );
+
+  // Load profile data from localStorage on component mount
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user.id) {
+      setProfile({
+        ...user,
+        img: 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp',
+        file: null,
+      });
+      reset(user);
+    }
+  }, [reset]);
 
   return (
-    <div className="flex flex-col lg:flex-row lg:items-start max-lg:gap-4 gap-6">
-      {/* profile here */}
-      <div className="flex flex-col gap-3 p-4 md:p-7 bg-white md:rounded-[30px] rounded-[20px]">
-        <span className="text-light-gray text-nowrap">Joined 02/06/2023</span>
-        {/* choose image here */}
-        <label
-          htmlFor="file-input"
-          className="flex relative border rounded-full w-fit overflow-hidden cursor-pointer"
-        >
-          <Image
-            src={profile.img}
-            alt={profile.name}
-            width={100}
-            height={100}
-            className="rounded-full object-cover h-[100px] w-[100px]"
-          />
-          <div className="w-full bg-black/50 text-center text-white absolute bottom-0">
-            <CameraIcon className="mx-auto h-6 w-5" />
-          </div>
-          <input
-            id="file-input"
-            accept="image/*"
-            type="file"
-            className="!hidden"
-            onChange={handleFileChange}
-          />
-        </label>
-        <h2 className="text-xl text-auth-purple font-semibold">
-          {profile.name}
-        </h2>
-        <p className="text-sm text-light-gray text-nowrap">
-          <span className="text-auth-purple text-[16px] font-semibold">
-            Phone Number:{' '}
-          </span>
-          {profile.phone}
-        </p>
-        <p className="text-sm text-light-gray text-nowrap">
-          <span className="text-auth-purple text-[16px] font-semibold">
-            Email:{' '}
-          </span>
-          {profile.email}
-        </p>
-        <p className="text-sm text-light-gray text-nowrap">
-          <span className="text-auth-purple text-[16px] font-semibold">
-            Experience:{' '}
-          </span>
-          {profile.experience}
-        </p>
-        <p className="text-sm text-light-gray text-nowrap">
-          <span className="text-auth-purple text-[16px] font-semibold">
-            Specialization:{' '}
-          </span>
-          {profile.specialization}
-        </p>
-      </div>
-      {/* edit profile here */}
+    <div className="flex flex-col lg:flex-row lg:items-start gap-6">
+      {/* Profile section */}
+      <ProfileView profile={profile} handleFileChange={handleFileChange} />
+
+      {/* Edit profile section */}
       <div className="flex flex-col gap-2 p-4 md:p-7 bg-white md:rounded-[30px] rounded-[20px] w-full">
         <h2 className="text-2xl text-auth-purple font-bold">Profile</h2>
         <form className="space-y-4" onSubmit={handleSubmit(formSubmit)}>
-          {/* First Name */}
-          <div>
-            <label
-              htmlFor="firstName"
-              className="font-semibold text-auth-purple text-[14px]"
-            >
-              First Name
-            </label>
-            <input
-              type="text"
-              id="firstName"
-              {...register('firstName')}
-              className="mt-1 w-full border rounded-[16px] p-3"
-              placeholder="First Name"
-            />
-          </div>
-
-          {/* Last Name */}
-          <div>
-            <label
-              htmlFor="lastName"
-              className="font-semibold text-auth-purple text-[14px]"
-            >
-              Last Name
-            </label>
-            <input
-              type="text"
-              id="lastName"
-              {...register('lastName')}
-              className="mt-1 w-full border rounded-[16px] p-3"
-              placeholder="Last Name"
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <label
-              htmlFor="email"
-              className="font-semibold text-auth-purple text-[14px]"
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              {...register('email')}
-              className={`mt-1 w-full border rounded-[16px] p-3 ${
-                errors.email?.message && 'border-red-500 outline-red-500'
-              }`}
-              placeholder="mail@example.com"
-            />
-            {errors.email?.message && (
-              <p className="text-red-500 text-sm">{errors.email?.message}</p>
-            )}
-          </div>
-
-          {/* Phone Number */}
-          <div>
-            <label
-              htmlFor="phoneNumber"
-              className="font-semibold text-auth-purple text-[14px]"
-            >
-              Phone Number
-            </label>
-            <input
-              type="text"
-              id="phoneNumber"
-              {...register('phoneNumber')}
-              className="mt-1 w-full border rounded-[16px] p-3"
-              placeholder="Phone Number"
-            />
-          </div>
-
-          {/* Years of Experience */}
-          <div>
-            <label
-              htmlFor="yearsOfExperience"
-              className="font-semibold text-auth-purple text-[14px]"
-            >
-              Years of Experience
-            </label>
-            <input
-              type="text"
-              id="yearsOfExperience"
-              {...register('yearsOfExperience')}
-              className="mt-1 w-full border rounded-[16px] p-3"
-              placeholder="Years of Experience"
-            />
-          </div>
-
-          {/* HS Code Specialty */}
-          <div>
-            <label
-              htmlFor="hsCodeSpecialty"
-              className="font-semibold text-auth-purple text-[14px]"
-            >
-              HS Code Specialty
-            </label>
-            <input
-              type="text"
-              id="hsCodeSpecialty"
-              {...register('hsCodeSpecialty')}
-              className="mt-1 w-full border rounded-[16px] p-3"
-              placeholder="HS Code Specialty"
-            />
-          </div>
+          <ProfileInput
+            label="First Name"
+            id="firstName"
+            register={register('firstName')}
+            error={errors.firstName?.message}
+          />
+          <ProfileInput
+            label="Last Name"
+            id="lastName"
+            register={register('lastName')}
+            error={errors.lastName?.message}
+          />
+          <ProfileInput
+            label="Email"
+            id="email"
+            register={register('email')}
+            error={errors.email?.message}
+          />
+          <ProfileInput
+            label="Phone Number"
+            id="phoneNumber"
+            register={register('phoneNumber')}
+            error={errors.phoneNumber?.message}
+          />
+          <ProfileInput
+            label="Years of Experience"
+            id="experience"
+            register={register('experience')}
+            error={errors.experience?.message}
+          />
+          <ProfileInput
+            label="HS Code Specialty"
+            id="specialty"
+            register={register('specialty')}
+            error={errors.specialty?.message}
+          />
 
           <button
             type="submit"
-            className="max-w-[250px] text-nowrap w-full font-semibold bg-light-blue text-white py-3 px-4 rounded-[16px] hover:bg-sky-500 transition duration-500"
+            className="max-w-[250px] w-full font-semibold bg-light-blue text-white py-3 px-4 rounded-[16px] hover:bg-sky-500 transition duration-500"
           >
             Save Now
           </button>
         </form>
 
-        {/* change password here */}
-        <div className="mt-4 space-y-4">
-          {/* Password */}
-          <div>
-            <label
-              htmlFor="password"
-              className="font-semibold text-auth-purple text-[14px]"
-            >
-              Current Password
-            </label>
-            <div className="relative">
-              <input
-                type={showPasswords.showPassword ? 'text' : 'password'}
-                id="password"
-                {...register('password')}
-                className={`mt-1 w-full border rounded-[16px] p-3 pe-8`}
-                placeholder="Min. 8 characters"
-              />
-              <button
-                type="button"
-                onClick={() =>
-                  setShowPasswords({
-                    ...showPasswords,
-                    showPassword: !showPasswords.showPassword,
-                  })
-                }
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              >
-                {/* Show/Hide Password Icon */}
-                <ShowPasswordIcon
-                  className={`${
-                    // errors.password ? "text-red-500" :
-                    'text-[#A3AED0]'
-                  }`}
-                />
-              </button>
-            </div>
-          </div>
-          {/* new password */}
-          <div>
-            <label
-              htmlFor="newPassword"
-              className="font-semibold text-auth-purple text-[14px]"
-            >
-              New Password
-            </label>
-            <div className="relative">
-              <input
-                type={showPasswords.newPassword ? 'text' : 'password'}
-                id="newPassword"
-                {...register('newPassword')}
-                className={`mt-1 w-full border rounded-[16px] p-3 pe-8`}
-                placeholder="Min. 8 characters"
-              />
-              <button
-                type="button"
-                onClick={() =>
-                  setShowPasswords({
-                    ...showPasswords,
-                    newPassword: !showPasswords.newPassword,
-                  })
-                }
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              >
-                {/* Show/Hide Password Icon */}
-                <ShowPasswordIcon
-                  className={`${
-                    // errors.password ? "text-red-500" :
-                    'text-[#A3AED0]'
-                  }`}
-                />
-              </button>
-            </div>
-          </div>
-          {/* Confirm Password */}
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="font-semibold text-auth-purple text-[14px]"
-            >
-              Confirm Password
-            </label>
-            <div className="relative">
-              <input
-                type={showPasswords.confirmPassword ? 'text' : 'password'}
-                id="confirmPassword"
-                {...register('confirmPassword')}
-                className={`mt-1 w-full border rounded-[16px] p-3 pe-8`}
-                placeholder="Min. 8 characters"
-              />
-              <button
-                type="button"
-                onClick={() =>
-                  setShowPasswords({
-                    ...showPasswords,
-                    confirmPassword: !showPasswords.confirmPassword,
-                  })
-                }
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              >
-                {/* Show/Hide Password Icon */}
-                <ShowPasswordIcon
-                  className={`${
-                    // errors.password ? "text-red-500" :
-                    'text-[#A3AED0]'
-                  }`}
-                />
-              </button>
-            </div>
-          </div>
-          {/* save passwords */}
-          <button
-            type="submit"
-            onClick={handleSubmit(formSubmit)}
-            className="max-w-[250px] text-nowrap w-full font-semibold bg-light-blue text-white py-3 px-4 rounded-[16px] hover:bg-sky-500 transition duration-500"
-          >
-            Update password
-          </button>
-        </div>
+        {/* Password update form */}
+        <PasswordUpdateForm
+          handleSubmit={handlePasswordSubmit}
+          passwordRegister={passwordRegister}
+          handleSubmitFun={submitPassword}
+          passwordErrors={passwordErrors}
+          showPasswords={showPasswords}
+          setShowPasswords={setShowPasswords}
+        />
       </div>
     </div>
   );
 };
+
+// Component for rendering profile view
+const ProfileView = ({ profile, handleFileChange }: any) => (
+  <div className="flex flex-col gap-3 p-4 md:p-7 bg-white md:rounded-[30px] rounded-[20px]">
+    <span className="text-light-gray">
+      Joined {moment(profile.joinedAt).format('MM/DD/YYYY')}
+    </span>
+    <label
+      htmlFor="file-input"
+      className="relative border rounded-full w-fit overflow-hidden"
+    >
+      <Image
+        src={profile.img}
+        alt={profile.name}
+        width={100}
+        height={100}
+        className="rounded-full object-cover"
+      />
+      <div className="absolute bottom-0 w-full bg-black/50 text-center text-white">
+        <CameraIcon className="mx-auto h-6 w-5" />
+      </div>
+      <input
+        id="file-input"
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+    </label>
+    <h2 className="text-xl text-auth-purple font-semibold">
+      {profile.firstName + ' ' + profile.lastName}
+    </h2>
+    <ProfileInfo label="Phone Number" value={profile.phoneNumber} />
+    <ProfileInfo label="Email" value={profile.email} />
+    <ProfileInfo label="Experience" value={profile.experience} />
+    <ProfileInfo label="Specialization" value={profile.specialty} />
+  </div>
+);
+
+// Profile info display component
+const ProfileInfo = ({ label, value }: any) => (
+  <p className="text-sm text-light-gray">
+    <span className="text-auth-purple text-[16px] font-semibold">
+      {label}:{' '}
+    </span>
+    {value}
+  </p>
+);
+
+// Profile input component
+const ProfileInput = ({ label, id, register, error }: any) => (
+  <div>
+    <label htmlFor={id} className="font-semibold text-auth-purple text-[14px]">
+      {label}
+    </label>
+    <input
+      type="text"
+      id={id}
+      {...register}
+      className={`mt-1 w-full border rounded-[16px] p-3 ${
+        error ? 'border-red-500 outline-red-500' : ''
+      }`}
+      placeholder={label}
+    />
+    {error && <p className="text-red-500 text-sm">{error}</p>}
+  </div>
+);
+
+// Password update form
+const PasswordUpdateForm = ({
+  handleSubmit,
+  handleSubmitFun,
+  passwordRegister,
+  passwordErrors,
+  showPasswords,
+  setShowPasswords,
+}: any) => (
+  <form className="space-y-4 mt-4" onSubmit={handleSubmit(handleSubmitFun)}>
+    {/* Password input fields */}
+    <PasswordInput
+      label="Current Password"
+      id="password"
+      showPassword={showPasswords.showPassword}
+      register={passwordRegister('password')}
+      error={passwordErrors.password?.message}
+    />
+    <PasswordInput
+      label="New Password"
+      id="newPassword"
+      showPassword={showPasswords.newPassword}
+      register={passwordRegister('newPassword')}
+      error={passwordErrors.newPassword?.message}
+    />
+    <PasswordInput
+      label="Confirm Password"
+      id="confirmPassword"
+      showPassword={showPasswords.confirmPassword}
+      register={passwordRegister('confirmPassword')}
+      error={passwordErrors.confirmPassword?.message}
+    />
+
+    <button
+      type="submit"
+      className="max-w-[250px] w-full font-semibold bg-light-blue text-white py-3 px-4 rounded-[16px] hover:bg-sky-500 transition duration-500"
+    >
+      Update Password
+    </button>
+  </form>
+);
+
+// Password input component
+const PasswordInput = ({ label, id, showPassword, register, error }: any) => (
+  <div>
+    <label htmlFor={id} className="font-semibold text-auth-purple text-[14px]">
+      {label}
+    </label>
+    <input
+      type={showPassword ? 'text' : 'password'}
+      id={id}
+      {...register}
+      className={`mt-1 w-full border rounded-[16px] p-3 ${
+        error ? 'border-red-500 outline-red-500' : ''
+      }`}
+      placeholder={label}
+    />
+    {error && <p className="text-red-500 text-sm">{error}</p>}
+  </div>
+);
 
 export default Profile;

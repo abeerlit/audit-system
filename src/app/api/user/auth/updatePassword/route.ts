@@ -4,7 +4,8 @@ import bcrypt from 'bcrypt';
 
 // POST: Update user's password
 export async function POST(req: any) {
-  const { email, newPassword } = await req.json();
+  const { email, newPassword, oldPassword } = await req.json();
+  console.log(oldPassword, 'old password');
 
   if (!email || !newPassword) {
     return NextResponse.json(
@@ -25,27 +26,37 @@ export async function POST(req: any) {
       );
     }
 
-    const resetPasswordUser = await prisma.passwordReset.findUnique({
-      where: { email },
-    });
+    if (oldPassword) {
+      const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+      if (!isPasswordValid) {
+        return NextResponse.json(
+          { error: true, message: 'Invalid  current password.' },
+          { status: 401 }
+        );
+      }
+    } else {
+      const resetPasswordUser = await prisma.passwordReset.findUnique({
+        where: { email },
+      });
 
-    if (!resetPasswordUser?.isVerified) {
-      return NextResponse.json(
-        { error: true, message: 'User not verified.' },
-        { status: 404 }
-      );
+      if (!resetPasswordUser?.isVerified) {
+        return NextResponse.json(
+          { error: true, message: 'User not verified.' },
+          { status: 404 }
+        );
+      }
     }
-
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
     await prisma.user.update({
       where: { email },
       data: { password: hashedNewPassword },
     });
-    await prisma.passwordReset.delete({
-      where: { email },
-    });
-
+    if (oldPassword === null || oldPassword === undefined) {
+      await prisma.passwordReset.delete({
+        where: { email },
+      });
+    }
     return NextResponse.json(
       { error: false, message: 'Password updated successfully.' },
       { status: 200 }

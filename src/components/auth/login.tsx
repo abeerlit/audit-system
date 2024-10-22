@@ -42,9 +42,9 @@ const Login = () => {
         password: formData.password,
         action: 'login',
       });
-      console.log(response.data, 'response');
       // check log here
       Cookies.set('auditToken', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response?.data?.user));
       toast.dismiss();
       toast.success('Login successfully!');
       router.replace('/dashboard');
