@@ -7,19 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model TempUser {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
   phoneNumber String?
-  firstName      String
-  lastName      String?
-  experience Int?
-  specialty String?
-  otpVerified Boolean @default(false)
-  otp Int
-  password String 
-  createdAt DateTime @default(now())
+  firstName   String
+  lastName    String?
+  experience  Int?
+  specialty   String?
+  otpVerified Boolean  @default(false)
+  otp         Int
+  password    String
+  createdAt   DateTime @default(now())
 }
 
 enum Role {
@@ -27,50 +26,65 @@ enum Role {
   broker
   expert
 }
-model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  phoneNumber String?
-  firstName      String
-  lastName      String?
-  experience Int?
-  specialty String?
-  otpVerified Boolean @default(false)
-  password String 
-  isActive Boolean @default(true)
-role        Role     @default(broker)
-  createdAt DateTime @default(now())
-}
 
+model User {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  phoneNumber String?
+  firstName   String
+  lastName    String?
+  experience  Int?
+  specialty   String?
+  otpVerified Boolean  @default(false)
+  password    String
+  isActive    Boolean  @default(true)
+  role        Role     @default(broker)
+  createdAt   DateTime @default(now())
+
+  // Relationship to Chapters
+  chapters    Chapters[]  // One user can have many chapters
+}
 
 model PasswordReset {
   id          Int      @id @default(autoincrement())
-  email       String  @unique
+  email       String   @unique
   otp         Int
-  isVerified  Boolean @default(false)
+  isVerified  Boolean  @default(false)
   createdAt   DateTime @default(now())
 }
 
 model ChapterItem {
-id Int @id @default(autoincrement())
-chapter_id Int @unique
-item_name String 
-item_link String?
-item_image String?
-item_price Float?
-item_weight Float?
-item_detail String?
-search_sentence String?
-original_hs_code Int
-broker_hs_code Int?
-expert_hs_code Int?
-created_timestamp DateTime @default(now())
-broker_update_timestamp DateTime? @default(now())
-expert_update_timestamp DateTime? @default(now())
-status String?
-expert_status String?
+  id                      Int      @id @default(autoincrement())
+  chapter_id              Int
+  item_name               String
+  item_link               String?
+  item_image              String?
+  item_price              Float?
+  item_weight             Float?
+  item_detail             String?
+  search_sentence         String?
+  original_hs_code        Int
+  broker_hs_code          Int?
+  expert_hs_code          Int?
+  created_timestamp       DateTime @default(now())
+  broker_update_timestamp DateTime? @default(now())
+  expert_update_timestamp DateTime? @default(now())
+  status                  String?
+  expert_status           String?
 
+  // Relationship to Chapters
+  chapter                 Chapters @relation(fields: [chapter_id], references: [id])
+}
 
+model Chapters {
+  id           Int          @id @default(autoincrement())
+  chapter_name String
+  createdAt    DateTime      @default(now())
 
+  // Reference to User (Broker)
+  brokerName   User?         @relation(fields: [broker_id], references: [id])
+  broker_id    Int?          // Foreign key for brokerName
 
+  // One-to-many relation with ChapterItem
+  chapterItems ChapterItem[]
 }
