@@ -4,11 +4,11 @@ import prisma from '../../../../../config/prisma'; // Adjust the path to your pr
 
 export const dynamic = 'force-dynamic'; // New way to disable static optimization in Next.js App Router
 
-export const config = {
-  api: {
-    bodyParser: false, // Disable Next.js default body parsing
-  },
-};
+// export const config = {
+//   api: {
+//     bodyParser: false, // Disable Next.js default body parsing
+//   },
+// };
 
 export async function POST(request: Request) {
   try {

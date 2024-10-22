@@ -315,8 +315,8 @@ const PasswordUpdateForm = ({
   passwordRegister,
   passwordErrors,
   showPasswords,
-  setShowPasswords,
-}: any) => (
+}: // setShowPasswords,
+any) => (
   <form className="space-y-4 mt-4" onSubmit={handleSubmit(handleSubmitFun)}>
     {/* Password input fields */}
     <PasswordInput
