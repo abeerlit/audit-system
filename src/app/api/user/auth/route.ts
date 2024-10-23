@@ -26,9 +26,19 @@ export async function POST(req: any) {
 }
 
 async function updateUser(data: any) {
-  const { id, firstName, lastName, email, phoneNumber, experience, specialty } =
-    data;
+  const {
+    id,
+    firstName,
+    lastName,
+    email,
+    phoneNumber,
+    experience,
+    specialty,
+    profileImage,
+  } = data;
   try {
+    console.log(profileImage, 'profile image to save');
+
     const user = await prisma.user.findUnique({
       where: { id },
     });
@@ -48,6 +58,7 @@ async function updateUser(data: any) {
         phoneNumber,
         experience,
         specialty,
+        profileImage,
       },
     });
     return NextResponse.json(

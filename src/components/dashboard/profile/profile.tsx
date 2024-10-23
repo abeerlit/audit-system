@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import CameraIcon from "@/components/icons/dashboard/camera-icon";
-import Image from "next/image";
-import React, { useState, useEffect, useCallback } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import toast from "react-hot-toast";
-import axios from "axios";
-import moment from "moment";
+import CameraIcon from '@/components/icons/dashboard/camera-icon';
+import Image from 'next/image';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import toast from 'react-hot-toast';
+import axios from 'axios';
+import moment from 'moment';
 
 // Validation schemas
 const schema = z.object({
@@ -16,8 +16,8 @@ const schema = z.object({
   lastName: z.string().optional(),
   email: z
     .string()
-    .min(1, { message: "Email is required." })
-    .email({ message: "Oops! Invalid email address." }),
+    .min(1, { message: 'Email is required.' })
+    .email({ message: 'Oops! Invalid email address.' }),
   phoneNumber: z.string().optional(),
   experience: z.string().optional(),
   specialty: z.string().optional(),
@@ -26,16 +26,16 @@ const schema = z.object({
 const passwordSchema = z.object({
   password: z
     .string()
-    .min(1, { message: "Password is required." })
-    .min(8, { message: "Must contain 8 characters." }),
+    .min(1, { message: 'Password is required.' })
+    .min(8, { message: 'Must contain 8 characters.' }),
   newPassword: z
     .string()
-    .min(1, { message: "Password is required." })
-    .min(8, { message: "Must contain 8 characters." }),
+    .min(1, { message: 'Password is required.' })
+    .min(8, { message: 'Must contain 8 characters.' }),
   confirmPassword: z
     .string()
-    .min(1, { message: "Password is required." })
-    .min(8, { message: "Must contain 8 characters." }),
+    .min(1, { message: 'Password is required.' })
+    .min(8, { message: 'Must contain 8 characters.' }),
 });
 
 const Profile = () => {
@@ -47,16 +47,17 @@ const Profile = () => {
 
   const [profile, setProfile] = useState({
     id: 1,
-    firstName: " Rayme",
-    lastName: "Rich",
-    email: "murphyr,ich288@gmail.com",
-    phone: "+880 1924699957",
-    experience: "3+ years",
-    specialty: "Textiles AndTextile Articles",
-    img: "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+    firstName: ' Rayme',
+    lastName: 'Rich',
+    email: 'murphyr,ich288@gmail.com',
+    phone: '+880 1924699957',
+    experience: '3+ years',
+    specialty: 'Textiles AndTextile Articles',
+    img: 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp',
     file: null,
-    joinedAt: "02/06/2023",
+    joinedAt: '02/06/2023',
   });
+  const [profileImage, setProfileImage] = useState(null);
 
   const {
     register,
@@ -86,14 +87,52 @@ const Profile = () => {
     []
   );
 
+  const formSubmit = useCallback(
+    async (formData: any) => {
+      try {
+        toast.loading('Loading...');
+        const response = await axios.post('/api/user/auth', {
+          ...formData,
+          id: profile.id,
+          experience: +formData.experience || 0,
+          profileImage: profileImage, // Ensure the correct image URL is being sent
+          action: 'update',
+        });
+
+        const updatedUser = response.data.updatedUser;
+
+        toast.dismiss();
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        setProfile({
+          ...updatedUser,
+          img: updatedUser.profileImage, // Update the image in profile
+          file: null,
+        });
+
+        toast.success('Profile Updated');
+      } catch (error) {
+        toast.dismiss();
+        toast.error(
+          axios.isAxiosError(error) && error.response?.data?.message
+            ? error.response.data.message
+            : 'An error occurred'
+        );
+      }
+    },
+    [profile.id, profileImage] // Added `profile.img` to dependencies to ensure it's always the latest value
+  );
+
+  // Image upload and updating profile with uploaded image URL
   useEffect(() => {
     if (profile.file) {
-      toast.loading("Uploading image...");
+      toast.loading('Uploading image...');
 
       const formData = new FormData();
-      formData.append("file", profile.file);
-      // @ts-expect-error env error
-      formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
+      formData.append('file', profile.file);
+      formData.append(
+        'upload_preset',
+        process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+      );
 
       const uploadImage = async () => {
         try {
@@ -102,91 +141,61 @@ const Profile = () => {
             formData
           );
           const data = res.data;
-          console.log(data);
-          setProfile((prev) => ({ ...prev, img: data.secure_url }));
+          console.log(data.secure_url, 'secure url');
+
+          setProfile((prev) => ({
+            ...prev,
+            img: data.secure_url, // Set uploaded image URL to profile
+          }));
+          setProfileImage(data.secure_url); // Update the image in profileImage state
           toast.dismiss();
         } catch (err) {
           console.log(err);
           toast.dismiss();
-          toast.error("Error ocurred in uploading image");
+          toast.error('Error occurred while uploading the image');
         }
       };
       uploadImage();
     }
-  }, [profile.file]);
-
-  // Form submission for profile update
-  const formSubmit = useCallback(
-    async (formData: any) => {
-      try {
-        toast.loading("Loading...");
-        const response = await axios.post("/api/user/auth", {
-          ...formData,
-          id: profile.id,
-          experience: +formData.experience || 0,
-          action: "update",
-        });
-        const updatedUser = response.data.updatedUser;
-
-        toast.dismiss();
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-        setProfile({
-          ...updatedUser,
-          img: "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-          file: null,
-        });
-        toast.success("Profile Updated");
-      } catch (error) {
-        toast.dismiss();
-        toast.error(
-          axios.isAxiosError(error) && error.response?.data?.message
-            ? error.response.data.message
-            : "An error occurred"
-        );
-      }
-    },
-    [profile.id]
-  );
-
+  }, [profile.file]); // Watch for file changes
   // Form submission for password update
   const submitPassword = useCallback(
     async (formData: any) => {
       if (formData.newPassword !== formData.confirmPassword) {
-        toast.error("Passwords do not match.");
+        toast.error('Passwords do not match.');
         return;
       }
 
-      const loginUser = JSON.parse(localStorage.getItem("user") || "{}");
+      const loginUser = JSON.parse(localStorage.getItem('user') || '{}');
 
       try {
-        toast.loading("Loading...");
-        await axios.post("/api/user/auth/updatePassword", {
+        toast.loading('Loading...');
+        await axios.post('/api/user/auth/updatePassword', {
           email: loginUser.email,
           oldPassword: formData.password,
           newPassword: formData.newPassword,
         });
         toast.dismiss();
         resetPassword();
-        toast.success("Password Updated");
+        toast.success('Password Updated');
       } catch (error) {
         toast.dismiss();
         toast.error(
           axios.isAxiosError(error) && error.response?.data?.message
             ? error.response.data.message
-            : "An error occurred"
+            : 'An error occurred'
         );
       }
     },
     [resetPassword]
   );
 
-  // Load profile data from localStorage on component mount
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (user.id) {
       setProfile({
         ...user,
-        img: "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+        img: user.profileImage,
         file: null,
       });
       reset(user);
@@ -205,37 +214,37 @@ const Profile = () => {
           <ProfileInput
             label="First Name"
             id="firstName"
-            register={register("firstName")}
+            register={register('firstName')}
             error={errors.firstName?.message}
           />
           <ProfileInput
             label="Last Name"
             id="lastName"
-            register={register("lastName")}
+            register={register('lastName')}
             error={errors.lastName?.message}
           />
           <ProfileInput
             label="Email"
             id="email"
-            register={register("email")}
+            register={register('email')}
             error={errors.email?.message}
           />
           <ProfileInput
             label="Phone Number"
             id="phoneNumber"
-            register={register("phoneNumber")}
+            register={register('phoneNumber')}
             error={errors.phoneNumber?.message}
           />
           <ProfileInput
             label="Years of Experience"
             id="experience"
-            register={register("experience")}
+            register={register('experience')}
             error={errors.experience?.message}
           />
           <ProfileInput
             label="HS Code Specialty"
             id="specialty"
-            register={register("specialty")}
+            register={register('specialty')}
             error={errors.specialty?.message}
           />
 
@@ -265,7 +274,7 @@ const Profile = () => {
 const ProfileView = ({ profile, handleFileChange }: any) => (
   <div className="flex flex-col min-w-[300px] gap-3 p-4 md:p-7 bg-white md:rounded-[30px] rounded-[20px]">
     <span className="text-light-gray">
-      Joined {moment(profile.joinedAt).format("MM/DD/YYYY")}
+      Joined {moment(profile.joinedAt).format('MM/DD/YYYY')}
     </span>
     <label
       htmlFor="file-input"
@@ -290,7 +299,7 @@ const ProfileView = ({ profile, handleFileChange }: any) => (
       />
     </label>
     <h2 className="text-xl text-auth-purple font-semibold">
-      {profile.firstName + " " + profile.lastName}
+      {profile.firstName + ' ' + profile.lastName}
     </h2>
     <ProfileInfo label="Phone Number" value={profile.phoneNumber} />
     <ProfileInfo label="Email" value={profile.email} />
@@ -303,7 +312,7 @@ const ProfileView = ({ profile, handleFileChange }: any) => (
 const ProfileInfo = ({ label, value }: any) => (
   <p className="text-sm text-nowrap text-light-gray">
     <span className="text-auth-purple text-[16px] font-semibold">
-      {label}:{" "}
+      {label}:{' '}
     </span>
     {value}
   </p>
@@ -320,7 +329,7 @@ const ProfileInput = ({ label, id, register, error }: any) => (
       id={id}
       {...register}
       className={`mt-1 w-full border rounded-[16px] p-3 ${
-        error ? "border-red-500 outline-red-500" : ""
+        error ? 'border-red-500 outline-red-500' : ''
       }`}
       placeholder={label}
     />
@@ -343,21 +352,21 @@ any) => (
       label="Current Password"
       id="password"
       showPassword={showPasswords.showPassword}
-      register={passwordRegister("password")}
+      register={passwordRegister('password')}
       error={passwordErrors.password?.message}
     />
     <PasswordInput
       label="New Password"
       id="newPassword"
       showPassword={showPasswords.newPassword}
-      register={passwordRegister("newPassword")}
+      register={passwordRegister('newPassword')}
       error={passwordErrors.newPassword?.message}
     />
     <PasswordInput
       label="Confirm Password"
       id="confirmPassword"
       showPassword={showPasswords.confirmPassword}
-      register={passwordRegister("confirmPassword")}
+      register={passwordRegister('confirmPassword')}
       error={passwordErrors.confirmPassword?.message}
     />
 
@@ -377,11 +386,11 @@ const PasswordInput = ({ label, id, showPassword, register, error }: any) => (
       {label}
     </label>
     <input
-      type={showPassword ? "text" : "password"}
+      type={showPassword ? 'text' : 'password'}
       id={id}
       {...register}
       className={`mt-1 w-full border rounded-[16px] p-3 ${
-        error ? "border-red-500 outline-red-500" : ""
+        error ? 'border-red-500 outline-red-500' : ''
       }`}
       placeholder={label}
     />
