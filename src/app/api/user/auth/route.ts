@@ -285,7 +285,7 @@ async function forgetPassword(data: any) {
     await prisma.passwordReset.create({
       data: {
         email: email,
-        otp: otp,
+        otp: otp.toString(),
         isVerified: false,
 
         createdAt: new Date(),

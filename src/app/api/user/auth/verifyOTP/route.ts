@@ -27,7 +27,7 @@ export async function POST(req: any) {
         );
       }
 
-      if (tempUser.otp !== +otp) {
+      if (tempUser.otp !== otp) {
         return NextResponse.json(
           { error: true, message: 'Invalid OTP.' },
           { status: 400 }
@@ -79,7 +79,7 @@ export async function POST(req: any) {
         );
       }
 
-      if (passwordResetUser.otp !== +otp) {
+      if (passwordResetUser.otp !== otp) {
         return NextResponse.json(
           { error: true, message: 'Invalid OTP.' },
           { status: 400 }

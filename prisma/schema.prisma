@@ -16,7 +16,7 @@ model TempUser {
   experience  Int?
   specialty   String?
   otpVerified Boolean  @default(false)
-  otp         Int
+  otp         String   // Changed from Int to String
   password    String
   createdAt   DateTime @default(now())
 }
@@ -25,6 +25,14 @@ enum Role {
   admin
   broker
   expert
+}
+enum ChapterActions {
+  new
+  accept
+  skip
+  edit
+  flag
+
 }
 
 model User {
@@ -42,20 +50,22 @@ model User {
   role        Role     @default(broker)
   createdAt   DateTime @default(now())
 
-  // Relationship to Chapters
-  chapters    Chapters[]  // One user can have many chapters
+  chapterItems ChapterItem[]  // One-to-many relation to ChapterItem
+  sections     Section[]      // One-to-many relation to Section
 }
 
 model PasswordReset {
   id          Int      @id @default(autoincrement())
   email       String   @unique
-  otp         Int
+  otp         String   // Changed from Int to String
   isVerified  Boolean  @default(false)
   createdAt   DateTime @default(now())
 }
 
 model ChapterItem {
   id                      Int      @id @default(autoincrement())
+ itemAction        String? @default("new")
+
   chapter_id              Int
   item_name               String
   item_link               String?
@@ -64,28 +74,38 @@ model ChapterItem {
   item_weight             Float?
   item_detail             String?
   search_sentence         String?
-  original_hs_code        Int
+  original_hs_code        Int?     // Make nullable if needed
   broker_hs_code          Int?
   expert_hs_code          Int?
   created_timestamp       DateTime @default(now())
-  broker_update_timestamp DateTime? @default(now())
-  expert_update_timestamp DateTime? @default(now())
+  broker_update_timestamp DateTime?
+  expert_update_timestamp DateTime?
   status                  String?
   expert_status           String?
 
-  // Relationship to Chapters
-  chapter                 Chapters @relation(fields: [chapter_id], references: [id])
+  brokerName   User?   @relation(fields: [broker_id], references: [id])
+  broker_id    Int?    // Foreign key for brokerName
+
+  section      Section @relation(fields: [chapter_id], references: [id]) // Relation to Sections
 }
+
 
 model Chapters {
   id           Int          @id @default(autoincrement())
   chapter_name String
   createdAt    DateTime      @default(now())
 
-  // Reference to User (Broker)
-  brokerName   User?         @relation(fields: [broker_id], references: [id])
-  broker_id    Int?          // Foreign key for brokerName
+  sections     Section[]     // One-to-many relation to Section
+}
 
-  // One-to-many relation with ChapterItem
-  chapterItems ChapterItem[]
+model Section {
+  id           Int          @id @default(autoincrement())
+  chapter_id   Int          // Foreign key for Chapters
+  chapter_name String       // Store chapter_name as well
+  broker_id    Int?         // Foreign key for User (broker)
+  createdAt    DateTime      @default(now())
+
+  chapter      Chapters     @relation(fields: [chapter_id], references: [id]) // Relation to Chapters
+  brokerName   User?        @relation(fields: [broker_id], references: [id]) // Relation to broker (User)
+  chapterItems ChapterItem[]  // One-to-many relation with ChapterItem
 }
