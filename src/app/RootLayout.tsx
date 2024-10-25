@@ -1,13 +1,21 @@
 "use client"
-import React, { Fragment } from 'react'
+import { AppStore, makeStore } from '@/store/store';
+import { Provider } from 'react-redux';
+import React, { useRef } from 'react'
 import { Toaster } from "react-hot-toast";
 
 const RootLayoutProvider = ({children}: {children: React.ReactNode}) => {
+  const storeRef = useRef<AppStore | undefined>(undefined);
+
+  if (!storeRef.current) {
+    storeRef.current = makeStore();
+  }
+
   return (
-    <Fragment>
+    <Provider store={storeRef.current}>
       {children}
       <Toaster />
-    </Fragment>
+    </Provider>
   )
 }
 

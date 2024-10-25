@@ -1,49 +1,92 @@
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import toast from "react-hot-toast";
+import FilledCheckIcon from "@/components/icons/dashboard/chapters/filled-check-icon";
+import UploadFileIcon from "@/components/icons/dashboard/chapters/upload-file-icon";
+import { useState } from "react";
+import { Users } from "@/store/slices/usersSlice";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+
 interface UploadDataProps {
   onClose: () => void;
 }
 
-import FilledCheckIcon from "@/components/icons/dashboard/chapters/filled-check-icon";
-import UploadFileIcon from "@/components/icons/dashboard/chapters/upload-file-icon";
-import { useState } from "react";
+// Define Zod schema with validation and error messages
+const schema = z.object({
+  chapterName: z.string().min(1, { message: "Please select a chapter" }),
+  brokerId: z.string().min(1, { message: "Please select a broker" }),
+  // File validation that checks for File instance
+  file: z.any().refine((file) => file instanceof File, {
+    message: "Please upload a file",
+  }),
+});
 
 const UploadData = ({ onClose }: UploadDataProps) => {
-  const [fileName, setFileName] = useState<File | null>(null);
-  const [selectedChapters, setSelectedChapters] = useState("");
-  const [selectedBroker, setSelectedBroker] = useState("");
   const [uploadStatus, setUploadStatus] = useState("");
+  const usersData: Users[] = useSelector((state: RootState) => state.users);
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+  });
+
+  // Update file state and form field on file change
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event?.target?.files?.[0];
+    const file = event.target.files?.[0];
     if (file) {
-      setFileName(file);
+      setValue("file", file); // Properly set file instance in form data
       setUploadStatus(`${file.name} is uploaded`);
     }
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    // Handle form submission logic here
-    console.log("File:", fileName);
-    console.log("Chapter:", selectedChapters);
-    console.log("Broker:", selectedBroker);
-    // Reset the form
-    setFileName(null);
-    setSelectedChapters("");
-    setSelectedBroker("");
-    setUploadStatus("");
-    onClose();
+  // Form submission handler
+  const onSubmit = async (data: z.infer<typeof schema>) => {
+    try {
+      toast.loading("Uploading...");
+      const formData = new FormData();
+      formData.append("file", data.file); // Ensure file is uploaded properly
+      formData.append("brokerId", data.brokerId);
+      formData.append("chapterName", data.chapterName);
+      
+      console.log("Form data:", formData);
+      const response = await axios.post("/api/admin/chapters", formData);
+      console.log("response", response.data);
+
+      toast.dismiss();
+      toast.success("Upload successful!");
+      onClose();
+    } catch (error) {
+      toast.dismiss();
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(error.response.data?.message || "An error occurred");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+      console.log(error, "error in catch");
+    }
   };
 
   return (
-    <form className="sm:min-w-[400px] text-auth-purple font-semibold" onSubmit={handleSubmit}>
+    <form
+      className="sm:min-w-[400px] text-auth-purple font-semibold"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <h1 className="text-xl font-bold mb-4">Upload files</h1>
       <label
         htmlFor="file-upload"
-        className="border border-dashed mb-4 text-center font-bold block border-gray-400 rounded-xl bg-gray-100 p-4 w-full cursor-pointer"
+        className="border border-dashed text-center font-bold block border-gray-400 rounded-xl bg-gray-100 p-4 w-full cursor-pointer"
       >
         <UploadFileIcon className="w-8 h-8 mx-auto mb-2" />
         Click to upload
         <input
+          {...register("file")}
           hidden
           id="file-upload"
           type="file"
@@ -52,30 +95,49 @@ const UploadData = ({ onClose }: UploadDataProps) => {
           className="border border-dashed border-gray-400 p-4 w-full mb-2 cursor-pointer"
         />
       </label>
-      {uploadStatus && <p className="bg-[#DCFFDE] px-4 py-1 text-sm font-normal rounded mb-4"> <FilledCheckIcon className="inline-block me-1" /> {uploadStatus}</p>}
-      <h2 className="text-xl mb-4">Assign Chapters</h2>
+      {errors.file && (
+        <p className="text-red-500 font-normal text-sm">{errors.file.message}</p>
+      )}
+      {uploadStatus && (
+        <p className="bg-[#DCFFDE] px-4 py-1 text-sm font-normal rounded mt-4">
+          <FilledCheckIcon className="inline-block me-1" /> {uploadStatus}
+        </p>
+      )}
+      <h2 className="text-xl my-4">Assign Chapters</h2>
       <h4>Select Chapter</h4>
       <select
-        value={selectedChapters}
-        onChange={(e) => setSelectedChapters(e.target.value)}
-        className="mb-4 p-2 w-full bg-[#F4F7FE] text-light-gray rounded-lg text-sm"
+        {...register("chapterName")}
+        className="p-2 w-full bg-[#F4F7FE] text-light-gray rounded-lg text-sm"
       >
         <option value="">Select Chapter</option>
         <option value="Live Animals">Live Animals</option>
         <option value="Animal Products">Animal Products</option>
       </select>
-      <h4>Select Broker</h4>
+      {errors.chapterName && (
+        <p className="text-red-500 font-normal text-sm">
+          {errors.chapterName.message}
+        </p>
+      )}
+      <h4 className="mt-4">Select Broker</h4>
       <select
-        value={selectedBroker}
-        onChange={(e) => setSelectedBroker(e.target.value)}
-        className="mb-4 p-2 w-full bg-[#F4F7FE] text-light-gray rounded-lg text-sm"
+        {...register("brokerId")}
+        className="p-2 w-full bg-[#F4F7FE] text-light-gray rounded-lg text-sm"
       >
         <option value="">Select Broker</option>
-        <option value="Halle Shaw">Halle Shaw</option>
+        {usersData.map((user) => (
+          <option key={user.id} value={user.id}>
+            {user.email}
+          </option>
+        ))}
       </select>
+      {errors.brokerId && (
+        <p className="text-red-500 font-normal text-sm">
+          {errors.brokerId.message}
+        </p>
+      )}
       <button
         type="submit"
-        className="bg-light-blue text-white font-bold py-2 px-6 rounded-xl"
+        className="mt-4 bg-light-blue text-white font-bold py-2 px-6 rounded-xl"
       >
         Submit
       </button>

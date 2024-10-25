@@ -1,6 +1,9 @@
 import Modal from "@/components/modal";
 import React, { useState } from "react";
 import UploadData from "./upload-data";
+import { RootState } from "@/store/store";
+import { User } from "@/store/slices/userSlice";
+import { useSelector } from "react-redux";
 
 interface SectionProps {
   sectionTitle: string;
@@ -245,16 +248,25 @@ const ChapterHeader: React.FC<{
 );
 
 const Chapters: React.FC = () => {
-  // isOpen
   const [isOpen, setIsOpen] = useState(false);
+  const userData: User = useSelector((state: RootState) => state.user);
+
   return (
     <div className=" min-w-fit">
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <UploadData onClose={() => setIsOpen(false)} />
       </Modal>
-      <div className="text-right pb-4">
-        <button onClick={() => setIsOpen(true)} className="bg-light-blue text-white font-bold rounded-2xl p-2 px-6">+ Upload Data</button>
-      </div>
+      {/* userData.role === "admin" */}
+      {userData && (
+        <div className="text-right pb-4">
+          <button
+            onClick={() => setIsOpen(true)}
+            className="bg-light-blue text-white font-bold rounded-2xl p-2 px-6"
+          >
+            + Upload Data
+          </button>
+        </div>
+      )}
       {sectionsData.map((section, index) => (
         <Section
           key={index}

@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { useDispatch } from 'react-redux';
+import { addUser } from '@/store/slices/userSlice';
 
 const schema = z.object({
   email: z
@@ -24,6 +26,7 @@ const schema = z.object({
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const {
     register,
@@ -45,6 +48,7 @@ const Login = () => {
       // check log here
       Cookies.set('auditToken', response.data.token);
       localStorage.setItem('user', JSON.stringify(response?.data?.user));
+      dispatch(addUser(response.data.user));
       toast.dismiss();
       toast.success('Login successfully!');
       router.replace('/dashboard');

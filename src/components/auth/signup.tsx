@@ -7,13 +7,20 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ShowPasswordIcon from "../icons/auth/show-password";
 import axios from "axios";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
+import { useDispatch } from "react-redux";
+import { addUser } from "@/store/slices/userSlice";
 
 const schema = z.object({
-  firstName: z.string().optional(),
+  firstName: z
+    .string()
+    .trim()
+    .min(1, { message: "First name is required." })
+    .min(3, { message: "Must contain 3 characters." }),
   lastName: z.string().optional(),
   email: z
     .string()
+    .trim()
     .min(1, { message: "Email is required." })
     .email({ message: "Oops! Invalid email address." }),
   phoneNumber: z.string().optional(),
@@ -22,6 +29,7 @@ const schema = z.object({
   // same here
   password: z
     .string()
+    .trim()
     .min(1, { message: "Password is required." })
     .min(8, { message: "Must contain 8 characters." }),
   agreeToPrivacy: z.boolean().optional(),
@@ -30,6 +38,7 @@ const schema = z.object({
 const SignUpScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const {
     register,
@@ -43,30 +52,34 @@ const SignUpScreen = () => {
   const formSubmit = async (formData: z.infer<typeof schema>) => {
     // console.log("Form Data:", formData);
     try {
-      toast.loading('Signing Up...');
-      const response = await axios.post('/api/user/auth', {
+      toast.loading("Signing Up...");
+      const response = await axios.post("/api/user/auth", {
         email: formData.email,
         password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
         phoneNumber: formData.phoneNumber,
-        experience: formData?.yearsOfExperience ? +formData.yearsOfExperience : 0,
+        experience: formData?.yearsOfExperience
+          ? +formData.yearsOfExperience
+          : 0,
         specialty: formData?.hsCodeSpecialty,
-        action: 'register',
+        action: "register",
       });
-      console.log(response.data, 'response');
-      Cookies.set('auditToken', response.data.token);
+      console.log(response.data, "response");
+      localStorage.setItem('user', JSON.stringify(response?.data?.user));
+      dispatch(addUser(response.data.user));
+      Cookies.set("auditToken", response.data.token);
       toast.dismiss();
       toast.success("Sign Up successful!");
-      router.replace('/dashboard');
+      router.replace("/dashboard");
     } catch (error) {
       toast.dismiss();
       if (axios.isAxiosError(error) && error.response) {
-        toast.error(error.response.data?.message || 'An error occurred');
+        toast.error(error.response.data?.message || "An error occurred");
       } else {
-        toast.error('An unexpected error occurred');
+        toast.error("An unexpected error occurred");
       }
-      console.log(error, 'error in catch');
+      console.log(error, "error in catch");
     }
   };
 
@@ -82,15 +95,22 @@ const SignUpScreen = () => {
               htmlFor="firstName"
               className="font-semibold text-auth-purple text-[14px]"
             >
-              First Name
+              First Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               id="firstName"
               {...register("firstName")}
-              className="mt-1 w-full border rounded-[16px] p-3"
+              className={`mt-1 w-full border rounded-[16px] p-3 ${
+                errors.firstName?.message && "border-red-500 outline-red-500"
+              }`}
               placeholder="First Name"
             />
+            {errors.firstName?.message && (
+              <p className="text-red-500 text-sm">
+                {errors.firstName?.message}
+              </p>
+            )}
           </div>
 
           {/* Last Name */}

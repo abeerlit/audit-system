@@ -3,31 +3,14 @@ import DeactivateUserIcon from "@/components/icons/dashboard/users/deactivate-us
 import EditIcon from "@/components/icons/dashboard/users/edit-icon";
 import UpgradeIcon from "@/components/icons/dashboard/users/upgrade-icon";
 import axios from "axios";
-import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { addUsers, Users } from "@/store/slices/usersSlice";
+import { RootState } from "@/store/store";
 
 const UsersManagement = () => {
-  const [users, setUsers] = useState<any>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>("loading");
-
-  const getAllUsers = async () => {
-    try {
-      const response = await axios.get("/api/admin");
-      console.log(response.data, "response");
-      setUsers(response.data?.users);
-      setErrorMsg(null);
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        setErrorMsg(error.response.data?.message || "Something went wrong!");
-      } else {
-        setErrorMsg("An unexpected error occurred");
-      }
-    }
-  };
-
-  useEffect(() => {
-    getAllUsers();
-  }, []);
+  const dispatch = useDispatch();
+  const usersData: Users[] = useSelector((state: RootState) => state.users);
 
   const upgradeToExpert = async (user: any) => {
     try {
@@ -37,9 +20,13 @@ const UsersManagement = () => {
         action: "upgrade",
       });
       console.log(response.data, "response");
-      setUsers(users.map((item: any) => {
-        return item.id === user.id ? { ...item, role: "expert" } : item;
-      }));
+      dispatch(
+        addUsers(
+          usersData.map((item: any) => {
+            return item.id === user.id ? { ...item, role: "expert" } : item;
+          })
+        )
+      );
       toast.success("User upgraded to expert successfully!");
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
@@ -59,10 +46,16 @@ const UsersManagement = () => {
         activate: activate,
       });
       console.log(response.data, "response");
-      setUsers(users.map((item: any) => {
-        return item.id === user.id ? { ...item, isActive: activate } : item;
-      }));
-      toast.success(`User ${activate ? "activated" : "deactivated"} successfully!`);
+      dispatch(
+        addUsers(
+          usersData.map((item: any) => {
+            return item.id === user.id ? { ...item, isActive: activate } : item;
+          })
+        )
+      );
+      toast.success(
+        `User ${activate ? "activated" : "deactivated"} successfully!`
+      );
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         toast.error(error.response.data?.message || "Something went wrong!");
@@ -87,24 +80,21 @@ const UsersManagement = () => {
           </tr>
         </thead>
         <tbody>
-          {errorMsg && (
+          {!usersData.length && (
             <tr>
               <td
-                colSpan={7}
                 className="text-center p-6 text-light-gray text-xl"
+                colSpan={7}
               >
-                {errorMsg == "loading" ? (
-                  <div className="flex justify-center items-center ">
-                    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-light-blue border-solid"></div>
-                  </div>
-                ) : (
-                  errorMsg
-                )}
+                loading done
+                {/* <div className="flex justify-center items-center ">
+                  <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-light-blue border-solid"></div>
+                </div> */}
               </td>
             </tr>
           )}
-          {users?.map((user: any, index: number) => (
-            <tr key={index} className="hover:bg-gray-100 border-t">
+          {usersData?.map((user: any, index: number) => (
+            <tr key={index} className="border-t">
               <td className="p-4 text-nowrap">
                 {user.firstName + " " + user.lastName}
               </td>
@@ -116,12 +106,12 @@ const UsersManagement = () => {
               <td className="p-4 text-nowrap relative">
                 <button
                   type="button"
-                  className="font-extrabold text-xl px-2 rounded-lg group"
+                  className="font-extrabold text-xl px-2 rounded-lg group focus:bg-light-blue focus:text-white"
                 >
                   &#x22EE; {/* Dotted actions menu */}
                   <div
                     className="absolute z-10 text-left text-sm font-normal right-4 mt-1 w-full min-w-fit
-                     bg-white border rounded-xl overflow-hidden shadow-md hidden group-focus:block"
+                     bg-white text-auth-purple border rounded-xl overflow-hidden shadow-md hidden group-focus:block"
                   >
                     <div className="flex flex-col">
                       <div
@@ -137,13 +127,20 @@ const UsersManagement = () => {
                       </div>
                       <div
                         className={"text-lef py-1 px-4 hover:bg-gray-100"}
-                        onClick={() => toast("This feature is not available yet!")}
+                        onClick={() =>
+                          toast("This feature is not available yet!")
+                        }
                       >
                         <EditIcon className="inline-block mr-2" />
                         Edit Info
                       </div>
                       <div
-                        className={"text-lef py-1 px-4 " + (user.isActive ? " cursor-default" : " hover:bg-gray-100")}
+                        className={
+                          "text-lef py-1 px-4 " +
+                          (user.isActive
+                            ? " cursor-default"
+                            : " hover:bg-gray-100")
+                        }
                         onClick={() =>
                           user.isActive
                             ? console.log("User is already active!")
@@ -154,7 +151,12 @@ const UsersManagement = () => {
                         Activate User
                       </div>
                       <div
-                        className={"text-lef py-1 px-4 text-red-600 " + (!user.isActive ? " cursor-default" : " hover:bg-red-100")}
+                        className={
+                          "text-lef py-1 px-4 text-red-600 " +
+                          (!user.isActive
+                            ? " cursor-default"
+                            : " hover:bg-red-100")
+                        }
                         onClick={() =>
                           !user.isActive
                             ? console.log("user is already deactivated")

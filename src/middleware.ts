@@ -29,7 +29,7 @@ function handleFrontendRedirection(pathname: string, request: NextRequest, isAut
   const publicRoutes = ['/', '/auth/reset', '/auth/signup'];
   const privateRoute = pathname.startsWith('/dashboard');
 
-  console.log(isAuthenticated+'--isAuthenticated', privateRoute+"--private", publicRoutes.includes(pathname)+"--public", pathname+"--pathname");
+  // console.log(isAuthenticated+'--isAuthenticated', privateRoute+"--private", publicRoutes.includes(pathname)+"--public", pathname+"--pathname");
   if (isAuthenticated) {
     // If authenticated and trying to access a public route, redirect to dashboard
     if (publicRoutes.includes(pathname)) {
@@ -55,7 +55,7 @@ export async function middleware(request: NextRequest) {
   // If there's a token, verify it
   if (token) {
     const { payload, error } = await verifyToken(token);
-    console.info('Payload:', payload, 'Error:', error);
+    // console.info('Payload:', payload, 'Error:', error);
     isAuthenticated = !!payload; // Set to true if payload exists
     if (error) {
       console.warn('Token error:', error);
