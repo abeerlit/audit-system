@@ -96,6 +96,17 @@ CREATE TABLE "Section" (
     CONSTRAINT "Section_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Comments" (
+    "id" SERIAL NOT NULL,
+    "content" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "user_id" INTEGER NOT NULL,
+    "chapter_item_id" INTEGER NOT NULL,
+
+    CONSTRAINT "Comments_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "TempUser_email_key" ON "TempUser"("email");
 
@@ -116,3 +127,9 @@ ALTER TABLE "Section" ADD CONSTRAINT "Section_chapter_id_fkey" FOREIGN KEY ("cha
 
 -- AddForeignKey
 ALTER TABLE "Section" ADD CONSTRAINT "Section_broker_id_fkey" FOREIGN KEY ("broker_id") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Comments" ADD CONSTRAINT "Comments_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Comments" ADD CONSTRAINT "Comments_chapter_item_id_fkey" FOREIGN KEY ("chapter_item_id") REFERENCES "ChapterItem"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
