@@ -80,20 +80,20 @@ const UsersManagement = () => {
           </tr>
         </thead>
         <tbody>
-          {!usersData.length && (
+          {!usersData.length || !usersData?.[0]?.otpVerified ? (
             <tr>
               <td
                 className="text-center p-6 text-light-gray text-xl"
                 colSpan={7}
               >
-                loading done
+                Nothing to show
                 {/* <div className="flex justify-center items-center ">
                   <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-light-blue border-solid"></div>
                 </div> */}
               </td>
             </tr>
-          )}
-          {usersData?.map((user: any, index: number) => (
+          ):null}
+          {usersData?.[0]?.otpVerified && usersData?.map((user: any, index: number) => (
             <tr key={index} className="border-t">
               <td className="p-4 text-nowrap">
                 {user.firstName + " " + user.lastName}

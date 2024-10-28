@@ -5,7 +5,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import FilledCheckIcon from "@/components/icons/dashboard/chapters/filled-check-icon";
 import UploadFileIcon from "@/components/icons/dashboard/chapters/upload-file-icon";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Users } from "@/store/slices/usersSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
@@ -26,6 +26,7 @@ const schema = z.object({
 
 const UploadData = ({ onClose }: UploadDataProps) => {
   const [uploadStatus, setUploadStatus] = useState("");
+  const [chapters, setChapters] = useState<string[]>([]);;
   const usersData: Users[] = useSelector((state: RootState) => state.users);
 
   const {
@@ -73,6 +74,23 @@ const UploadData = ({ onClose }: UploadDataProps) => {
     }
   };
 
+  useEffect(() => {
+    const getChapterNames = async () => {
+      try {
+        const response = await axios.get("/api/admin/chapterNames");
+        setChapters(response.data.chapters.map((chapter: any) => chapter.chapter_name));
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+          toast.error(error.response.data?.message || "An error occurred");
+        } else {
+          toast.error("An unexpected error occurred");
+        }
+        console.log(error, "error in catch");
+      }
+    };
+    getChapterNames();
+  },[])
+
   return (
     <form
       className="sm:min-w-[400px] text-auth-purple font-semibold"
@@ -110,8 +128,11 @@ const UploadData = ({ onClose }: UploadDataProps) => {
         className="p-2 w-full bg-[#F4F7FE] text-light-gray rounded-lg text-sm"
       >
         <option value="">Select Chapter</option>
-        <option value="Live Animals">Live Animals</option>
-        <option value="Animal Products">Animal Products</option>
+        {chapters.map((item, index) => (
+          <option key={index} value={item}>
+            {item}
+          </option>
+        ))}
       </select>
       {errors.chapterName && (
         <p className="text-red-500 font-normal text-sm">
@@ -126,7 +147,7 @@ const UploadData = ({ onClose }: UploadDataProps) => {
         <option value="">Select Broker</option>
         {usersData.map((user) => (
           <option key={user.id} value={user.id}>
-            {user.email}
+            {user.firstName}
           </option>
         ))}
       </select>

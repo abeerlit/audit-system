@@ -182,7 +182,7 @@ const Chapters: React.FC = () => {
         <UploadData onClose={() => setIsOpen(false)} />
       </Modal>
       {/* userData.role === "admin" */}
-      {userData && (
+      {userData.role === "admin" && (
         <div className="text-right">
           <button
             onClick={() => setIsOpen(true)}
