@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
 
     if (!loggedInUserId) {
       return NextResponse.json(
-        { error: true, message: 'User ID is required.' },
+        { error: true, message: 'User ID is required. fjlsjf' },
         { status: 400 }
       );
     }
