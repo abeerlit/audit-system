@@ -1,12 +1,33 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
 import prisma from '../../../../../config/prisma'; // Adjust the path to your prisma config
 
-export const dynamic = 'force-dynamic'; // New way to disable static optimization in Next.js App Router
+export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const chapters = await prisma.chapters.findMany();
+    // Get `broker_id` from query parameters
+    const brokerId = req.nextUrl.searchParams.get('broker_id');
+    const brokerIdParsed: any = brokerId ? parseInt(brokerId, 10) : undefined;
+
+    // Check if `broker_id` is a valid integer
+    if (brokerId && isNaN(brokerIdParsed)) {
+      return NextResponse.json(
+        { error: true, message: 'Invalid broker_id format.' },
+        { status: 400 }
+      );
+    }
+
+    // Fetch chapters based on the presence of `broker_id`
+    const chapters = await prisma.chapters.findMany({
+      where: brokerIdParsed ? { broker_id: brokerIdParsed } : {},
+      include: {
+        chapter: true, // Includes associated Chapter records
+        brokerName: true, // Includes User model for brokerName
+        chapterItems: true, // Includes associated ChapterItem records
+      },
+    });
+
     return NextResponse.json({ chapters, error: false, status: 200 });
   } catch (error) {
     console.error(error);
@@ -16,6 +37,7 @@ export async function GET() {
     );
   }
 }
+
 export async function POST(request: Request) {
   try {
     // Step 1: Parse the form data using the built-in formData() method
@@ -31,15 +53,13 @@ export async function POST(request: Request) {
     }
 
     // Step 3: Look up the chapter_id based on the chapterName
-    const chapter = await prisma.chapters.findFirst({
+    const chapter_name = await prisma.chapterNames.findFirst({
       where: { chapter_name: chapterName },
     });
 
-    if (!chapter) {
+    if (!chapter_name) {
       throw new Error('Chapter not found');
     }
-
-    const chapterId = chapter.id; // Get the chapter_id from the result
 
     // Step 4: Read the XLSX file from the uploaded file
     const buffer = await file.arrayBuffer();
@@ -48,9 +68,9 @@ export async function POST(request: Request) {
     const worksheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
     // Step 5: Create a new section and add associated chapter items
-    const newSection = await prisma.section.create({
+    const newChapter = await prisma.chapters.create({
       data: {
-        chapter_id: chapterId, // Include the chapter_id from the Chapters model
+        chapterNames_id: chapter_name.id, // Include the chapter_id from the Chapters model
         chapter_name: chapterName,
         broker_id: brokerId, // Referencing the broker (user) via brokerId
         chapterItems: {
@@ -82,7 +102,7 @@ export async function POST(request: Request) {
 
     // Step 6: Return the response with the created section and items
     return NextResponse.json({
-      section: newSection,
+      section: newChapter,
       error: false,
       status: 201,
     });

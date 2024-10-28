@@ -51,7 +51,7 @@ model User {
   createdAt    DateTime      @default(now())
 
   chapterItems ChapterItem[] // One-to-many relation to ChapterItem
-  sections     Section[]     // One-to-many relation to Section
+  chapter     Chapters[]     // One-to-many relation to Section
   comments     Comments[]     // One-to-many relation to Comment
 }
 
@@ -86,26 +86,26 @@ model ChapterItem {
   brokerName   User?      @relation(fields: [broker_id], references: [id])
   broker_id    Int?       // Foreign key for brokerName
 
-  section      Section    @relation(fields: [chapter_id], references: [id]) // Relation to Sections
+  chapter      Chapters    @relation(fields: [chapter_id], references: [id]) // Relation to Chapters
   comments     Comments[]  // One-to-many relation to Comment
 }
 
-model Chapters {
+model ChapterNames {
   id           Int       @id @default(autoincrement())
   chapter_name String
   createdAt    DateTime  @default(now())
 
-  sections     Section[] // One-to-many relation to Section
+  chapters     Chapters[] // One-to-many relation to Section
 }
 
-model Section {
+model Chapters {
   id           Int           @id @default(autoincrement())
-  chapter_id   Int           // Foreign key for Chapters
+  chapterNames_id   Int           // Foreign key for Chapters
   chapter_name String        // Store chapter_name as well
   broker_id    Int?          // Foreign key for User (broker)
   createdAt    DateTime      @default(now())
 
-  chapter      Chapters      @relation(fields: [chapter_id], references: [id]) // Relation to Chapters
+  chapter      ChapterNames      @relation(fields: [chapterNames_id], references: [id]) // Relation to Chapters
   brokerName   User?         @relation(fields: [broker_id], references: [id]) // Relation to broker (User)
   chapterItems ChapterItem[] // One-to-many relation with ChapterItem
 }

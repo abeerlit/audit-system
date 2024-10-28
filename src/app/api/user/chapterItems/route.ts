@@ -25,7 +25,7 @@ export async function GET(
         broker_id: brokerIdParsed,
       },
       include: {
-        section: true, // Include related sections if needed
+        chapter: true, // Include related sections if needed
       },
     });
 

@@ -77,23 +77,23 @@ CREATE TABLE "ChapterItem" (
 );
 
 -- CreateTable
-CREATE TABLE "Chapters" (
+CREATE TABLE "ChapterNames" (
     "id" SERIAL NOT NULL,
     "chapter_name" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Chapters_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "ChapterNames_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Section" (
+CREATE TABLE "Chapters" (
     "id" SERIAL NOT NULL,
-    "chapter_id" INTEGER NOT NULL,
+    "chapterNames_id" INTEGER NOT NULL,
     "chapter_name" TEXT NOT NULL,
     "broker_id" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Section_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Chapters_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -120,13 +120,13 @@ CREATE UNIQUE INDEX "PasswordReset_email_key" ON "PasswordReset"("email");
 ALTER TABLE "ChapterItem" ADD CONSTRAINT "ChapterItem_broker_id_fkey" FOREIGN KEY ("broker_id") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ChapterItem" ADD CONSTRAINT "ChapterItem_chapter_id_fkey" FOREIGN KEY ("chapter_id") REFERENCES "Section"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ChapterItem" ADD CONSTRAINT "ChapterItem_chapter_id_fkey" FOREIGN KEY ("chapter_id") REFERENCES "Chapters"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Section" ADD CONSTRAINT "Section_chapter_id_fkey" FOREIGN KEY ("chapter_id") REFERENCES "Chapters"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Chapters" ADD CONSTRAINT "Chapters_chapterNames_id_fkey" FOREIGN KEY ("chapterNames_id") REFERENCES "ChapterNames"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Section" ADD CONSTRAINT "Section_broker_id_fkey" FOREIGN KEY ("broker_id") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Chapters" ADD CONSTRAINT "Chapters_broker_id_fkey" FOREIGN KEY ("broker_id") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Comments" ADD CONSTRAINT "Comments_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

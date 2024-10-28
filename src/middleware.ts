@@ -5,7 +5,9 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET || 'your-very-strong-secret-key';
 
 function extractToken(request: NextRequest, isBackendRoute: boolean) {
   if (isBackendRoute) {
-    const authorization = request.headers.get('authorization') || request.headers.get('Authorization');
+    const authorization =
+      request.headers.get('authorization') ||
+      request.headers.get('Authorization');
     return authorization?.split(' ')[1] ?? null;
   } else {
     return request.cookies.get('auditToken')?.value ?? null;
@@ -20,12 +22,17 @@ async function verifyToken(token: string) {
   } catch (error) {
     return {
       payload: null,
-      error: error instanceof Error ? error.message : 'Invalid or Expired token',
+      error:
+        error instanceof Error ? error.message : 'Invalid or Expired token',
     };
   }
 }
 
-function handleFrontendRedirection(pathname: string, request: NextRequest, isAuthenticated: boolean) {
+function handleFrontendRedirection(
+  pathname: string,
+  request: NextRequest,
+  isAuthenticated: boolean
+) {
   const publicRoutes = ['/', '/auth/reset', '/auth/signup'];
   const privateRoute = pathname.startsWith('/dashboard');
 
