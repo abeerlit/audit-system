@@ -88,7 +88,9 @@ const Profile = () => {
     if (user.id) {
       setProfile({
         ...user,
-        // img: profile.img,
+        profileImage: user.profileImage
+          ? user.profileImage
+          : profile.profileImage,
         file: null,
       });
       reset(user);
