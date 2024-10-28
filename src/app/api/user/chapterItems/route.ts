@@ -6,7 +6,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { brokerId: string } }
 ) {
-  let broker_id: any = req.nextUrl.searchParams.get('brokerId');
+  const broker_id: any = req.nextUrl.searchParams.get('brokerId');
   try {
     console.log(params, 'broker id', broker_id);
     const brokerIdParsed = parseInt(broker_id, 10);
@@ -48,10 +48,7 @@ export async function GET(
   }
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { itemId: string } }
-) {
+export async function POST(req: NextRequest) {
   const itemId: any = req.nextUrl.searchParams.get('itemId');
   const { action } = await req.json();
 

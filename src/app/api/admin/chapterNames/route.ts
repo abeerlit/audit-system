@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import * as XLSX from 'xlsx';
 import prisma from '../../../../../config/prisma'; // Adjust the path to your prisma config
 
 export const dynamic = 'force-dynamic'; // New way to disable static optimization in Next.js App Router
