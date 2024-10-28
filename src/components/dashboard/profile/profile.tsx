@@ -88,7 +88,7 @@ const Profile = () => {
     if (user.id) {
       setProfile({
         ...user,
-        experience: String(user.experience),
+        experience: user.experience + "",
         profileImage: user.profileImage
           ? user.profileImage
           : profile.profileImage,
