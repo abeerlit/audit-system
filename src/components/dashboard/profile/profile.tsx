@@ -88,6 +88,7 @@ const Profile = () => {
     if (user.id) {
       setProfile({
         ...user,
+        experience: String(user.experience),
         profileImage: user.profileImage
           ? user.profileImage
           : profile.profileImage,
@@ -95,7 +96,7 @@ const Profile = () => {
       });
       reset(user);
     }
-  }, [reset]);
+  }, [reset, profile.profileImage]);
 
   // Image upload and updating profile with uploaded image URL
   const handleFileChange = useCallback(

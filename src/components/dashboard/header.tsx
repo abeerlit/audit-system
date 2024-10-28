@@ -4,14 +4,21 @@ import React from "react";
 import InfoIcon from "../icons/dashboard/header/info-icon";
 import NotificationIcon from "../icons/dashboard/header/notification-icon";
 import SearchIcon from "../icons/dashboard/header/search-icon";
+import { useDispatch } from "react-redux";
+import { openSidebar } from "@/store/slices/toggleSidebarSlice";
+import HamburgerIcon from "../icons/dashboard/header/hamburger-icon";
 
 interface HeaderProps {
   route?: string;
 }
 
 const Header: React.FC<HeaderProps> = ({ route }) => {
+  const dispatch = useDispatch();
   return (
-    <div className="flex gap-4 flex-wrap">
+    <div className="flex items-start gap-4 flex-wrap">
+      <button onClick={() => dispatch(openSidebar(true))} className="max-md:block hidden rounded-lg p-2 hover:bg-gray-200 bg-white">
+        <HamburgerIcon className="min-w-7" />
+      </button>
       {/* Breadcrumb */}
       <div>
         <div className="text-light-gray capitalize text-sm">

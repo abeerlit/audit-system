@@ -1,4 +1,5 @@
-import React from 'react';
+import React from "react";
+import CloseIcon from "./icons/close";
 
 interface ModalProps {
   isOpen: boolean;
@@ -7,18 +8,19 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
-    if (!isOpen) return null;
+  if (!isOpen) return null;
 
   return (
     <div className="fixed z-50 inset-0 bg-black bg-opacity-60 overflow-y-auto min-h-screen w-full flex justify-center items-center">
-        <div className="p-5 relative border shadow-lg rounded-lg bg-white">
-            <button onClick={onClose} className="absolute top-0 right-0 m-4 text-light-gray hover:text-light-blue transition-all duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-            {children}
-        </div>
+      <div className="p-5 relative border shadow-lg rounded-lg bg-white">
+        <button
+          onClick={onClose}
+          className="absolute top-0 right-0 m-4 text-light-gray hover:text-light-blue transition-all duration-300"
+        >
+          <CloseIcon className="w-6 h-6" />
+        </button>
+        {children}
+      </div>
     </div>
   );
 };
