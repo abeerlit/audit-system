@@ -225,17 +225,7 @@ async function loginUser(data: any) {
     return NextResponse.json(
       {
         token,
-        user: {
-          id: user.id,
-          email: user.email,
-          phoneNumber: user.phoneNumber,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          experience: user.experience,
-          specialty: user.specialty,
-          otpVerified: user.otpVerified,
-          role: user.role,
-        },
+        user: user,
         message: 'Login successful',
         error: false,
       },
