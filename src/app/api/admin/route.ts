@@ -1,9 +1,26 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../../config/prisma';
 // GET: Fetch all users
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const allUsers = await prisma.user.findMany();
+    // Retrieve the logged-in user's ID from headers or session
+    const loggedInUserId = req.nextUrl.searchParams.get('userId'); // Modify as per your source of the user ID
+
+    if (!loggedInUserId) {
+      return NextResponse.json(
+        { error: true, message: 'User ID is required.' },
+        { status: 400 }
+      );
+    }
+
+    // Fetch all users except the logged-in user
+    const allUsers = await prisma.user.findMany({
+      where: {
+        id: {
+          not: parseInt(loggedInUserId, 10),
+        },
+      },
+    });
 
     return NextResponse.json({ users: allUsers, error: false, status: 200 });
   } catch (error) {
