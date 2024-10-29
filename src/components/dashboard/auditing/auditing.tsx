@@ -1,105 +1,26 @@
 import CardViewIcon from "@/components/icons/dashboard/auditing/cardview-icon";
 import TableViewIcon from "@/components/icons/dashboard/auditing/tableview-icon";
-import Image, { StaticImageData } from "next/image";
+import Image from "next/image";
 import { useState } from "react";
 import image from "@/images/mock-photo.jpg";
 import DropdownIcon from "@/components/icons/dashboard/auditing/dropdown-icon";
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  weight: number;
-  hsCode: string;
-  image: StaticImageData;
-}
-
-const products: Product[] = [
-  {
-    id: "1",
-    name: "Potty (Leslie Patricelli board books)",
-    price: 93,
-    weight: 93,
-    hsCode: "930300",
-    image,
-  },
-  {
-    id: "2",
-    name: "Goodnight Moon",
-    price: 150,
-    weight: 120,
-    hsCode: "940300",
-    image,
-  },
-  {
-    id: "3",
-    name: "Where the Wild Things Are",
-    price: 200,
-    weight: 130,
-    hsCode: "950300",
-    image,
-  },
-  {
-    id: "4",
-    name: "The Very Hungry Caterpillar",
-    price: 120,
-    weight: 80,
-    hsCode: "960300",
-    image,
-  },
-  {
-    id: "5",
-    name: "Brown Bear, Brown Bear, What Do You See?",
-    price: 100,
-    weight: 75,
-    hsCode: "970300",
-    image,
-  },
-  {
-    id: "6",
-    name: "The Cat in the Hat",
-    price: 180,
-    weight: 95,
-    hsCode: "980300",
-    image,
-  },
-  {
-    id: "7",
-    name: "Green Eggs and Ham",
-    price: 170,
-    weight: 110,
-    hsCode: "990300",
-    image,
-  },
-  {
-    id: "8",
-    name: "Goodnight, Goodnight, Construction Site",
-    price: 140,
-    weight: 90,
-    hsCode: "100300",
-    image,
-  },
-  {
-    id: "9",
-    name: "Guess How Much I Love You",
-    price: 130,
-    weight: 85,
-    hsCode: "101300",
-    image,
-  },
-  {
-    id: "10",
-    name: "The Tale of Peter Rabbit",
-    price: 160,
-    weight: 100,
-    hsCode: "102300",
-    image,
-  },
-];
+import { RootState } from "@/store/store";
+import { useSelector } from "react-redux";
+import { AuditingItems } from "@/store/slices/auditingItemsSlice";
 
 const Auditing = () => {
   const [view, setView] = useState<"table" | "card">("card");
+  const auditingData: AuditingItems[] = useSelector(
+    (state: RootState) => state.auditingItems
+  );
 
+  if (!auditingData.length) {
+    return (
+      <div className="text-center text-auth-purple text-xl italic leading-[100px]">
+        Nothing to show
+      </div>
+    );
+  }
   return (
     <div className="">
       <div className="flex justify-between mb-4">
@@ -151,22 +72,38 @@ const Auditing = () => {
               </tr>
             </thead>
             <tbody>
-              {products.map((product) => (
+              {auditingData?.map((product) => (
                 <tr key={product.id} className="hover:bg-gray-100 border-t">
-                  <td className="p-4 text-nowrap">{product.name}</td>
+                  <td className="p-4 text-nowrap">{product.search_sentence}</td>
                   <td className="p-4 text-nowrap">
                     <Image
-                      src={product.image}
-                      alt={product.name}
-                      className="min-w-40 h-20 rounded-xl"
+                      src={
+                        product.item_image?.includes("http")
+                          ? product.item_image
+                          : image
+                      }
+                      alt={
+                        product.item_image?.includes("http")
+                          ? String(product.search_sentence)
+                          : "Mock Image"
+                      }
+                      className="min-w-40 h-20 rounded-xl border"
                       width={100}
                       height={100}
                     />
                   </td>
-                  <td className="p-4 text-nowrap">{product.price}</td>
-                  <td className="p-4 text-nowrap">{product.weight}</td>
                   <td className="p-4 text-nowrap">
-                    <div className="border rounded-full px-4 py-1">{product.hsCode}</div>
+                    {product.item_price ? product.item_price : "No Price"}
+                  </td>
+                  <td className="p-4 text-nowrap">
+                    {product.item_weight ? product.item_weight : "No Weight"}
+                  </td>
+                  <td className="p-4 text-nowrap">
+                    <div className="border rounded-full px-4 py-1">
+                      {product.original_hs_code
+                        ? product.original_hs_code
+                        : "No HS Code"}
+                    </div>
                   </td>
                   <td className="p-4 text-nowrap relative">
                     <button
@@ -214,66 +151,74 @@ const Auditing = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols xl:grid-cols-3 2xl:grid-cols-4 xl:gap-8 md:gap-6 gap-4">
-          {products.map((product) => (
+          {auditingData.map((product) => (
             <div key={product.id} className="p-4 bg-white rounded-3xl">
               <Image
-                src={product.image}
-                alt={product.name}
-                className="w-full h-48 object-cover rounded-2xl"
+                src={
+                  product.item_image?.includes("http")
+                    ? product.item_image
+                    : image
+                }
+                alt={
+                  product.item_image?.includes("http")
+                    ? String(product.search_sentence)
+                    : "Mock Image"
+                }
+                className="w-full h-48 object-cover rounded-2xl border"
                 width={300}
                 height={300}
               />
               <h2 className="text-auth-purple text-xl text-nowrap truncate w-full pt-4 font-bold">
-                {product.name}
+                {product.search_sentence}
               </h2>
               {/* values */}
               <div className="mt-8 w-full text-auth-purple font-medium grid grid-cols-2 gap-4">
-                <label
-                  htmlFor="price"
-                  className="flex gap-1 flex-col overflow-hidden"
-                >
+                <label className="flex gap-1 flex-col overflow-hidden">
                   Price
                   <input
+                    readOnly
                     type="text"
-                    id="price"
                     className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1"
-                    defaultValue={product.price}
+                    defaultValue={
+                      product.item_price ? product.item_price : "No Price"
+                    }
                   />
                 </label>
-                <label
-                  htmlFor="weight"
-                  className="flex gap-1 flex-col overflow-hidden"
-                >
+                <label className="flex gap-1 flex-col overflow-hidden">
                   Weight
                   <input
+                    readOnly
                     type="text"
-                    id="weight"
                     className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1"
-                    defaultValue={product.weight}
+                    defaultValue={
+                      product.item_weight ? product.item_weight : "No Weight"
+                    }
                   />
                 </label>
-                <label
-                  htmlFor="hsCode"
-                  className="flex gap-1 flex-col overflow-hidden"
-                >
+                <label className="flex gap-1 flex-col overflow-hidden">
                   Hs Code
                   <input
+                    readOnly
                     type="text"
-                    id="hsCode"
                     className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1"
-                    defaultValue={product.hsCode}
+                    defaultValue={
+                      product.original_hs_code
+                        ? product.original_hs_code
+                        : "No HS Code"
+                    }
                   />
                 </label>
-                <label
-                  htmlFor="EditedHsCode"
-                  className="flex gap-1 flex-col text-nowrap truncate w-full overflow-hidden"
-                >
+                <label className="flex gap-1 flex-col text-nowrap truncate w-full overflow-hidden">
                   Edited Hs Code
                   <input
+                    readOnly
                     type="text"
-                    id="EditedHsCode"
                     className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1"
-                    defaultValue={940367}
+                    defaultValue={
+                      product.original_hs_code
+                        ? product.original_hs_code
+                        : "No Edited HS Code"
+                    }
                   />
                 </label>
               </div>

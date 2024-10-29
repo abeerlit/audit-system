@@ -1,5 +1,5 @@
 import Modal from "@/components/modal";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import UploadData from "./upload-data";
 import { RootState } from "@/store/store";
 import { User } from "@/store/slices/userSlice";
@@ -7,12 +7,17 @@ import { useSelector } from "react-redux";
 import HeartIcon from "@/components/icons/dashboard/chapters/heart-icon";
 import HeartFilledIcon from "@/components/icons/dashboard/chapters/heart-filled-icon";
 import CollapsibleIcon from "@/components/icons/dashboard/chapters/collapsable-icon";
+import axios from "axios";
+import toast from "react-hot-toast";
+import EditIcon from "@/components/icons/dashboard/users/edit-icon";
 
 interface SectionProps {
   sectionTitle: string;
   totalChapters: number;
   totalItems: number;
   sectionNumber: string;
+  brokerName: string;
+  isAdmin: boolean;
   children: React.ReactNode;
 }
 
@@ -22,87 +27,14 @@ interface ItemProps {
   pendingCount: string;
 }
 
-const sectionsData = [
-  {
-    sectionTitle: "Live Animals; Animal Products",
-    totalChapters: 12,
-    totalItems: 400,
-    sectionNumber: "01",
-    items: [
-      {
-        itemNumber: "01",
-        status: "This document is for verification",
-        pendingCount: "03 out of 26",
-      },
-    ],
-  },
-  {
-    sectionTitle: "Vegetable Products",
-    totalChapters: 12,
-    totalItems: 400,
-    sectionNumber: "02",
-    items: [
-      {
-        itemNumber: "021",
-        status: "This document is for verification",
-        pendingCount: "03 out of 26",
-      },
-      {
-        itemNumber: "022",
-        status: "This document is for verification",
-        pendingCount: "05 out of 10",
-      },
-      {
-        itemNumber: "023",
-        status: "This document is for verification",
-        pendingCount: "07 out of 20",
-      },
-      {
-        itemNumber: "024",
-        status: "This document is for verification",
-        pendingCount: "08 out of 22",
-      },
-    ],
-  },
-  {
-    sectionTitle: "Mineral Products",
-    totalChapters: 12,
-    totalItems: 400,
-    sectionNumber: "03",
-    items: [
-      {
-        itemNumber: "03",
-        status: "This document is for verification",
-        pendingCount: "07 out of 20",
-      },
-    ],
-  },
-  {
-    sectionTitle: "Prepared Foodstuff",
-    totalChapters: 12,
-    totalItems: 400,
-    sectionNumber: "04",
-    items: [
-      {
-        itemNumber: "041",
-        status: "This document is for verification",
-        pendingCount: "03 out of 26",
-      },
-      {
-        itemNumber: "042",
-        status: "This document is for verification",
-        pendingCount: "07 out of 20",
-      },
-    ],
-  },
-];
-
 const Section: React.FC<SectionProps> = ({
   sectionTitle,
   totalChapters,
   totalItems,
   children,
   sectionNumber,
+  brokerName,
+  isAdmin,
 }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isItemsVisible, setIsItemsVisible] = useState(true);
@@ -113,9 +45,18 @@ const Section: React.FC<SectionProps> = ({
         <span className="font-semibold text-light-gray">
           Section {sectionNumber}
         </span>
-        <button className="ms-auto" onClick={() => setIsFavorite(!isFavorite)}>
-          {isFavorite ? <HeartFilledIcon /> : <HeartIcon />}
-        </button>
+        {isAdmin ? (
+          <span className="text-light-blue ms-6 capitalize border border-light-blue rounded-lg px-2">
+            {brokerName} <EditIcon className="w-4 h-4 ms-1 inline-block" />
+          </span>
+        ) : (
+          <button
+            className="ms-auto"
+            onClick={() => setIsFavorite(!isFavorite)}
+          >
+            {isFavorite ? <HeartFilledIcon /> : <HeartIcon />}
+          </button>
+        )}
       </div>
       <div className="border rounded-2xl mt-4 overflow-auto">
         <div className="min-w-fit">
@@ -175,6 +116,39 @@ const ChapterHeader: React.FC<{
 const Chapters: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const userData: User = useSelector((state: RootState) => state.user);
+  const [chapters, setChapters] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const getAllChapters = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`/api/admin/chapters`);
+      setChapters(response.data.chapters);
+      console.log("getAllChapters response", response.data.chapters);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(error.response.data?.message || "Something went wrong!");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (userData.role === "admin") {
+      getAllChapters();
+    }
+  }, [userData.role]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center ">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-light-blue border-solid"></div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -192,24 +166,36 @@ const Chapters: React.FC = () => {
           </button>
         </div>
       )}
-      {sectionsData.map((section, index) => (
-        <Section
-          key={index}
-          sectionTitle={section.sectionTitle}
-          totalChapters={section.totalChapters}
-          totalItems={section.totalItems}
-          sectionNumber={section.sectionNumber}
-        >
-          {section.items.map((item, itemIndex) => (
-            <Item
-              key={itemIndex}
-              itemNumber={item.itemNumber}
-              status={item.status}
-              pendingCount={item.pendingCount}
-            />
-          ))}
-        </Section>
-      ))}
+      {!chapters.length ? (
+        <div className="text-center text-auth-purple text-xl italic leading-[100px]">
+          Nothing to show
+        </div>
+      ) : (
+        chapters.map((section, index) => (
+          <Section
+            key={index}
+            sectionTitle={section.chapter_name}
+            totalChapters={1}
+            totalItems={section?.chapterItems?.length}
+            sectionNumber={String(index + 1)}
+            brokerName={
+              section?.brokerName?.firstName +
+              " " +
+              section?.brokerName?.lastName
+            }
+            isAdmin={userData.role === "admin"}
+          >
+            {section?.chapterItems?.map((item: any, itemIndex: number) => (
+              <Item
+                key={itemIndex}
+                itemNumber={String(itemIndex + 1)}
+                status={item?.search_sentence}
+                pendingCount={String(0)}
+              />
+            ))}
+          </Section>
+        ))
+      )}
     </div>
   );
 };

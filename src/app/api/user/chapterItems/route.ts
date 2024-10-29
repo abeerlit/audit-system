@@ -29,14 +29,6 @@ export async function GET(
       },
     });
 
-    // If no chapterItems found, return a 404 response
-    if (!chapterItems || chapterItems.length === 0) {
-      return NextResponse.json(
-        { error: true, message: 'No chapter items found for this broker.' },
-        { status: 404 }
-      );
-    }
-
     // Return the chapterItems in the response
     return NextResponse.json({ chapterItems, error: false, status: 200 });
   } catch (error) {

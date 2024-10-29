@@ -2,19 +2,26 @@
 import Sidebar from "./sidebar";
 import axios from "axios";
 import { useEffect } from "react";
-import { addUsers } from "@/store/slices/usersSlice";
+import { addUsers, Users } from "@/store/slices/usersSlice";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import { RootState } from "@/store/store";
 import { addUser, User } from "@/store/slices/userSlice";
 import { closeSidebar } from "@/store/slices/toggleSidebarSlice";
 import CloseIcon from "../icons/close";
+import { addAuditingItems, AuditingItems } from "@/store/slices/auditingItemsSlice";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   // load users if user is admin
   const dispatch = useDispatch();
   const userData: User = useSelector(
     (state: RootState) => state.user
+  );
+  const usersData: Users[] = useSelector(
+    (state: RootState) => state.users
+  );
+  const auditingItemsData: AuditingItems[] = useSelector(
+    (state: RootState) => state.auditingItems
   );
   const isSidebarOpen: boolean = useSelector(
     (state: RootState) => state.toggleSidebar.isSidebarOpen
@@ -33,16 +40,42 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       }
     }
   };
+
   useEffect(() => {
-    // userData.role == "admin"
+    if (usersData[0].otpVerified) return;
     if (userData && userData.role == 'admin' && userData.id) {
       getAllUsers(userData.id);
     }
+  }, [userData, usersData]);
+
+  const getAllChapterItems = async (userId: number) => {
+    try {
+      const response = await axios.get(`/api/user/chapterItems?brokerId=${userId}`);
+      dispatch(addAuditingItems(response.data.chapterItems));
+      console.log("getAllChapterItems response", response.data.chapterItems);
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(error.response.data?.message || "Something went wrong!");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (auditingItemsData[0].id !== -1 || userData.role == 'admin') return;
+    if (userData.id) {
+      getAllChapterItems(userData.id);
+    }
+  }, [userData.id]);
+
+  useEffect(() => {
+    if (userData.otpVerified) return;
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (user?.id&& user?.email) {
       dispatch(addUser(user))
     }
-  }, [userData.role]);
+  }, [userData.otpVerified]);
 
   return (
     <div className="flex min-h-screen max-h-screen overflow-auto">

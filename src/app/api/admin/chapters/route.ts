@@ -22,7 +22,6 @@ export async function GET(req: NextRequest) {
     const chapters = await prisma.chapters.findMany({
       where: brokerIdParsed ? { broker_id: brokerIdParsed } : {},
       include: {
-        chapter: true, // Includes associated Chapter records
         brokerName: true, // Includes User model for brokerName
         chapterItems: true, // Includes associated ChapterItem records
       },

@@ -22,16 +22,7 @@ const Sidebar = () => {
         icon: <></>,
       },
     ],
-    logout: {
-      open: false,
-      content: (
-        <Logout
-          onClose={() =>
-            setState({ ...state, logout: { ...state["logout"], open: false } })
-          }
-        />
-      ),
-    },
+    isModalOpen: false,
   });
 
   const handleClose = () => {
@@ -40,10 +31,11 @@ const Sidebar = () => {
 
   const userData: User = useSelector((state: RootState) => state.user);
   useEffect(() => {
-    if (!userData.role) return;
-    const array = getRoutes(userData.role);
-    setState({ ...state, routes: array });
-  }, [userData.role]);
+    if (!state.routes[0].name && userData.role) {
+      const array = getRoutes(userData.role);
+      setState((prevState) => ({ ...prevState, routes: array }));
+    }
+  }, [userData.role, state.routes[0].name]);
 
   return (
     <div className="relative max-h-screen min-h-screen overflow-auto">
@@ -77,20 +69,23 @@ const Sidebar = () => {
         )}
         <button
           className="flex items-center gap-3 px-4 py-2 font-semibold text-light-gray hover:text-light-blue"
-          onClick={() =>
-            setState({ ...state, logout: { ...state["logout"], open: true } })
-          }
+          onClick={() => setState({ ...state, isModalOpen: true })}
         >
           <LogoutIcon className="" />
           Logout
         </button>
         <Modal
-          isOpen={state["logout"]?.open}
-          onClose={() =>
-            setState({ ...state, logout: { ...state["logout"], open: false } })
-          }
+          isOpen={state.isModalOpen}
+          onClose={() => setState({ ...state, isModalOpen: false })}
         >
-          {state["logout"]?.content}
+          <Logout
+            onClose={() =>
+              setState({
+                ...state,
+                isModalOpen: false,
+              })
+            }
+          />
         </Modal>
       </div>
     </div>
