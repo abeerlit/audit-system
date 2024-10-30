@@ -14,7 +14,7 @@ const Auditing = () => {
     (state: RootState) => state.auditingItems
   );
 
-  if (!auditingData.length) {
+  if (auditingData[0]?.id == -1 || auditingData.length === 0) {
     return (
       <div className="text-center text-auth-purple text-xl italic leading-[100px]">
         Nothing to show

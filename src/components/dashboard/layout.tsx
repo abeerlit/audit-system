@@ -31,7 +31,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     try {
       const response = await axios.get(`/api/admin?userId=${userId}`);
       dispatch(addUsers(response.data?.users));
-      console.log('getAllUsers response', response.data);
+      console.log('getAllUsers response', response.data?.users);
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         toast.error(error.response.data?.message || 'Something went wrong!');
@@ -63,11 +63,11 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    if (auditingItemsData[0].id !== -1 || userData.role == 'admin') return;
-    if (userData.id) {
+    if (auditingItemsData[0]?.id !== -1) return;
+    if (userData.id && userData.role !== "admin") {
       getAllChapterItems(userData.id);
     }
-  }, [userData.id]);
+  }, [userData.id, userData.role]);
 
   useEffect(() => {
     if (userData.otpVerified) return;

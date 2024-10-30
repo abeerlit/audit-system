@@ -119,10 +119,12 @@ const Chapters: React.FC = () => {
   const [chapters, setChapters] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const getAllChapters = async () => {
+  const getAllChapters = async (userId: number = 0) => {
     setLoading(true);
     try {
-      const response = await axios.get(`/api/admin/chapters`);
+      const response = await axios.get(
+        `/api/admin/chapters${userId ? "?broker_id=" + userId : ""}`
+      );
       setChapters(response.data.chapters);
       console.log("getAllChapters response", response.data.chapters);
       setLoading(false);
@@ -139,8 +141,10 @@ const Chapters: React.FC = () => {
   useEffect(() => {
     if (userData.role === "admin") {
       getAllChapters();
+    } else if (userData.role && userData.id) {
+      getAllChapters(userData.id);
     }
-  }, [userData.role]);
+  }, [userData.role, userData.id]);
 
   if (loading) {
     return (

@@ -1,20 +1,73 @@
-import React, { useState } from "react";
+import React, { useState, Fragment, useEffect } from "react";
 import Image from "next/image";
 import image from "@/images/mock-photo.jpg";
 import DiscussionIcon from "@/components/icons/dashboard/discussion-icon";
 import { useSelector } from "react-redux";
 import { AuditingItems } from "@/store/slices/auditingItemsSlice";
 import { RootState } from "@/store/store";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { User } from "@/store/slices/userSlice";
+import moment from "moment";
 
 const Discussion = () => {
   const [activeDiscussion, setActiveDiscussion] = useState<number | null>(null);
   const [newComment, setNewComment] = useState<string>("");
-
   const auditingData: AuditingItems[] = useSelector(
     (state: RootState) => state.auditingItems
   );
+  const [comments, setComments] = useState<any[]>([]);
+  const userData: User = useSelector(
+    (state: RootState) => state.user
+  );
 
-  if (!auditingData.length) {
+  const handlePostComment = async () => {
+    try {
+      toast.loading("Posting comment...");
+      setNewComment("");
+      const response = await axios.post(`/api/user/chapterItems/comments`, {
+        user_id: userData.id,
+        chapter_item_id: activeDiscussion,
+        content: newComment,
+      });
+      toast.dismiss();
+      console.log("handlePostComment response", response.data.comment);
+      setComments((prev) => [...prev, response.data.comment]);
+      toast.success("Comment posted successfully");
+    } catch (error) {
+      toast.dismiss();
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(error.response.data?.message || "Something went wrong!");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
+  };
+
+  const fetchComments = async () => {
+    try {
+      toast.loading("Fetching comments...");
+      const response = await axios.get(`/api/user/chapterItems/comments?chapter_item_id=${activeDiscussion}`);
+      console.log("fetchComments response", response.data.comments);
+      setComments(response.data.comments);
+      toast.dismiss();
+    } catch (error) {
+      toast.dismiss();
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(error.response.data?.message || "Something went wrong!");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (activeDiscussion) {
+      fetchComments();
+    }
+  }, [activeDiscussion]);
+
+  if (auditingData[0]?.id == -1 || auditingData.length === 0) {
     return (
       <div className="text-center text-auth-purple text-xl italic leading-[100px]">
         Nothing to show
@@ -38,8 +91,8 @@ const Discussion = () => {
         </thead>
         <tbody>
           {auditingData.map((product) => (
-            <>
-              <tr key={product.id} className="border-t">
+            <Fragment key={product.id}>
+              <tr className="border-t">
                 <td className="p-4 text-nowrap">{product.search_sentence}</td>
                 <td className="p-4 text-nowrap">
                   <Image
@@ -78,11 +131,16 @@ const Discussion = () => {
                       "hover:bg-[#F3F3F3] rounded-full p-2 " +
                       (activeDiscussion === product.id ? "bg-[#F3F3F3]" : "")
                     }
-                    onClick={() =>
-                      setActiveDiscussion(
-                        activeDiscussion === product.id ? null : product.id
-                      )
-                    }
+                    onClick={() => {
+                      if (activeDiscussion === product.id) {
+                        setActiveDiscussion(null);
+                        setNewComment("");
+                      } else if (activeDiscussion !== product.id) {
+                        setActiveDiscussion(product.id);
+                        setComments([]);
+                        setNewComment("");
+                      }
+                    }}
                   >
                     <DiscussionIcon className="w-6 h-6" />
                     {/* {product.discussions.length} */}
@@ -131,43 +189,44 @@ const Discussion = () => {
               {activeDiscussion === product.id && (
                 <tr key={product.item_price} className="border-t">
                   <td colSpan={7} className="p-4 bg-[#f3f3f3]">
-                    {[].map((discussion, index) => (
-                      <div
-                        key={index}
-                        className="mb-2 bg-white p-2 px-4 rounded-lg"
-                      >
-                        <div className="flex items-center justify-between">
-                          <strong>{discussion}</strong>
-                          <span className="text-sm text-gray-500">
-                            {discussion}
-                          </span>
-                        </div>
-                        <p className="text-sm mt-2 font-normal">
-                          {discussion}
-                        </p>
+                    {comments?.length === 0 ? (
+                      <div className="text-center text-auth-purple">
+                        No comments yet
                       </div>
-                    ))}
+                    ) : (
+                      comments?.map((comment, index) => (
+                        <div
+                          key={index}
+                          className="mb-2 bg-white p-2 px-4 rounded-lg"
+                        >
+                          <div className="flex items-center justify-between">
+                            <strong className="capitalize">
+                              {comment.user.firstName} {comment.user.lastName} {comment?.user?.id == userData.id ? "- (You)" : ""}
+                            </strong>
+                            <span className="text-sm text-gray-500">
+                              {moment(comment.createdAt).format('DD/MM/YYYY')}
+                            </span>
+                          </div>
+                          <p className="text-sm mt-2 font-normal">
+                            {comment.content}
+                          </p>
+                        </div>
+                      ))
+                    )}
                     <div className="mt-4 flex gap-2 border-2 px-2 py-1 rounded-lg focus-within:border-blue-500">
                       <input
                         type="text"
                         value={newComment}
-                        onChange={(e) => setNewComment(e.target.value.trim())}
+                        onChange={(e) => setNewComment(e.target.value)}
                         placeholder="Add a comment"
                         className="w-full bg-transparent focus:outline-none"
                       />
                       <button
                         type="button"
-                        className="bg-light-blue text-white px-4 py-2 rounded-full"
-                        onClick={() => {
-                          if (newComment.trim()) {
-                            // Array.push({
-                            //   author: "You (Admin)",
-                            //   message: newComment,
-                            //   date: new Date().toLocaleDateString(),
-                            // });
-                            setNewComment("");
-                          }
-                        }}
+                        disabled={!newComment.trim()}
+                        className={`bg-light-blue text-white px-4 py-2 rounded-full
+                        ${!newComment.trim() ? "opacity-50" : ""}`}
+                        onClick={handlePostComment}
                       >
                         Post
                       </button>
@@ -175,7 +234,7 @@ const Discussion = () => {
                   </td>
                 </tr>
               )}
-            </>
+            </Fragment>
           ))}
         </tbody>
       </table>

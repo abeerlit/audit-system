@@ -90,6 +90,8 @@ const Profile = () => {
         ...user,
         experience: user.experience + "",
         profileImage: user.profileImage
+          ?.toString()
+          .includes('cloudinary')
           ? user.profileImage
           : profile.profileImage,
         file: null,
@@ -284,8 +286,8 @@ const Profile = () => {
 // Component for rendering profile view
 const ProfileView = ({ profile, handleFileChange }: any) => (
   <div className="flex flex-col min-w-[300px] gap-3 p-4 md:p-7 bg-white md:rounded-[30px] rounded-[20px]">
-    <span className="text-light-gray">
-      Joined {moment(profile.joinedAt).format('MM/DD/YYYY')}
+    <span className="text-light-gray" onClick={() => console.log(profile)}>
+      Joined {moment(profile.createdAt).format('DD/MM/YYYY')}
     </span>
     <label
       htmlFor="file-input"
