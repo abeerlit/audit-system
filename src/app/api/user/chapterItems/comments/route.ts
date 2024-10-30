@@ -24,6 +24,16 @@ export async function GET(req: NextRequest) {
 
     const comments = await prisma.comments.findMany({
       where: { chapter_item_id: chapterItemIdParsed },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true, // Select only the username field
+            lastName: true,
+            role: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json({ comments, error: false }, { status: 200 });
@@ -58,6 +68,16 @@ export async function POST(req: NextRequest) {
         user_id,
         chapter_item_id,
         content,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true, // Select only the username field
+            lastName: true,
+            role: true,
+          },
+        },
       },
     });
 
