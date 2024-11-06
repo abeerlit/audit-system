@@ -5,10 +5,10 @@ import Image from "next/image";
 const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="min-h-screen flex">
-      <div className="w-1/2 p-6 flex flex-col justify-center items-center">
+      <div className="w-1/2 max-sm:w-full  p-6 flex flex-col justify-center items-center">
         {children}
       </div>
-      <div className="w-1/2 relative min-h-screen">
+      <div className="w-1/2 max-sm:hidden relative min-h-screen">
         <Image
           aria-hidden
           priority

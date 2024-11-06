@@ -9,10 +9,19 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { User } from "@/store/slices/userSlice";
 import moment from "moment";
-
+import FlagIcon from '@/components/icons/dashboard/auditing/flag-icon';
+import SkipIcon from '@/components/icons/dashboard/auditing/skip-icon';
+import EditIcon from '@/components/icons/dashboard/users/edit-icon';
+import AcceptIcon from '@/components/icons/dashboard/auditing/accept-icon';
+import Modal from "@/components/modal";
+import CheckIcon from "@/components/icons/dashboard/auditing/check-icon";
 const Discussion = () => {
   const [activeDiscussion, setActiveDiscussion] = useState<number | null>(null);
+  const [auditAction, setAuditAction] = useState<'new' | 'accept' | 'skip' | 'edit' | 'flag'>('new');
+
   const [newComment, setNewComment] = useState<string>("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const auditingData: AuditingItems[] = useSelector(
     (state: RootState) => state.auditingItems
   );
@@ -43,7 +52,32 @@ const Discussion = () => {
       }
     }
   };
-
+  const handleAuditAction = async (
+    action: 'new' | 'accept' | 'skip' | 'edit' | 'flag',
+    productId: number
+  ) => {
+    try {
+      toast.loading('Adding Action...');
+      const response = await axios.post(
+        `/api/user/chapterItems?itemId=${productId}`,
+        {
+          action: action,
+        }
+      );
+      toast.dismiss();
+      console.log('handleAuditAction response', response.data.comment);
+      setAuditAction(action)
+      // toast.success('Action updated successfully');
+      setIsModalOpen(true);
+    } catch (error) {
+      toast.dismiss();
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(error.response.data?.message || 'Something went wrong!');
+      } else {
+        toast.error('An unexpected error occurred');
+      }
+    }
+  };
   const fetchComments = async () => {
     try {
       toast.loading("Fetching comments...");
@@ -157,31 +191,43 @@ const Discussion = () => {
                       bg-white border rounded-xl overflow-hidden shadow-md hidden group-focus:block"
                     >
                       <ul>
-                        <li
-                          onClick={() => console.log(product)}
-                          className="py-1 px-4 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Accept
-                        </li>
-                        <li
-                          onClick={() => console.log(product)}
-                          className="py-1 px-4 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Skip
-                        </li>
-                        <li
-                          onClick={() => console.log(product)}
-                          className="py-1 px-4 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Edit
-                        </li>
-                        <li
-                          onClick={() => console.log(product)}
-                          className="py-1 px-4 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Flag Item
-                        </li>
-                      </ul>
+                          <li
+                            onClick={() =>
+                              handleAuditAction('accept', product.id)
+                            }
+                            className="flex gap-1 items-center py-1 px-4 hover:bg-gray-100 cursor-pointer"
+                          >
+                            <AcceptIcon />
+                            <p> Accept</p>
+                          </li>
+                          <li
+                            onClick={() =>
+                              handleAuditAction('skip', product.id)
+                            }
+                            className="flex gap-1 items-center py-1 px-4 hover:bg-gray-100 cursor-pointer"
+                          >
+                            <SkipIcon />
+                            <p>Skip</p>
+                          </li>
+                          <li
+                            onClick={() =>
+                              handleAuditAction('edit', product.id)
+                            }
+                            className=" flex gap-1 items-center py-1 px-4 hover:bg-gray-100 cursor-pointer"
+                          >
+                            <EditIcon />
+                            <p>Edit</p>
+                          </li>
+                          <li
+                            onClick={() =>
+                              handleAuditAction('flag', product.id)
+                            }
+                            className="flex gap-1 items-center py-1 px-4 hover:bg-gray-100 cursor-pointer"
+                          >
+                            <FlagIcon />
+                            <p>Flag Item</p>
+                          </li>
+                        </ul>
                     </div>
                   </button>
                 </td>
@@ -238,6 +284,16 @@ const Discussion = () => {
           ))}
         </tbody>
       </table>
+      <Modal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        >
+         <div className='flex flex-col items-center justify-center gap-4 mx-[100px] my-[20px]'>
+
+          <CheckIcon/>
+          <h1 className='text-[24px] font-bold text-[#2B3674] text-center'>Your Item {auditAction}ed <br /> Successfully! </h1>
+         </div>
+        </Modal>
     </div>
   );
 };
