@@ -45,7 +45,7 @@ const Auditing = () => {
       toast.dismiss();
       console.log('handleAuditAction response', response.data.comment);
       setAuditAction(action);
-      let updatedAuditingData = auditingData.map((item) => {
+      const updatedAuditingData = auditingData.map((item) => {
         if (item.id === productId) {
           return {
             ...item,
