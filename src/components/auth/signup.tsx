@@ -10,6 +10,18 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
 import { addUser } from "@/store/slices/userSlice";
+// import { Check, Search } from "lucide-react";
+import SearchIcon from "@/components/icons/auth/search-icon-big";
+
+
+const HS_CODE_OPTIONS = [
+  { value: "Animal & Animal Products", label: "Animal & Animal Products" },
+  { value: "Vegetable Products", label: "Vegetable Products" },
+  { value: "Foodstuffs", label: "Foodstuffs" },
+  { value: "Mineral Products", label: "Mineral Products" },
+  { value: "Chemicals & Allied Industries", label: "Chemicals & Allied Industries" },
+  // Add more options as needed
+];
 
 const schema = z.object({
   firstName: z
@@ -25,20 +37,24 @@ const schema = z.object({
     .email({ message: "Oops! Invalid email address." }),
   phoneNumber: z.string().optional(),
   yearsOfExperience: z.string().optional(),
-  hsCodeSpecialty: z.string().optional(),
+  hsCodeSpecialty: z.array(z.string()).optional(),
   // same here
   password: z
     .string()
     .trim()
     .min(1, { message: "Password is required." })
     .min(8, { message: "Must contain 8 characters." }),
-  agreeToPrivacy: z.boolean().optional(),
+    agreeToPrivacy: z.boolean().refine((val) => val === true, {
+      message: " required*"
+    }),
 });
 
 const SignUpScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
   const {
     register,
@@ -48,13 +64,17 @@ const SignUpScreen = () => {
     resolver: zodResolver(schema),
   });
 
+  const filteredOptions = HS_CODE_OPTIONS.filter(option =>
+    option.label.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   // Handle form submission
   const formSubmit = async (formData: z.infer<typeof schema>) => {
-    // console.log("Form Data:", formData);
+    console.log("Form Data:", formData.hsCodeSpecialty?.join(", "));
     try {
       toast.loading("Signing Up...");
       const response = await axios.post("/api/user/auth", {
-        email: formData.email,
+        email: formData.email.toLowerCase(),
         password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -62,7 +82,7 @@ const SignUpScreen = () => {
         experience: formData?.yearsOfExperience
           ? +formData.yearsOfExperience
           : 0,
-        specialty: formData?.hsCodeSpecialty,
+        specialty: formData?.hsCodeSpecialty?.join(", "),
         action: "register",
       });
       console.log(response.data, "response");
@@ -187,20 +207,64 @@ const SignUpScreen = () => {
           </div>
 
           {/* HS Code Specialty */}
-          <div>
+          <div className="relative">
             <label
               htmlFor="hsCodeSpecialty"
               className="font-semibold text-auth-purple text-[14px]"
             >
               HS Code Specialty
             </label>
-            <input
-              type="text"
-              id="hsCodeSpecialty"
-              {...register("hsCodeSpecialty")}
-              className="mt-1 w-full border rounded-[16px] p-3"
-              placeholder="HS Code Specialty"
-            />
+            <div 
+              className="mt-1 w-full border rounded-[16px] p-3 cursor-pointer"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center flex-1">
+                  <SearchIcon/>
+                  <input
+                    type="text"
+                    placeholder="Select specialties..."
+                    className="w-full outline-none ml-2"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsOpen(true);
+                    }}
+                  />
+                </div>
+                <svg 
+                  className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+            
+            {isOpen && (
+              <div className="absolute z-10 mt-1 w-full bg-white border rounded-[16px] shadow-lg">
+                <div className="max-h-40 overflow-y-auto">
+                  {filteredOptions.map((option) => (
+                    <label
+                      key={option.value}
+                      className="flex items-center p-2 hover:bg-gray-50 cursor-pointer"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <input
+                        type="checkbox"
+                        value={option.value}
+                        {...register("hsCodeSpecialty")}
+                        className="h-4 w-4 accent-gray-100"
+                      />
+                      <span className="ml-2">{option.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -249,9 +313,18 @@ const SignUpScreen = () => {
             className="h-4 w-4 accent-sky-500"
           />
           <label htmlFor="agreeToPrivacy" className="ml-2 text-sm">
-            I agree with Privacy and Policy
+            I agree with Privacy and Policy 
           </label>
+          <div className="ml-1">
+
+          {errors.agreeToPrivacy?.message && (
+            <p className="text-red-500 text-sm">
+                {errors.agreeToPrivacy?.message}
+              </p>
+            )}
+            </div>
         </div>
+       
 
         <button
           type="submit"

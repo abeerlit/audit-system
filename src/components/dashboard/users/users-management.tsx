@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import ActivateUserIcon from "@/components/icons/dashboard/users/activate-user-icon";
 import DeactivateUserIcon from "@/components/icons/dashboard/users/deactivate-user-icon";
 import EditIcon from "@/components/icons/dashboard/users/edit-icon";
@@ -11,23 +12,36 @@ import { RootState } from "@/store/store";
 const UsersManagement = () => {
   const dispatch = useDispatch();
   const usersData: Users[] = useSelector((state: RootState) => state.users);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Calculate pagination values
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = usersData.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(usersData.length / itemsPerPage);
 
   const upgradeToExpert = async (user: any) => {
     try {
       const response = await axios.post(`/api/admin`, {
         id: user.id,
         email: user.email,
-        action: "upgrade",
+        action: user.role === "expert" ? "downgrade" : "upgrade",
       });
       console.log(response.data, "response");
       dispatch(
         addUsers(
           usersData.map((item: any) => {
-            return item.id === user.id ? { ...item, role: "expert" } : item;
+            return item.id === user.id 
+              ? { ...item, role: user.role === "expert" ? "broker" : "expert" } 
+              : item;
           })
         )
       );
-      toast.success("User upgraded to expert successfully!");
+      toast.success(user.role === "expert" 
+        ? "User downgraded to broker successfully!"
+        : "User upgraded to expert successfully!"
+      );
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         toast.error(error.response.data?.message || "Something went wrong!");
@@ -65,9 +79,35 @@ const UsersManagement = () => {
     }
   };
 
+  // Generate page numbers array
+  const getPageNumbers = () => {
+    const pages = [];
+    if (totalPages <= 7) {
+      // If total pages are 7 or less, show all pages
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Always include first three pages
+      pages.push(1, 2, 3);
+      
+      if (currentPage <= 4) {
+        // If current page is near start, show first 5 pages + last 2 pages
+        pages.push(4, 5, '...', totalPages - 1, totalPages);
+      } else if (currentPage >= totalPages - 3) {
+        // If current page is near end, show first 3 pages + last 4 pages
+        pages.push('...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        // Show current page and surrounding pages
+        pages.push('...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages - 1, totalPages);
+      }
+    }
+    return pages;
+  };
+
   return (
     <div className="overflow-auto rounded-2xl text-gray-600">
-      <table className="bg-white table-auto w-full ">
+      <table className="bg-white table-auto w-full rounded-2xl">
         <thead className="bg-light-blue text-white">
           <tr>
             <th className="p-4 text-left text-nowrap">BROKERS NAME</th>
@@ -93,7 +133,7 @@ const UsersManagement = () => {
               </td>
             </tr>
           ):null}
-          {usersData?.[0]?.otpVerified && usersData?.map((user: any, index: number) => (
+          {currentItems?.map((user: any, index: number) => (
             <tr key={index} className="border-t">
               <td className="p-4 text-nowrap">
                 {user.firstName + " " + user.lastName}
@@ -116,14 +156,10 @@ const UsersManagement = () => {
                     <div className="flex flex-col">
                       <div
                         className={"text-lef py-1 px-4 hover:bg-gray-100"}
-                        onClick={() =>
-                          user.role == "expert"
-                            ? toast.error("User is already upgraded!")
-                            : upgradeToExpert(user)
-                        }
+                        onClick={() => upgradeToExpert(user)}
                       >
                         <UpgradeIcon className="inline-block mr-2" />
-                        Upgrade to Expert
+                        {user.role === "expert" ? "Downgrade to Broker" : "Upgrade to Expert"}
                       </div>
                       <div
                         className={"text-lef py-1 px-4 hover:bg-gray-100"}
@@ -174,6 +210,59 @@ const UsersManagement = () => {
           ))}
         </tbody>
       </table>
+      
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center  gap-2 py-4">
+          <button 
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+            className=" w-[32px] h-[32px] hover:bg-light-blue bg-white rounded-lg disabled:opacity-50"
+          >
+            «
+          </button>
+          <button 
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className=" w-[32px] h-[32px] hover:bg-light-blue bg-white rounded-lg disabled:opacity-50"
+          >
+            ‹
+          </button>
+          
+          {getPageNumbers().map((number, index) => (
+            number === '...' ? (
+              <span key={index} className="px-2">...</span>
+            ) : (
+              <button
+                key={index}
+                onClick={() => setCurrentPage(number as number)}
+                className={` w-[32px] h-[32px] rounded-lg  ${
+                  currentPage === number 
+                    ? 'bg-light-blue text-white' 
+                    : 'hover:bg-light-blue bg-white'
+                }`}
+              >
+                {number}
+              </button>
+            )
+          ))}
+          
+          <button 
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className=" w-[32px] h-[32px] hover:bg-light-blue bg-white rounded-lg disabled:opacity-50"
+          >
+            ›
+          </button>
+          <button 
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+            className=" w-[32px] h-[32px] hover:bg-light-blue bg-white rounded-lg disabled:opacity-50"
+          >
+            »
+          </button>
+        </div>
+      )}
     </div>
   );
 };

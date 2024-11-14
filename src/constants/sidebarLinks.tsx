@@ -12,11 +12,8 @@ export const getRoutes = (role: string) => {
       href: "/dashboard",
       icon: <HomeIcon className="" />,
     },
-    {
-      name: "Chapters",
-      href: "/dashboard/chapters",
-      icon: <ChaptersIcon className="" />,
-    },
+
+   
     ...(role == "admin"
       ? [
           {
@@ -24,8 +21,19 @@ export const getRoutes = (role: string) => {
             href: "/dashboard/users",
             icon: <UsersIcon className="" />,
           },
+          {
+            name: "Chapters",
+            href: "/dashboard/chapters",
+            icon: <ChaptersIcon className="" />,
+          },
         ]
-      : [
+      : role === "broker"
+      ? [
+        {
+          name: "Chapters",
+          href: "/dashboard/chapters",
+          icon: <ChaptersIcon className="" />,
+        },
           {
             name: "Auditing",
             href: "/dashboard/auditing",
@@ -36,7 +44,17 @@ export const getRoutes = (role: string) => {
             href: "/dashboard/discussions",
             icon: <DiscussionsIcon className="" />,
           },
-        ]),
+        ]
+      : role ==="expert" ? [ {
+        name: "Chapters Auditing",
+        href: "/dashboard/auditing",
+        icon: <AuditingIcon className="" />,
+      },
+      {
+        name: "Discussions Review",
+        href: "/dashboard/discussions",
+        icon: <DiscussionsIcon className="" />,
+      },] : []),
     {
       name: "Profile",
       href: "/dashboard/profile",

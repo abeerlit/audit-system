@@ -10,6 +10,9 @@ import CollapsibleIcon from "@/components/icons/dashboard/chapters/collapsable-i
 import axios from "axios";
 import toast from "react-hot-toast";
 import EditIcon from "@/components/icons/dashboard/users/edit-icon";
+import TableViewIcon from "@/components/icons/dashboard/auditing/tableview-icon";
+import DropdownIcon from "@/components/icons/dashboard/auditing/dropdown-icon";
+import CardViewIcon from "@/components/icons/dashboard/auditing/cardview-icon";
 
 interface SectionProps {
   sectionTitle: string;
@@ -38,9 +41,9 @@ const Section: React.FC<SectionProps> = ({
 }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isItemsVisible, setIsItemsVisible] = useState(true);
-
   return (
     <div className="bg-white w-full rounded-2xl mt-4 p-4">
+      
       <div className="flex gap-4">
         <span className="font-semibold text-light-gray">
           Section {sectionNumber}
@@ -118,6 +121,7 @@ const Chapters: React.FC = () => {
   const userData: User = useSelector((state: RootState) => state.user);
   const [chapters, setChapters] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [view, setView] = useState<'table' | 'card'>('card');
 
   const getAllChapters = async (userId: number = 0) => {
     setLoading(true);
@@ -170,6 +174,39 @@ const Chapters: React.FC = () => {
           </button>
         </div>
       )}
+      {userData.role ==="broker" && 
+       <div className="flex justify-between mb-4">
+       <button
+         type="button"
+         className="px-3 py-2 ms-auto flex items-center font-semibold rounded-full border bg-white text-auth-purple group relative"
+       >
+        {view === 'table' ? (
+            <>
+              <span className='mr-[60px]'>All</span>
+              <DropdownIcon className="ms-4" />
+            </>
+          ) : (
+            <>
+              <span className='mr-[60px]'>All</span>
+              <DropdownIcon className="ms-4" />
+            </>
+          )}
+         <div className="absolute z-10 top-12 left-0 w-full bg-[#ececec] font-normal rounded-xl overflow-hidden shadow-md hidden group-focus:block">
+           <div
+             onClick={() => setView('table')}
+             className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap"
+           >
+             Table View
+           </div>
+           <div
+             onClick={() => setView('card')}
+             className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap border-t border-gray-300"
+           >
+             Card View
+           </div>
+         </div>
+       </button>
+     </div>}
       {!chapters.length ? (
         <div className="text-center text-auth-purple text-xl italic leading-[100px]">
           Nothing to show

@@ -41,7 +41,7 @@ export async function POST(req: any) {
     return await activateOrDeactivate(requestData);
   } else if (action === 'update') {
     return await updateUser(requestData);
-  } else if (action === 'upgrade') {
+  } else if (action === 'upgrade' || action === 'downgrade') {
     return await upgradeUser(requestData);
   } else {
     return NextResponse.json(
@@ -127,7 +127,7 @@ async function activateOrDeactivate(data: any) {
 }
 
 async function upgradeUser(data: any) {
-  const { id, email } = data;
+  const { id, email, action } = data;
   try {
     const user = await prisma.user.findUnique({
       where: { id, email },
@@ -142,7 +142,7 @@ async function upgradeUser(data: any) {
     const updatedUser = await prisma.user.update({
       where: { id },
       data: {
-        role: 'expert',
+        role : action === 'upgrade' ? 'expert' : 'broker',
       },
     });
     return NextResponse.json(

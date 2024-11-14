@@ -41,7 +41,7 @@ const Login = () => {
     try {
       toast.loading('Signing in...');
       const response = await axios.post('/api/user/auth', {
-        email: formData.email,
+        email: formData.email.toLowerCase(),
         password: formData.password,
         action: 'login',
       });

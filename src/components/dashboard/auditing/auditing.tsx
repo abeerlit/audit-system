@@ -75,6 +75,8 @@ const Auditing = () => {
   }
   return (
     <div className="">
+      <div className='flex justify-end gap-4 mb-4'>
+
       <div className="flex justify-between mb-4">
         <button
           type="button"
@@ -108,6 +110,40 @@ const Auditing = () => {
             </div>
           </div>
         </button>
+      </div>
+
+      <div className="flex justify-between mb-4">
+        <button
+          type="button"
+          className="px-3 py-2 ms-auto flex items-center font-semibold rounded-full border bg-white text-auth-purple group relative"
+        >
+          {view === 'table' ? (
+            <>
+              <span className='mr-[60px]'>All</span>
+              <DropdownIcon className="ms-4" />
+            </>
+          ) : (
+            <>
+              <span className='mr-[60px]'>All</span>
+              <DropdownIcon className="ms-4" />
+            </>
+          )}
+          <div className="absolute z-10 top-12 left-0 w-full bg-[#ececec] font-normal rounded-xl overflow-hidden shadow-md hidden group-focus:block">
+            <div
+              onClick={() => setView('table')}
+              className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap"
+            >
+              Table View
+            </div>
+            <div
+              onClick={() => setView('card')}
+              className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap border-t border-gray-300"
+            >
+              Card View
+            </div>
+          </div>
+        </button>
+      </div>
       </div>
 
       {view === 'table' ? (
