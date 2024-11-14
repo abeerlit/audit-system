@@ -10,9 +10,7 @@ import CollapsibleIcon from "@/components/icons/dashboard/chapters/collapsable-i
 import axios from "axios";
 import toast from "react-hot-toast";
 import EditIcon from "@/components/icons/dashboard/users/edit-icon";
-import TableViewIcon from "@/components/icons/dashboard/auditing/tableview-icon";
 import DropdownIcon from "@/components/icons/dashboard/auditing/dropdown-icon";
-import CardViewIcon from "@/components/icons/dashboard/auditing/cardview-icon";
 
 interface SectionProps {
   sectionTitle: string;
