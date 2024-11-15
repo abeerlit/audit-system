@@ -125,11 +125,11 @@ const UploadData = ({ onClose }: UploadDataProps) => {
       <h4>Select Chapter</h4>
       <select
         {...register("chapterName")}
-        className="p-2 w-full bg-[#F4F7FE] text-light-gray rounded-lg text-sm"
+        className="p-2 w-full max-w-[400px] bg-[#F4F7FE] text-light-gray rounded-lg text-sm"
       >
         <option value="">Select Chapter</option>
         {chapters.map((item, index) => (
-          <option key={index} value={item}>
+          <option className="max-w-[400px]" key={index} value={item}>
             {item}
           </option>
         ))}
