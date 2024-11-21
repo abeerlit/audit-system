@@ -147,7 +147,7 @@ const UploadData = ({ onClose }: UploadDataProps) => {
         <option value="">Select Broker</option>
         {usersData.map((user) => (
           <option key={user.id} value={user.id}>
-            {user.firstName}
+            {user.firstName} {user.lastName}
           </option>
         ))}
       </select>

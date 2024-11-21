@@ -15,9 +15,12 @@ import toast from 'react-hot-toast';
 import axios from 'axios';
 import Modal from '@/components/modal';
 import CheckIcon from '@/components/icons/dashboard/auditing/check-icon';
+import { User } from '@/store/slices/userSlice';
 
 const Auditing = () => {
   const dispatch = useDispatch();
+  const userData: User = useSelector((state: RootState) => state.user);
+console.log(userData.role,"userData.role");
 
   const [view, setView] = useState<'table' | 'card'>('card');
   const [auditAction, setAuditAction] = useState<
@@ -213,6 +216,7 @@ const Auditing = () => {
                             <AcceptIcon />
                             <p> Accept</p>
                           </li>
+                          {(userData.role == "admin" || userData.role == "broker") && (
                           <li
                             onClick={() =>
                               handleAuditAction('skip', product.id)
@@ -222,6 +226,7 @@ const Auditing = () => {
                             <SkipIcon />
                             <p>Skip</p>
                           </li>
+                          )}
                           <li
                             onClick={() =>
                               handleAuditAction('edit', product.id)
@@ -231,6 +236,8 @@ const Auditing = () => {
                             <EditIcon />
                             <p>Edit</p>
                           </li>
+                          {(userData.role == "admin" || userData.role == "broker") && (
+
                           <li
                             onClick={() =>
                               handleAuditAction('flag', product.id)
@@ -239,7 +246,8 @@ const Auditing = () => {
                           >
                             <FlagIcon />
                             <p>Flag Item</p>
-                          </li>
+                            </li>
+                          )}
                         </ul>
                       </div>
                     </button>
@@ -287,7 +295,9 @@ const Auditing = () => {
                 {product.search_sentence}
               </h2>
               {/* values */}
-              <div className="mt-8 w-full text-auth-purple font-medium grid grid-cols-2 gap-4">
+              <div className="mt-8 w-full text-auth-purple font-medium  gap-4">
+                <div className='flex justify-between items-center gap-4'> 
+
                 <label className="flex gap-1 flex-col overflow-hidden">
                   Price
                   <input
@@ -310,6 +320,10 @@ const Auditing = () => {
                     }
                   />
                 </label>
+                </div>
+                <div className='flex justify-between items-center gap-4 mt-4'> 
+
+                {userData.role == "expert" && (
                 <label className="flex gap-1 flex-col overflow-hidden">
                   Hs Code
                   <input
@@ -322,13 +336,13 @@ const Auditing = () => {
                         : 'No HS Code'
                     }
                   />
-                </label>
-                <label className="flex gap-1 flex-col text-nowrap truncate w-full overflow-hidden">
+                </label>)}
+                <label className="flex flex-1 gap-1  flex-col  text-nowrap   ">
                   Edited Hs Code
                   <input
                     readOnly
                     type="text"
-                    className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1"
+                    className="border  bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1"
                     defaultValue={
                       product.original_hs_code
                         ? product.original_hs_code
@@ -336,6 +350,7 @@ const Auditing = () => {
                     }
                   />
                 </label>
+                </div>
               </div>
               {/* actions */}
               <div className="mt-6 grid grid-cols-2 gap-4">
@@ -345,24 +360,28 @@ const Auditing = () => {
                 >
                   Accept
                 </button>
+                {(userData.role == "admin" || userData.role == "broker") && (
                 <button
                   onClick={() => handleAuditAction('skip', product.id)}
                   className="bg-gray-500 text-white p-2 rounded-full px-2 py-1"
                 >
                   Skip
                 </button>
+                )}
                 <button
                   onClick={() => handleAuditAction('edit', product.id)}
                   className="bg-yellow-500 text-white p-2 rounded-full px-2 py-1"
                 >
                   Edit
                 </button>
+                {(userData.role == "admin" || userData.role == "broker") && (
                 <button
                   onClick={() => handleAuditAction('flag', product.id)}
                   className="bg-red-500 text-white p-2 rounded-full px-2 py-1"
                 >
                   Flag Item
                 </button>
+                )}
               </div>
             </div>
           ))}

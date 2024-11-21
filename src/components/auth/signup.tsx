@@ -12,16 +12,7 @@ import { useDispatch } from "react-redux";
 import { addUser } from "@/store/slices/userSlice";
 // import { Check, Search } from "lucide-react";
 import SearchIcon from "@/components/icons/auth/search-icon-big";
-
-
-const HS_CODE_OPTIONS = [
-  { value: "Animal & Animal Products", label: "Animal & Animal Products" },
-  { value: "Vegetable Products", label: "Vegetable Products" },
-  { value: "Foodstuffs", label: "Foodstuffs" },
-  { value: "Mineral Products", label: "Mineral Products" },
-  { value: "Chemicals & Allied Industries", label: "Chemicals & Allied Industries" },
-  // Add more options as needed
-];
+import { HS_CODE_OPTIONS } from "@/helpers/hsCodeOptions";
 
 const schema = z.object({
   firstName: z
@@ -45,7 +36,7 @@ const schema = z.object({
     .min(1, { message: "Password is required." })
     .min(8, { message: "Must contain 8 characters." }),
     agreeToPrivacy: z.boolean().refine((val) => val === true, {
-      message: " required*"
+      message: "You must accept the Terms of Use and Privacy Policy to continue"
     }),
 });
 
@@ -305,24 +296,25 @@ const SignUpScreen = () => {
         </div>
 
         {/* Privacy Policy Agreement */}
-        <div className="flex items-center">
+        <div className="flex items-start gap-2">
           <input
             type="checkbox"
             id="agreeToPrivacy"
             {...register("agreeToPrivacy")}
-            className="h-4 w-4 accent-sky-500"
+            className="h-4 w-4 mt-1 accent-sky-500"
           />
-          <label htmlFor="agreeToPrivacy" className="ml-2 text-sm">
-            I agree with Privacy and Policy 
-          </label>
-          <div className="ml-1">
-
-          {errors.agreeToPrivacy?.message && (
-            <p className="text-red-500 text-sm">
+          <div>
+            <label htmlFor="agreeToPrivacy" className="text-sm text-gray-700">
+              I agree to the <a href="#" className="text-light-blue hover:underline">Terms of Use</a> and{" "}
+              <a href="#" className="text-light-blue hover:underline">Privacy Policy</a>
+              <span className="text-red-500">*</span>
+            </label>
+            {errors.agreeToPrivacy?.message && (
+              <p className="text-red-500 text-sm mt-1">
                 {errors.agreeToPrivacy?.message}
               </p>
             )}
-            </div>
+          </div>
         </div>
        
 

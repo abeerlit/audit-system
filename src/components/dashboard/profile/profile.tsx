@@ -11,15 +11,8 @@ import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { addUser } from '@/store/slices/userSlice';
 import SearchIcon from '@/components/icons/auth/search-icon-big';
+import { HS_CODE_OPTIONS } from '@/helpers/hsCodeOptions';
 
-const HS_CODE_OPTIONS = [
-  { value: "Animal & Animal Products", label: "Animal & Animal Products" },
-  { value: "Vegetable Products", label: "Vegetable Products" },
-  { value: "Foodstuffs", label: "Foodstuffs" },
-  { value: "Mineral Products", label: "Mineral Products" },
-  { value: "Chemicals & Allied Industries", label: "Chemicals & Allied Industries" },
-  // Add more options as needed
-];
 // Validation schemas
 const schema = z.object({
   firstName: z.string().optional(),

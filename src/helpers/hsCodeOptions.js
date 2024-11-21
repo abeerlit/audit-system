@@ -1,0 +1,23 @@
+export const HS_CODE_OPTIONS = [
+    { value: "Section I", label: "Live Animals & Animal Products" },
+    { value: "Section II", label: "Vegetable Products" },
+    { value: "Section III", label: "Animal or Vegetable Fats" },
+    { value: "Section IV", label: "Prepared Foodstuffs" },
+    { value: "Section V", label: "Mineral Products" },
+    { value: "Section VI", label: "Chemical Products" },
+    { value: "Section VII", label: "Plastics & Rubber" },
+    { value: "Section VIII", label: "Raw Hides & Skins, Leather" },
+    { value: "Section IX", label: "Wood & Wood Products" },
+    { value: "Section X", label: "Pulp of Wood, Paper" },
+    { value: "Section XI", label: "Textiles & Textile Articles" },
+    { value: "Section XII", label: "Footwear, Headgear" },
+    { value: "Section XIII", label: "Stone, Plaster, Cement, Ceramic" },
+    { value: "Section XIV", label: "Precious Stones & Metals" },
+    { value: "Section XV", label: "Base Metals & Articles" },
+    { value: "Section XVI", label: "Machinery & Mechanical Appliances" },
+    { value: "Section XVII", label: "Vehicles, Aircraft, Vessels" },
+    { value: "Section XVIII", label: "Optical, Photographic Instruments" },
+    { value: "Section XIX", label: "Arms & Ammunition" },
+    { value: "Section XX", label: "Miscellaneous Manufactured Articles" },
+    { value: "Section XXI", label: "Works of Art & Antiques" }
+  ];
