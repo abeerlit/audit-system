@@ -40,8 +40,8 @@ const PerformanceGraph = ({ statsData, timePeriod, setTimePeriod }: { statsData:
   };
 
   return (
-    <div className="bg-white p-6 rounded-3xl shadow-md grid grid-cols-2 gap-4">
-      <div className=" flex flex-col justify-between items-start">
+    <div className="bg-white p-6 rounded-3xl shadow-md grid grid-cols-2 max-sm:flex max-sm:flex-col max-sm:items-start max-sm:justify-start gap-4">
+      <div className=" flex flex-col  w-full justify-between items-start">
         <h2 className="text-xl font-semibold text-auth-purple mb-4">Performance</h2>
 
 
@@ -98,8 +98,8 @@ const PerformanceGraph = ({ statsData, timePeriod, setTimePeriod }: { statsData:
           </div>
         </div>
       </div>
-      <div className="w-full mx-auto">
-        <Pie data={data} options={options} />
+      <div className="max-w-[300px] flex justify-start items-start">
+        <Pie  data={data} options={options} />
       </div>
     </div>
   );

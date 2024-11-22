@@ -94,7 +94,7 @@ const AnalyticsDashboard = () => {
 
   return (
     <div className="">
-      <div className="flex justify-end gap-2 mb-4">
+      <div className="flex justify-end flex-wrap gap-2 mb-4">
 
         {userData.role === "admin" && <div className="flex justify-end mb-4">
           <button
@@ -242,7 +242,7 @@ const AnalyticsDashboard = () => {
         </>
       </div>
 
-      <div className="flex gap-6">
+      <div className="flex flex-wrap max-xl:flex-col gap-6">
         <div className="flex-1">
 
           <WorkingHoursGraph timePeriod={timePeriod} setTimePeriod={setTimePeriod} />
@@ -266,7 +266,7 @@ const StatCard = ({ title, value, timePeriod, setTimePeriod, increase, userData 
       <AnalyticsCardsIcon className="w-10 h-10" />
     </div>
     <div className="mr-[10px]">
-      <p className="text-sm text-light-gray whitespace-nowrap">{title}</p>
+      <p className="text-sm text-light-gray whitespace-nowrap max-sm:whitespace-normal">{title}</p>
       <p className="text-3xl font-extrabold text-auth-purple whitespace-nowrap">{value} {userData.role === "admin" && <span className={`text-sm ${increase > 0 ? 'text-green-500' : 'text-red-500'}`}>{increase > 0 ? `+${increase}%` : `${increase.toFixed(0)}%`}</span>}</p>
 
     </div>

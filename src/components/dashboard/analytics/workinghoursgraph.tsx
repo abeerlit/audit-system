@@ -72,7 +72,7 @@ const WorkingHoursChart = ({ timePeriod, setTimePeriod }: { timePeriod: "today" 
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow-lg  flex flex-col justify-between items-start h-full">
-      <div className="flex justify-start items-start gap-4 mt-[-40px]">
+      <div className="flex justify-start items-start gap-4 mt-[-40px] max-xl:mt-[-20px]">
 
         <div className="flex items-end w-full h-full mt-5 mr-[-10px]">
 
@@ -126,7 +126,7 @@ const WorkingHoursChart = ({ timePeriod, setTimePeriod }: { timePeriod: "today" 
         </div>
       </div>
 
-      <div className=" w-full flex justify-between items-start">
+      <div className=" w-full flex max-sm:flex-col justify-between items-start">
 
         <div className="mb-4">
           <h2 className="text-2xl font-bold">40hrs</h2>
@@ -135,7 +135,7 @@ const WorkingHoursChart = ({ timePeriod, setTimePeriod }: { timePeriod: "today" 
             <span className="ml-2 text-green-500">+2.45%</span>
           </div>
         </div>
-        <div className="w-full max-w-sm">
+        <div className="w-full max-sm:w-[300px]  max-w-sm">
           <Line data={data} options={options} />
         </div>
       </div>
