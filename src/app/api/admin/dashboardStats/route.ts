@@ -63,7 +63,7 @@ console.log(chapterId,"chapterId",userId,"userId",userType,"userType",timePeriod
                 case 'month':
                     startDate.setMonth(now.getMonth() - 1);
                     break;
-                case 'all':
+                case 'all time':
                     startDate.setFullYear(now.getFullYear() - 4);
                     break;
                 default:
@@ -123,7 +123,7 @@ console.log(chapterId,"chapterId",userId,"userId",userType,"userType",timePeriod
                 previousStart.setMonth(now.getMonth() - 2);
                 previousEnd.setMonth(now.getMonth() - 1);
                 break;
-            case 'all':
+            case 'all time' :
                 previousStart.setFullYear(now.getFullYear() - 4);
                 previousEnd.setFullYear(now.getFullYear());
                 break;
