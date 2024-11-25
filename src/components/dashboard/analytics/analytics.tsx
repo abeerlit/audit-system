@@ -19,7 +19,7 @@ const AnalyticsDashboard = () => {
 
   const [chapters, setChapters] = useState([]);
   const [selectedChapters, setSelectedChapters] = useState({ id: 0, chapter_name: 'All Chapters' });
-  const [timePeriod, setTimePeriod] = useState<"today" | "week" | "month">('week');
+  const [timePeriod, setTimePeriod] = useState<"today" | "week" | "month">('month');
   const [userType, setUserType] = useState<"broker" | "expert" | "user type">('user type');
 
   const [selectedUsers, setSelectedUsers] = useState({ id: 0, firstName: 'All Users', lastName: '' });

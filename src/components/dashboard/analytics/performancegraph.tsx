@@ -7,6 +7,8 @@ import DropdownIconFill from "@/components/icons/dashboard/auditing/dropdown-ico
 ChartJS.register(ArcElement, Tooltip, Legend, Filler, ChartDataLabels);
 
 const PerformanceGraph = ({ statsData, timePeriod, setTimePeriod }: { statsData: any, timePeriod: "today" | "week" | "month" | "", setTimePeriod: (timePeriod: "today" | "week" | "month") => void }) => {
+  const hasData = statsData?.acceptedItems || statsData?.skippedItems || statsData?.editedItems || statsData?.flaggedItems;
+
   const labels = ["Accepted", "Skipped", "Edited", "Flagged"];
 
   const data = {
@@ -98,8 +100,14 @@ const PerformanceGraph = ({ statsData, timePeriod, setTimePeriod }: { statsData:
           </div>
         </div>
       </div>
-      <div className="max-w-[300px] flex justify-start items-start">
-        <Pie  data={data} options={options} />
+      <div className="max-w-[300px] flex  items-start relative">
+        {hasData ? (
+          <Pie data={data} options={options} />
+        ) : (
+          <div className="min-w-[225px] min-h-[225px] mt-2 mx-auto flex items-center justify-center bg-[#2AB3E7] rounded-full">
+            <span className="text-white text-xl font-semibold">No Data</span>
+          </div>
+        )}
       </div>
     </div>
   );
