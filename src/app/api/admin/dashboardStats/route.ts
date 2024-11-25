@@ -63,6 +63,9 @@ console.log(chapterId,"chapterId",userId,"userId",userType,"userType",timePeriod
                 case 'month':
                     startDate.setMonth(now.getMonth() - 1);
                     break;
+                case 'all':
+                    startDate.setFullYear(now.getFullYear() - 4);
+                    break;
                 default:
                     break;
             }
@@ -119,6 +122,10 @@ console.log(chapterId,"chapterId",userId,"userId",userType,"userType",timePeriod
             case 'month':
                 previousStart.setMonth(now.getMonth() - 2);
                 previousEnd.setMonth(now.getMonth() - 1);
+                break;
+            case 'all':
+                previousStart.setFullYear(now.getFullYear() - 4);
+                previousEnd.setFullYear(now.getFullYear());
                 break;
             default:
                 previousStart.setDate(now.getDate() - 1);

@@ -19,7 +19,7 @@ const AnalyticsDashboard = () => {
 
   const [chapters, setChapters] = useState([]);
   const [selectedChapters, setSelectedChapters] = useState({ id: 0, chapter_name: 'All Chapters' });
-  const [timePeriod, setTimePeriod] = useState<"today" | "week" | "month">('month');
+  const [timePeriod, setTimePeriod] = useState<"today" | "week" | "month" | "">('month');
   const [userType, setUserType] = useState<"broker" | "expert" | "user type">('user type');
 
   const [selectedUsers, setSelectedUsers] = useState({ id: 0, firstName: 'All Users', lastName: '' });
@@ -260,7 +260,7 @@ const AnalyticsDashboard = () => {
   );
 };
 
-const StatCard = ({ title, value, timePeriod, setTimePeriod, increase, userData }: { title: string; value: string; timePeriod: "today" | "week" | "month" | ""; setTimePeriod: (timePeriod: "today" | "week" | "month") => void, increase: number, userData: User }) => (
+const StatCard = ({ title, value, timePeriod, setTimePeriod, increase, userData }: { title: string; value: string; timePeriod: "today" | "week" | "month" | ""; setTimePeriod: (timePeriod: "today" | "week" | "month" | "") => void, increase: number, userData: User }) => (
   <div className="bg-white p-6 rounded-2xl shadow flex items-center flex-1 basis-64">
     <div className="text-4xl mr-4 bg-[#F4F7FE] p-4 rounded-full">
       <AnalyticsCardsIcon className="w-10 h-10" />
@@ -278,16 +278,16 @@ const StatCard = ({ title, value, timePeriod, setTimePeriod, increase, userData 
           className="px-3 py-2 ms-auto flex justify-between  h-[30px] items-center font-semibold rounded-[7px]  bg-[#F4F7FE] text-auth-purple group relative"
         >
 
-          <span className="text-sm mr-2">{timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1)}</span>
+          <span className="text-sm mr-2 whitespace-nowrap">{timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1)}</span>
           <DropdownIconFill />
 
           <div className="absolute z-10 top-12 left-0 w-full bg-[#ececec] font-normal rounded-xl overflow-hidden shadow-md hidden group-focus:block">
 
-            {['today', 'week', 'month'].map((period) => (
+            {['today', 'week', 'month', "All Time"].map((period) => (
               <div
                 key={period}
-                onClick={() => setTimePeriod(period as "today" | "week" | "month")}
-                className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap"
+                onClick={() => setTimePeriod(period as "today" | "week" | "month" | "")}
+                className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap whitespace-nowrap"
               >
                 {period.charAt(0).toUpperCase() + period.slice(1)}
               </div>
