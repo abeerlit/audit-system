@@ -6,7 +6,7 @@ import DropdownIconFill from "@/components/icons/dashboard/auditing/dropdown-ico
 
 ChartJS.register(ArcElement, Tooltip, Legend, Filler, ChartDataLabels);
 
-const PerformanceGraph = ({ statsData, timePeriod, setTimePeriod }: { statsData: any, timePeriod: "today" | "week" | "month" | "", setTimePeriod: (timePeriod: "today" | "week" | "month") => void }) => {
+const PerformanceGraph = ({ statsData, timePeriod, setTimePeriod }: { statsData: any, timePeriod: "today" | "week" | "month" | "", setTimePeriod: (timePeriod: "today" | "week" | "month" | "") => void }) => {
   const hasData = statsData?.acceptedItems || statsData?.skippedItems || statsData?.editedItems || statsData?.flaggedItems;
 
   const labels = ["Accepted", "Skipped", "Edited", "Flagged"];
@@ -52,16 +52,16 @@ const PerformanceGraph = ({ statsData, timePeriod, setTimePeriod }: { statsData:
           className="px-3 py-2 mb-4 flex justify-start  h-[30px] items-center font-semibold rounded-[7px]  bg-[#F4F7FE] text-auth-purple group relative"
         >
 
-          <span className="text-sm mr-2">{timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1)}</span>
+          <span className="text-sm mr-2 whitespace-nowrap">{timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1)}</span>
           <DropdownIconFill />
 
           <div className="absolute z-10 top-12 left-0 w-full bg-[#ececec] font-normal rounded-xl overflow-hidden shadow-md hidden group-focus:block">
 
-            {['today', 'week', 'month'].map((period) => (
+            {['today', 'week', 'month', "All Time"].map((period) => (
               <div
                 key={period}
-                onClick={() => setTimePeriod(period as "today" | "week" | "month")}
-                className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap"
+                onClick={() => setTimePeriod(period as "today" | "week" | "month" | "")}
+                className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap whitespace-nowrap"
               >
                 {period.charAt(0).toUpperCase() + period.slice(1)}
               </div>

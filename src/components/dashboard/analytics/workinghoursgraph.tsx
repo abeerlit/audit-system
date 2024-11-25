@@ -23,7 +23,7 @@ ChartJS.register(
   CategoryScale // Register CategoryScale
 );
 
-const WorkingHoursChart = ({ timePeriod, setTimePeriod }: { timePeriod: "today" | "week" | "month" | "", setTimePeriod: (timePeriod: "today" | "week" | "month") => void }) => {
+const WorkingHoursChart = ({ timePeriod, setTimePeriod }: { timePeriod: "today" | "week" | "month" | "", setTimePeriod: (timePeriod: "today" | "week" | "month" | "") => void }) => {
   const data = {
     labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
     datasets: [
@@ -81,16 +81,16 @@ const WorkingHoursChart = ({ timePeriod, setTimePeriod }: { timePeriod: "today" 
             className="px-3 py-2 ms-auto flex justify-between  h-[30px] items-center font-semibold rounded-[7px]  bg-[#F4F7FE] text-auth-purple group relative"
           >
 
-            <span className="text-sm mr-2">{timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1)}</span>
+            <span className="text-sm mr-2 whitespace-nowrap">{timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1)}</span>
             <DropdownIconFill />
 
             <div className="absolute z-10 top-12 left-0 w-full bg-[#ececec] font-normal rounded-xl overflow-hidden shadow-md hidden group-focus:block">
 
-              {['today', 'week', 'month'].map((period) => (
+              {['today', 'week', 'month', "All Time"].map((period) => (
                 <div
                   key={period}
-                  onClick={() => setTimePeriod(period as "today" | "week" | "month")}
-                  className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap"
+                  onClick={() => setTimePeriod(period as "today" | "week" | "month" | "")}
+                  className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap whitespace-nowrap"
                 >
                   {period.charAt(0).toUpperCase() + period.slice(1)}
                 </div>
@@ -106,16 +106,16 @@ const WorkingHoursChart = ({ timePeriod, setTimePeriod }: { timePeriod: "today" 
             className="px-3 py-2 ms-auto flex justify-between  h-[30px] items-center font-semibold rounded-[7px]  bg-[#F4F7FE] text-auth-purple group relative"
           >
 
-            <span className="text-sm mr-2">{timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1)}</span>
+            <span className="text-sm mr-2 whitespace-nowrap">{timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1)}</span>
             <DropdownIconFill />
 
             <div className="absolute z-10 top-12 left-0 w-full bg-[#ececec] font-normal rounded-xl overflow-hidden shadow-md hidden group-focus:block">
 
-              {['today', 'week', 'month'].map((period) => (
+              {['today', 'week', 'month', "All Time"].map((period) => (
                 <div
                   key={period}
-                  onClick={() => setTimePeriod(period as "today" | "week" | "month")}
-                  className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap"
+                  onClick={() => setTimePeriod(period as "today" | "week" | "month" | "")}
+                  className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap whitespace-nowrap"
                 >
                   {period.charAt(0).toUpperCase() + period.slice(1)}
                 </div>
