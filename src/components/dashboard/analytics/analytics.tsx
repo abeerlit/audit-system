@@ -164,8 +164,9 @@ const AnalyticsDashboard = () => {
             </div>
           </button>
         </div>
-        <div className="flex justify-end mb-4">
-          <button
+        {userData.role === "admin" &&
+          <div className="flex justify-end mb-4">
+            <button
             type="button"
             className="px-3 py-2 text-white ms-auto flex items-center font-semibold rounded-full border bg-[#2AB3E7]  group relative"
           >
@@ -174,7 +175,7 @@ const AnalyticsDashboard = () => {
             <span className="text-sm ml-2">Export in Excel</span>
            
           </button>
-        </div>
+        </div>}
       </div>
 
       <div className="flex flex-wrap gap-4 mb-6">

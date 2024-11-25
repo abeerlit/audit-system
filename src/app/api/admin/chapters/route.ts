@@ -8,8 +8,10 @@ export async function GET(req: NextRequest) {
   try {
     // Get `broker_id` from query parameters
     const brokerId = req.nextUrl.searchParams.get('broker_id');
+    const chapterId = req.nextUrl.searchParams.get('chapter_id');   
     const brokerIdParsed: any = brokerId ? parseInt(brokerId, 10) : undefined;
-
+    const chapterIdParsed: any = chapterId ? parseInt(chapterId, 10) : undefined;
+    console.log("chapterIdParsed", chapterIdParsed, brokerIdParsed, "brokerIdParsed",chapterId,"chapterId");
     // Check if `broker_id` is a valid integer
     if (brokerId && isNaN(brokerIdParsed)) {
       return NextResponse.json(
@@ -18,9 +20,16 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    let whereCondition = {};
+    if (brokerIdParsed) {
+      whereCondition = { ...whereCondition, broker_id: brokerIdParsed };
+    }
+    if (chapterIdParsed) {
+      whereCondition = { ...whereCondition, chapterNames_id: chapterIdParsed };
+    }
     // Fetch chapters based on the presence of `broker_id`
     const chapters = await prisma.chapters.findMany({
-      where: brokerIdParsed ? { broker_id: brokerIdParsed } : {},
+      where: whereCondition,
       include: {
         brokerName: true, // Includes User model for brokerName
         chapterItems: true, // Includes associated ChapterItem records

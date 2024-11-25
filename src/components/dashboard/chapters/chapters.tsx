@@ -39,6 +39,7 @@ const Section: React.FC<SectionProps> = ({
 }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isItemsVisible, setIsItemsVisible] = useState(true);
+  
   return (
     <div className="bg-white w-full rounded-2xl mt-4 p-4">
       
@@ -118,16 +119,21 @@ const Chapters: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const userData: User = useSelector((state: RootState) => state.user);
   const [chapters, setChapters] = useState<any[]>([]);
+  const [chapterNames, setChapterNames] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [view, setView] = useState<'table' | 'card'>('card');
+  const [selectedChapters, setSelectedChapters] = useState({ chapterNames_id: 0, chapter_name: 'All Chapters' });
 
-  const getAllChapters = async (userId: number = 0) => {
+  const getAllChapters = async (userId: number = 0 , chapterId: number = 0) => {
+    console.log("chapterId", chapterId);
     setLoading(true);
     try {
       const response = await axios.get(
-        `/api/admin/chapters${userId ? "?broker_id=" + userId : ""}`
+        `/api/admin/chapters${userId ? "?broker_id=" + userId : ""}${chapterId ? "&chapter_id=" + chapterId.toString() : ""}`
       );
       setChapters(response.data.chapters);
+      if(chapterNames.length === 0){
+        setChapterNames(response.data.chapters);
+      }
       console.log("getAllChapters response", response.data.chapters);
       setLoading(false);
     } catch (error) {
@@ -143,11 +149,17 @@ const Chapters: React.FC = () => {
   useEffect(() => {
     if (userData.role === "admin") {
       getAllChapters();
-    } else if (userData.role && userData.id) {
-      getAllChapters(userData.id);
+    } else if (userData.role && userData.id ) {
+      if(selectedChapters.chapterNames_id !== 0){
+        console.log("selectedChapters wali chali", selectedChapters.chapterNames_id);
+        getAllChapters(userData.id, selectedChapters.chapterNames_id);
+      }else{
+        getAllChapters(userData.id);
+      }
     }
-  }, [userData.role, userData.id]);
+  }, [userData.role, userData.id, selectedChapters]);
 
+  
   if (loading) {
     return (
       <div className="flex justify-center items-center ">
@@ -172,36 +184,26 @@ const Chapters: React.FC = () => {
           </button>
         </div>
       )}
-      {userData.role ==="broker" && 
-       <div className="flex justify-between mb-4">
+      {(userData.role ==="broker" || userData.role === "expert") && 
+       <div className="flex justify-end mb-4">
        <button
          type="button"
-         className="px-3 py-2 ms-auto flex items-center font-semibold rounded-full border bg-white text-auth-purple group relative"
+         className="px-3 py-2 ms-auto flex items-center font-semibold rounded-full  bg-white text-auth-purple group relative"
        >
-        {view === 'table' ? (
-            <>
-              <span className='mr-[60px]'>All</span>
-              <DropdownIcon className="ms-4" />
-            </>
-          ) : (
-            <>
-              <span className='mr-[60px]'>All</span>
-              <DropdownIcon className="ms-4" />
-            </>
-          )}
+
+         <span className="text-sm mr-8">{selectedChapters?.chapter_name.charAt(0).toUpperCase() + selectedChapters?.chapter_name.slice(1)}</span>
+         <DropdownIcon />
          <div className="absolute z-10 top-12 left-0 w-full bg-[#ececec] font-normal rounded-xl overflow-hidden shadow-md hidden group-focus:block">
-           <div
-             onClick={() => setView('table')}
-             className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap"
-           >
-             Table View
-           </div>
-           <div
-             onClick={() => setView('card')}
-             className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap border-t border-gray-300"
-           >
-             Card View
-           </div>
+
+           {chapterNames.map((chapter: any) => (
+             <div
+               key={chapter.id}
+               onClick={() => setSelectedChapters(chapter)}
+               className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap"
+             >
+               {chapter?.chapter_name}
+             </div>
+           ))}
          </div>
        </button>
      </div>}

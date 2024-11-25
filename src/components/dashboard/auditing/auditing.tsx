@@ -5,7 +5,7 @@ import SkipIcon from '@/components/icons/dashboard/auditing/skip-icon';
 import EditIcon from '@/components/icons/dashboard/users/edit-icon';
 import AcceptIcon from '@/components/icons/dashboard/auditing/accept-icon';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import image from '@/images/mock-photo.jpg';
 import DropdownIcon from '@/components/icons/dashboard/auditing/dropdown-icon';
 import { RootState } from '@/store/store';
@@ -23,6 +23,9 @@ const Auditing = () => {
 console.log(userData.role,"userData.role");
 
   const [view, setView] = useState<'table' | 'card'>('card');
+  const [selectedChapters, setSelectedChapters] = useState({ chapterNames_id: 0, chapter_name: 'All Chapters' });
+  const [chapterNames, setChapterNames] = useState<any[]>([]);
+
   const [auditAction, setAuditAction] = useState<
     'new' | 'accept' | 'skip' | 'edit' | 'flag'
   >('new');
@@ -31,6 +34,17 @@ console.log(userData.role,"userData.role");
   const auditingData: AuditingItems[] = useSelector(
     (state: RootState) => state.auditingItems
   );
+
+  const filteredAuditingData = useMemo(() => {
+    if (!selectedChapters.chapterNames_id) {
+      return auditingData;
+    }
+    return auditingData.filter(item => 
+      item.chapter?.chapterNames_id === selectedChapters.chapterNames_id
+    );
+  }, [auditingData, selectedChapters.chapterNames_id]);
+
+  
 
   const handleAuditAction = async (
     action: 'new' | 'accept' | 'skip' | 'edit' | 'flag',
@@ -48,7 +62,7 @@ console.log(userData.role,"userData.role");
       toast.dismiss();
       console.log('handleAuditAction response', response.data.comment);
       setAuditAction(action);
-      const updatedAuditingData = auditingData.map((item) => {
+      const updatedAuditingData = filteredAuditingData.map((item) => {
         if (item.id === productId) {
           return {
             ...item,
@@ -69,13 +83,44 @@ console.log(userData.role,"userData.role");
       }
     }
   };
-  if (auditingData[0]?.id == -1 || auditingData.length === 0) {
+  const getAllChapters = async (userId: number = 0 , chapterId: number = 0) => {
+    console.log("chapterId", chapterId);
+    try {
+      const response = await axios.get(
+        `/api/admin/chapters${userId ? "?broker_id=" + userId : ""}${chapterId ? "&chapter_id=" + chapterId.toString() : ""}`
+      );
+      if(chapterNames.length === 0){
+        setChapterNames(response.data.chapters);
+      }
+      console.log("getAllChapters response", response.data.chapters);
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(error.response.data?.message || "Something went wrong!");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
+  };
+
+  useEffect(() => {
+   if (userData.role && userData.id ) {
+      if(selectedChapters.chapterNames_id !== 0){
+        console.log("selectedChapters wali chali", selectedChapters.chapterNames_id);
+        getAllChapters(userData.id, selectedChapters.chapterNames_id);
+      }else{
+        getAllChapters(userData.id);
+      }
+    }
+  }, [ selectedChapters,userData.role,userData.id]);
+  if (filteredAuditingData.length === 0) {
     return (
       <div className="text-center text-auth-purple text-xl italic leading-[100px]">
         Nothing to show
       </div>
     );
   }
+  
+
   return (
     <div className="">
       <div className='flex justify-end gap-4 mb-4'>
@@ -114,39 +159,30 @@ console.log(userData.role,"userData.role");
           </div>
         </button>
       </div>
+      {(userData.role ==="broker" || userData.role === "expert") && 
+       <div className="flex justify-end mb-4">
+       <button
+         type="button"
+         className="px-3 py-2 ms-auto flex items-center font-semibold rounded-full  bg-white text-auth-purple group relative"
+       >
 
-      <div className="flex justify-between mb-4">
-        <button
-          type="button"
-          className="px-3 py-2 ms-auto flex items-center font-semibold rounded-full border bg-white text-auth-purple group relative"
-        >
-          {view === 'table' ? (
-            <>
-              <span className='mr-[60px]'>All</span>
-              <DropdownIcon className="ms-4" />
-            </>
-          ) : (
-            <>
-              <span className='mr-[60px]'>All</span>
-              <DropdownIcon className="ms-4" />
-            </>
-          )}
-          <div className="absolute z-10 top-12 left-0 w-full bg-[#ececec] font-normal rounded-xl overflow-hidden shadow-md hidden group-focus:block">
-            <div
-              onClick={() => setView('table')}
-              className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap"
-            >
-              Table View
-            </div>
-            <div
-              onClick={() => setView('card')}
-              className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap border-t border-gray-300"
-            >
-              Card View
-            </div>
-          </div>
-        </button>
-      </div>
+         <span className="text-sm mr-8">{selectedChapters?.chapter_name.charAt(0).toUpperCase() + selectedChapters?.chapter_name.slice(1)}</span>
+         <DropdownIcon />
+         <div className="absolute z-10 top-12 left-0 w-full bg-[#ececec] font-normal rounded-xl overflow-hidden shadow-md hidden group-focus:block">
+
+           {chapterNames.map((chapter: any) => (
+             <div
+               key={chapter.id}
+               onClick={() => setSelectedChapters(chapter)}
+               className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap"
+             >
+               {chapter?.chapter_name}
+             </div>
+           ))}
+         </div>
+       </button>
+     </div>}
+      
       </div>
 
       {view === 'table' ? (
@@ -163,7 +199,7 @@ console.log(userData.role,"userData.role");
               </tr>
             </thead>
             <tbody>
-              {auditingData?.map((product) => (
+              {filteredAuditingData?.map((product) => (
                 <tr key={product.id} className="hover:bg-gray-100 border-t">
                   <td className="p-4 text-nowrap">{product.search_sentence}</td>
                   <td className="p-4 text-nowrap">
@@ -259,7 +295,7 @@ console.log(userData.role,"userData.role");
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols xl:grid-cols-3 2xl:grid-cols-4 xl:gap-8 md:gap-6 gap-4">
-          {auditingData.map((product:any) => (
+          {filteredAuditingData.map((product:any) => (
             <div key={product.id} className="relative p-4 bg-white rounded-3xl">
               <Image
                 src={
