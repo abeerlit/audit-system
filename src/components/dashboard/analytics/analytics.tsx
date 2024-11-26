@@ -11,15 +11,16 @@ import axios from "axios";
 import { User } from "@/store/slices/userSlice";
 import ExpertPerformanceGraph from "./expertPerformanceGraph";
 import UploadFileIconWhite from "@/components/icons/dashboard/chapters/upload-file-icon-white";
+import { toast } from "react-hot-toast";
 
 const AnalyticsDashboard = () => {
   const usersData: Users[] = useSelector((state: RootState) => state.users);
   const userData: User = useSelector((state: RootState) => state.user);
-  console.log(userData.role, "userData.role", userData.id, "userData.id");
 
   const [chapters, setChapters] = useState([]);
   const [selectedChapters, setSelectedChapters] = useState({ id: 0, chapter_name: 'All Chapters' });
   const [timePeriod, setTimePeriod] = useState<"today" | "week" | "month" | "">('month');
+  const [itemsStatus, setItemsStatus] = useState<"accepted" | "edited" | "skipped" | "flagged" >('accepted');
   const [userType, setUserType] = useState<"broker" | "expert" | "user type">('user type');
 
   const [selectedUsers, setSelectedUsers] = useState({ id: 0, firstName: 'All Users', lastName: '' });
@@ -49,7 +50,6 @@ const AnalyticsDashboard = () => {
       );
       setChapters(response.data.chapters);
 
-      console.log("getAllChapters response", response.data.chapters);
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         console.log(error.response.data);
@@ -69,12 +69,40 @@ const AnalyticsDashboard = () => {
         ...(userType !== 'user type' && { user_type: userType })
       });
 
-      console.log(params, "params");
       const response = await axios.get(`/api/admin/dashboardStats?${params}`);
       setStatsData(response.data.chaptersDetails);
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
     } finally {
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const params = new URLSearchParams({
+        ...(selectedChapters.id !== 0 && { chapter_id: selectedChapters.id.toString() }),
+        ...(selectedUsers.id !== 0 && { user_id: selectedUsers.id.toString() }),
+        ...(userType !== 'user type' && { user_type: userType })
+      });
+
+      const response = await axios.get(`/api/admin/exportChapters?${params}`, {
+        responseType: 'blob' // Important for handling binary data
+      });
+
+      // Create blob link to download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `chapter_items_${new Date().toISOString()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export data');
     }
   };
 
@@ -168,12 +196,11 @@ const AnalyticsDashboard = () => {
           <div className="flex justify-end mb-4">
             <button
             type="button"
-            className="px-3 py-2 text-white ms-auto flex items-center font-semibold rounded-full border bg-[#2AB3E7]  group relative"
+            onClick={handleExport}
+            className="px-3 py-2 text-white ms-auto flex items-center font-semibold rounded-full border bg-[#2AB3E7] group relative"
           >
-            <UploadFileIconWhite  />
-
+            <UploadFileIconWhite />
             <span className="text-sm ml-2">Export in Excel</span>
-           
           </button>
         </div>}
       </div>
@@ -246,7 +273,7 @@ const AnalyticsDashboard = () => {
       <div className="flex flex-wrap max-xl:flex-col gap-6">
         <div className="flex-1">
 
-          <WorkingHoursGraph timePeriod={timePeriod} setTimePeriod={setTimePeriod} />
+          <WorkingHoursGraph statsData={statsData} itemsStatus={itemsStatus} setItemsStatus={setItemsStatus} timePeriod={timePeriod} setTimePeriod={setTimePeriod} />
 
         </div>
         <div className="flex-1">

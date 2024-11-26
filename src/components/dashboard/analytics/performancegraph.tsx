@@ -29,7 +29,7 @@ const PerformanceGraph = ({ statsData, timePeriod, setTimePeriod }: { statsData:
         color: '#FFFFFF',
         formatter: (value: number, context: any) => {
           // return context.chart.data.labels[context.dataIndex] + '\n' + value;
-          return labels[context.dataIndex] + '\n' + value; // Just show the value
+          return value ? labels[context.dataIndex] + '\n' + value : ''; // Just show the value
         },
         font: {
           weight: 500,

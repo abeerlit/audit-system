@@ -27,6 +27,7 @@ export type AuditingItems = {
     broker_id: number;
     createdAt: string;
   };
+  searchTest: string | null;
 };
 
 const initialState: AuditingItems[] = [
@@ -57,6 +58,7 @@ const initialState: AuditingItems[] = [
       broker_id: -1,
       createdAt: "",
     },
+    searchTest: "",
   },
 ];
 
@@ -67,6 +69,12 @@ export const auditingItemsSlice = createSlice({
     addAuditingItems: (state, action: PayloadAction<AuditingItems[]>) => {
       return action.payload;
     },
+    setSearchTest: (state, action: PayloadAction<string>) => {
+      return state.map((item) => ({
+        ...item,
+        searchTest: action.payload,
+      }));
+    },
     resetAuditingItems: () => {
       return initialState;
     },
@@ -75,4 +83,4 @@ export const auditingItemsSlice = createSlice({
 
 export default auditingItemsSlice.reducer;
 
-export const { addAuditingItems, resetAuditingItems } = auditingItemsSlice.actions;
+export const { addAuditingItems, resetAuditingItems, setSearchTest } = auditingItemsSlice.actions;

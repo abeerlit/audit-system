@@ -31,7 +31,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     try {
       const response = await axios.get(`/api/admin?userId=${userId}`);
       dispatch(addUsers(response.data?.users));
-      console.log('getAllUsers response', response.data?.users);
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         toast.error(error.response.data?.message || 'Something went wrong!');

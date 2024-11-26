@@ -23,9 +23,10 @@ ChartJS.register(
   CategoryScale // Register CategoryScale
 );
 
-const WorkingHoursChart = ({ timePeriod, setTimePeriod }: { timePeriod: "today" | "week" | "month" | "", setTimePeriod: (timePeriod: "today" | "week" | "month" | "") => void }) => {
+const WorkingHoursChart = ({statsData, itemsStatus, setItemsStatus, timePeriod, setTimePeriod }: { statsData: any, itemsStatus: "accepted" | "edited" | "skipped" | "flagged" , setItemsStatus: (itemsStatus: "accepted" | "edited" | "skipped" | "flagged" ) => void, timePeriod: "today" | "week" | "month" | "", setTimePeriod: (timePeriod: "today" | "week" | "month" | "") => void }) => {
+  console.log(statsData, "statsData");
   const data = {
-    labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+    labels: ["1", "2", "3", "4"],
     datasets: [
       {
         label: "Working Hours",
@@ -106,18 +107,18 @@ const WorkingHoursChart = ({ timePeriod, setTimePeriod }: { timePeriod: "today" 
             className="px-3 py-2 ms-auto flex justify-between  h-[30px] items-center font-semibold rounded-[7px]  bg-[#F4F7FE] text-auth-purple group relative"
           >
 
-            <span className="text-sm mr-2 whitespace-nowrap">{timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1)}</span>
+            <span className="text-sm mr-2 whitespace-nowrap">{    itemsStatus.charAt(0).toUpperCase() + itemsStatus.slice(1)} Items</span>
             <DropdownIconFill />
 
             <div className="absolute z-10 top-12 left-0 w-full bg-[#ececec] font-normal rounded-xl overflow-hidden shadow-md hidden group-focus:block">
 
-              {['today', 'week', 'month', "All Time"].map((period) => (
+              {['accepted', 'edited', 'skipped', 'flagged'].map((status) => (
                 <div
-                  key={period}
-                  onClick={() => setTimePeriod(period as "today" | "week" | "month" | "")}
-                  className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap whitespace-nowrap"
+                  key={status}
+                  onClick={() => setItemsStatus(status as "accepted" | "edited" | "skipped" | "flagged")}
+                  className="py-1 px-4 hover:bg-white text-start cursor-pointer text-nowrap whitespace-nowrap"
                 >
-                  {period.charAt(0).toUpperCase() + period.slice(1)}
+                  {status.charAt(0).toUpperCase() + status.slice(1)} Items
                 </div>
               ))}
 
@@ -131,8 +132,11 @@ const WorkingHoursChart = ({ timePeriod, setTimePeriod }: { timePeriod: "today" 
         <div className="mb-4">
           <h2 className="text-2xl font-bold">40hrs</h2>
           <div className="flex items-center text-sm text-nowrap">
+
             <span className=" text-gray-600">Total Spent ▲ </span>
-            <span className="ml-2 text-green-500">+2.45%</span>
+            {/* <span className="ml-2 text-green-500">+2.45%</span> */}
+            <span className={`text-sm ${statsData?.workingHoursIncreasePercentage > 0 ? 'text-green-500' : 'text-red-500'}`}>{statsData?.workingHoursIncreasePercentage > 0 ? `+${statsData?.workingHoursIncreasePercentage || 0}%` :  `${statsData?.workingHoursIncreasePercentage || 0 }%`}</span>
+
           </div>
         </div>
         <div className="w-full max-sm:w-[300px]  max-w-sm">

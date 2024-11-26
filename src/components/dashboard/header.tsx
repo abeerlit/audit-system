@@ -4,16 +4,21 @@ import React from "react";
 import InfoIcon from "../icons/dashboard/header/info-icon";
 import NotificationIcon from "../icons/dashboard/header/notification-icon";
 import SearchIcon from "../icons/dashboard/header/search-icon";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { openSidebar } from "@/store/slices/toggleSidebarSlice";
 import HamburgerIcon from "../icons/dashboard/header/hamburger-icon";
-
+import { User } from "@/store/slices/userSlice";
+import { RootState } from "@/store/store";
+import { setSearchTest } from "@/store/slices/auditingItemsSlice";
 interface HeaderProps {
   route?: string;
 }
 
 const Header: React.FC<HeaderProps> = ({ route }) => {
+
   const dispatch = useDispatch();
+  const userData: User = useSelector((state: RootState) => state.user);
+
   return (
     <div className="flex items-start gap-4 flex-wrap">
       <button onClick={() => dispatch(openSidebar(true))} className="max-md:block hidden rounded-lg p-2 hover:bg-gray-200 bg-white">
@@ -37,13 +42,17 @@ const Header: React.FC<HeaderProps> = ({ route }) => {
       <div className="flex items-center bg-white p-2 rounded-full space-x-2 w-full max-w-md ms-auto">
         {/* Search Input */}
         <div className="relative w-full">
+        <Link href={userData.role === "admin" ? "/" : "/dashboard/auditing"} >
           <input
             type="search"
+            onChange={(e) => dispatch(setSearchTest(e.target.value))}
+            disabled={userData.role === "admin"}
             className="w-full pe-2 ps-8 py-2 bg-[#F4F7FE] rounded-full focus:outline-none"
             placeholder="Search"
           />
-          <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2" />
-        </div>
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2" />
+        </Link>
+          </div>
 
         {/* Icons */}
         <div className="flex items-center space-x-2">
