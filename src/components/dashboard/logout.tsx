@@ -3,6 +3,8 @@ const Logout = ({ onClose }: { onClose: () => void }) => {
   const handleLogout = () => {
     localStorage.removeItem('user');
     Cookies.remove('auditToken');
+    localStorage.removeItem('sessionId');
+
     window.location.href = '/';
   };
 

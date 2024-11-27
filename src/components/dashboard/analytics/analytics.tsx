@@ -20,7 +20,7 @@ const AnalyticsDashboard = () => {
   const [chapters, setChapters] = useState([]);
   const [selectedChapters, setSelectedChapters] = useState({ id: 0, chapter_name: 'All Chapters' });
   const [timePeriod, setTimePeriod] = useState<"today" | "week" | "month" | "">('month');
-  const [itemsStatus, setItemsStatus] = useState<"accepted" | "edited" | "skipped" | "flagged" >('accepted');
+  const [itemsStatus, setItemsStatus] = useState<"accepted" | "edited" | "skipped" | "flagged" | "all" >('all');
   const [userType, setUserType] = useState<"broker" | "expert" | "user type">('user type');
 
   const [selectedUsers, setSelectedUsers] = useState({ id: 0, firstName: 'All Users', lastName: '' });
@@ -273,7 +273,7 @@ const AnalyticsDashboard = () => {
       <div className="flex flex-wrap max-xl:flex-col gap-6">
         <div className="flex-1">
 
-          <WorkingHoursGraph statsData={statsData} itemsStatus={itemsStatus} setItemsStatus={setItemsStatus} timePeriod={timePeriod} setTimePeriod={setTimePeriod} />
+          <WorkingHoursGraph userData={userData} statsData={statsData} itemsStatus={itemsStatus} setItemsStatus={setItemsStatus} />
 
         </div>
         <div className="flex-1">

@@ -46,7 +46,6 @@ export async function GET(req: NextRequest) {
         const userId = req.nextUrl.searchParams.get('user_id');
         const userType = req.nextUrl.searchParams.get('user_type');
         const timePeriod = req.nextUrl.searchParams.get('time_period');
-console.log(chapterId,"chapterId",userId,"userId",userType,"userType",timePeriod,"timePeriod");
 
         // Build date filter based on time period
         let dateFilter = {};

@@ -20,7 +20,7 @@ import { User } from '@/store/slices/userSlice';
 const Auditing = () => {
   const dispatch = useDispatch();
   const userData: User = useSelector((state: RootState) => state.user);
-  const searchTest: string = useSelector((state: RootState) => state.auditingItems[0].searchTest || "");
+  const searchTest: string = useSelector((state: RootState) => state?.auditingItems[0]?.searchTest || "");
   console.log(userData.role, "userData.role");
 
   const [view, setView] = useState<'table' | 'card'>('card');

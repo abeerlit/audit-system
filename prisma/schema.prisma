@@ -53,6 +53,7 @@ model User {
   chapterItems ChapterItem[] // One-to-many relation to ChapterItem
   chapter     Chapters[]     // One-to-many relation to Section
   comments     Comments[]     // One-to-many relation to Comment
+  sessions    Session[]
 }
 
 model PasswordReset {
@@ -121,4 +122,13 @@ model Comments {
 
   chapterItem    ChapterItem @relation(fields: [chapter_item_id], references: [id])
   chapter_item_id Int        // Foreign key to ChapterItem
+}
+
+model Session {
+  id         Int      @id @default(autoincrement())
+  user_id     Int
+  startTime  DateTime @default(now())
+  endTime    DateTime?
+  lastActive DateTime @default(now())
+  user       User     @relation(fields: [user_id], references: [id])
 }

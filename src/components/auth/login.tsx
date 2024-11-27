@@ -10,6 +10,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useDispatch } from 'react-redux';
 import { addUser } from '@/store/slices/userSlice';
+import { startSessionTracking } from '@/utils/sessionTracking';
 
 const schema = z.object({
   email: z
@@ -51,6 +52,9 @@ const Login = () => {
       dispatch(addUser(response.data.user));
       toast.dismiss();
       toast.success('Login successfully!');
+      console.log(response.data,"token in login");
+      if(response.data.user.role !== "admin"){
+      startSessionTracking(response.data.token);}
       router.replace('/dashboard');
     } catch (error) {
       toast.dismiss();

@@ -10,7 +10,8 @@ import { addUser, User } from "@/store/slices/userSlice";
 import { closeSidebar } from "@/store/slices/toggleSidebarSlice";
 import CloseIcon from "../icons/close";
 import { addAuditingItems, AuditingItems } from "@/store/slices/auditingItemsSlice";
-
+import { startSessionTracking } from "@/utils/sessionTracking";
+import Cookies from "js-cookie";
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   // load users if user is admin
   const dispatch = useDispatch();
@@ -41,7 +42,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    if (usersData[0].otpVerified) return;
+    if (usersData[0]?.otpVerified) return;
     if (userData && userData.role == 'admin' && userData.id) {
       getAllUsers(userData.id);
     }
@@ -76,6 +77,11 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     }
   }, [userData.otpVerified]);
 
+  useEffect(()=>{
+    if(userData.role !== "admin"){
+      startSessionTracking(Cookies.get('auditToken') || "");}
+    console.log(userData,"userData in layout");
+  },[userData]);
   return (
     <div className="flex min-h-screen max-h-screen overflow-auto">
       {isSidebarOpen && (
