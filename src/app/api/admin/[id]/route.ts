@@ -7,7 +7,7 @@ export async function GET({ params }: any) {
     return NextResponse.json({ error: 'Invalid user ID.' }, { status: 400 });
   }
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: parseInt(id, 10) },
     });
 

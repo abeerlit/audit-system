@@ -39,7 +39,7 @@ async function updateUser(data: any) {
   try {
     console.log(profileImage, 'profile image to save');
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id },
     });
 
@@ -49,7 +49,7 @@ async function updateUser(data: any) {
         { status: 401 }
       );
     }
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id },
       data: {
         firstName,
@@ -96,7 +96,7 @@ async function registerUser(data: any) {
   }
 
   try {
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { email },
     });
 
@@ -139,7 +139,7 @@ async function registerUser(data: any) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await prisma.user.create({
+    const newUser = await prisma.users.create({
       data: {
         email,
         phoneNumber,
@@ -196,7 +196,7 @@ async function loginUser(data: any) {
   }
 
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { email },
     });
 
@@ -251,7 +251,7 @@ async function forgetPassword(data: any) {
   }
 
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { email },
     });
 

@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Admin cannot have a session' }, { status: 401 });
     }
     // Start new session
-    const session = await prisma.session.create({
+    const session = await prisma.sessions.create({
       data: {
         user_id: decoded.id,
       },
@@ -33,7 +33,7 @@ export async function PUT(req: Request) {
     const { sessionId } = await req.json();
     
     // Update lastActive time or end session
-    const session = await prisma.session.update({
+    const session = await prisma.sessions.update({
       where: { id: sessionId },
       data: { lastActive: new Date() },
     });

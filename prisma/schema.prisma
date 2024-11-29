@@ -7,20 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model TempUser {
-  id          Int      @id @default(autoincrement())
-  email       String   @unique
-  phoneNumber String?
-  firstName   String
-  lastName    String?
-  experience  Int?
-  specialty   String?
-  otpVerified Boolean  @default(false)
-  otp         String
-  password    String
-  createdAt   DateTime @default(now())
-}
-
 enum Role {
   admin
   broker
@@ -35,7 +21,24 @@ enum ChapterActions {
   flag
 }
 
-model User {
+
+
+model TempUsers {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  phoneNumber String?
+  firstName   String
+  lastName    String?
+  experience  Int?
+  specialty   String?
+  otpVerified Boolean  @default(false)
+  otp         String
+  password    String
+  createdAt   DateTime @default(now())
+}
+
+
+model Users {
   id           Int           @id @default(autoincrement())
   email        String        @unique
   phoneNumber  String?
@@ -50,10 +53,9 @@ model User {
   role         Role          @default(broker)
   createdAt    DateTime      @default(now())
 
-  chapterItems ChapterItem[] // One-to-many relation to ChapterItem
-  chapter     Chapters[]     // One-to-many relation to Section
+  chapterItems ChapterItems[] // One-to-many relation to ChapterItem
   comments     Comments[]     // One-to-many relation to Comment
-  sessions    Session[]
+  sessions    Sessions  []
 }
 
 model PasswordReset {
@@ -64,9 +66,8 @@ model PasswordReset {
   createdAt  DateTime @default(now())
 }
 
-model ChapterItem {
+model ChapterItems {
   id                      Int       @id @default(autoincrement())
-  itemAction              String?   @default("new")
   chapter_id              Int
   item_name               String
   item_link               String?
@@ -84,31 +85,34 @@ model ChapterItem {
   status                  String?
   expert_status           String?
 
-  brokerName   User?      @relation(fields: [broker_id], references: [id])
-  broker_id    Int?       // Foreign key for brokerName
+  user   Users?      @relation(fields: [user_id], references: [id])
+  user_id    Int?       // Foreign key for brokerName
 
   chapter      Chapters    @relation(fields: [chapter_id], references: [id]) // Relation to Chapters
   comments     Comments[]  // One-to-many relation to Comment
 }
 
-model ChapterNames {
-  id           Int       @id @default(autoincrement())
-  chapter_name String
-  createdAt    DateTime  @default(now())
 
-  chapters     Chapters[] // One-to-many relation to Section
-}
 
 model Chapters {
   id           Int           @id @default(autoincrement())
-  chapterNames_id   Int           // Foreign key for Chapters
-  chapter_name String        // Store chapter_name as well
-  broker_id    Int?          // Foreign key for User (broker)
-  createdAt    DateTime      @default(now())
+  chapter_no   Int
+  chapter_name String
+  chapter_disc String
+  section_id   Int
 
-  chapter      ChapterNames      @relation(fields: [chapterNames_id], references: [id]) // Relation to Chapters
-  brokerName   User?         @relation(fields: [broker_id], references: [id]) // Relation to broker (User)
-  chapterItems ChapterItem[] // One-to-many relation with ChapterItem
+  section      Sections     @relation(fields: [section_id], references: [id])
+  chapterItems ChapterItems[]
+}
+
+model Sections {
+  id           Int       @id @default(autoincrement())
+  section_no   Int
+  section_name String
+  section_disc String
+  createdAt    DateTime  @default(now())
+
+  chapters     Chapters[] // One-to-many relation to Chapters
 }
 
 model Comments {
@@ -117,18 +121,18 @@ model Comments {
   createdAt      DateTime    @default(now())
   
   // Relations
-  user           User        @relation(fields: [user_id], references: [id])
+  user           Users        @relation(fields: [user_id], references: [id])
   user_id        Int         // Foreign key to User
 
-  chapterItem    ChapterItem @relation(fields: [chapter_item_id], references: [id])
+  chapterItem    ChapterItems @relation(fields: [chapter_item_id], references: [id])
   chapter_item_id Int        // Foreign key to ChapterItem
 }
 
-model Session {
+model Sessions {
   id         Int      @id @default(autoincrement())
   user_id     Int
   startTime  DateTime @default(now())
   endTime    DateTime?
   lastActive DateTime @default(now())
-  user       User     @relation(fields: [user_id], references: [id])
+  user       Users     @relation(fields: [user_id], references: [id])
 }

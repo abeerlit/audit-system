@@ -5,7 +5,7 @@ CREATE TYPE "Role" AS ENUM ('admin', 'broker', 'expert');
 CREATE TYPE "ChapterActions" AS ENUM ('new', 'accept', 'skip', 'edit', 'flag');
 
 -- CreateTable
-CREATE TABLE "TempUser" (
+CREATE TABLE "TempUsers" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "phoneNumber" TEXT,
@@ -18,11 +18,11 @@ CREATE TABLE "TempUser" (
     "password" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "TempUser_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "TempUsers_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "User" (
+CREATE TABLE "Users" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "phoneNumber" TEXT,
@@ -37,7 +37,7 @@ CREATE TABLE "User" (
     "role" "Role" NOT NULL DEFAULT 'broker',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Users_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -52,9 +52,8 @@ CREATE TABLE "PasswordReset" (
 );
 
 -- CreateTable
-CREATE TABLE "ChapterItem" (
+CREATE TABLE "ChapterItems" (
     "id" SERIAL NOT NULL,
-    "itemAction" TEXT DEFAULT 'new',
     "chapter_id" INTEGER NOT NULL,
     "item_name" TEXT NOT NULL,
     "item_link" TEXT,
@@ -71,29 +70,31 @@ CREATE TABLE "ChapterItem" (
     "expert_update_timestamp" TIMESTAMP(3),
     "status" TEXT,
     "expert_status" TEXT,
-    "broker_id" INTEGER,
+    "user_id" INTEGER,
 
-    CONSTRAINT "ChapterItem_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "ChapterNames" (
-    "id" SERIAL NOT NULL,
-    "chapter_name" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "ChapterNames_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "ChapterItems_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Chapters" (
     "id" SERIAL NOT NULL,
-    "chapterNames_id" INTEGER NOT NULL,
+    "chapter_no" INTEGER NOT NULL,
     "chapter_name" TEXT NOT NULL,
-    "broker_id" INTEGER,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "chapter_disc" TEXT NOT NULL,
+    "section_id" INTEGER NOT NULL,
 
     CONSTRAINT "Chapters_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Sections" (
+    "id" SERIAL NOT NULL,
+    "section_no" INTEGER NOT NULL,
+    "section_name" TEXT NOT NULL,
+    "section_disc" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Sections_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -108,42 +109,39 @@ CREATE TABLE "Comments" (
 );
 
 -- CreateTable
-CREATE TABLE "Session" (
+CREATE TABLE "Sessions" (
     "id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
     "startTime" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "endTime" TIMESTAMP(3),
     "lastActive" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Sessions_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "TempUser_email_key" ON "TempUser"("email");
+CREATE UNIQUE INDEX "TempUsers_email_key" ON "TempUsers"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+CREATE UNIQUE INDEX "Users_email_key" ON "Users"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "PasswordReset_email_key" ON "PasswordReset"("email");
 
 -- AddForeignKey
-ALTER TABLE "ChapterItem" ADD CONSTRAINT "ChapterItem_broker_id_fkey" FOREIGN KEY ("broker_id") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "ChapterItems" ADD CONSTRAINT "ChapterItems_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "Users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ChapterItem" ADD CONSTRAINT "ChapterItem_chapter_id_fkey" FOREIGN KEY ("chapter_id") REFERENCES "Chapters"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ChapterItems" ADD CONSTRAINT "ChapterItems_chapter_id_fkey" FOREIGN KEY ("chapter_id") REFERENCES "Chapters"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Chapters" ADD CONSTRAINT "Chapters_chapterNames_id_fkey" FOREIGN KEY ("chapterNames_id") REFERENCES "ChapterNames"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Chapters" ADD CONSTRAINT "Chapters_section_id_fkey" FOREIGN KEY ("section_id") REFERENCES "Sections"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Chapters" ADD CONSTRAINT "Chapters_broker_id_fkey" FOREIGN KEY ("broker_id") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Comments" ADD CONSTRAINT "Comments_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "Users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Comments" ADD CONSTRAINT "Comments_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Comments" ADD CONSTRAINT "Comments_chapter_item_id_fkey" FOREIGN KEY ("chapter_item_id") REFERENCES "ChapterItems"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Comments" ADD CONSTRAINT "Comments_chapter_item_id_fkey" FOREIGN KEY ("chapter_item_id") REFERENCES "ChapterItem"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Session" ADD CONSTRAINT "Session_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Sessions" ADD CONSTRAINT "Sessions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "Users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

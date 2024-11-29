@@ -16,7 +16,7 @@ export async function POST(req: any) {
   try {
     if (action === 'register') {
       // Handle user registration with OTP verification
-      const tempUser = await prisma.tempUser.findUnique({
+      const tempUser = await prisma.tempUsers.findUnique({
         where: { email },
       });
 
@@ -34,7 +34,7 @@ export async function POST(req: any) {
         );
       }
 
-      const newUser = await prisma.user.create({
+      const newUser = await prisma.users.create({
         data: {
           email: tempUser.email,
           phoneNumber: tempUser.phoneNumber,
@@ -47,7 +47,7 @@ export async function POST(req: any) {
         },
       });
 
-      await prisma.tempUser.delete({
+      await prisma.tempUsers.delete({
         where: { email },
       });
       const token = jwt.sign(
@@ -71,7 +71,7 @@ export async function POST(req: any) {
       const passwordResetUser = await prisma.passwordReset.findUnique({
         where: { email },
       });
-
+      console.log(passwordResetUser, 'passwordResetUser', otp);
       if (!passwordResetUser) {
         return NextResponse.json(
           { error: true, message: 'user not found.' },
@@ -79,7 +79,7 @@ export async function POST(req: any) {
         );
       }
 
-      if (passwordResetUser.otp !== otp) {
+      if (passwordResetUser.otp !== otp.toString()) {
         return NextResponse.json(
           { error: true, message: 'Invalid OTP.' },
           { status: 400 }

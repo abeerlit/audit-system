@@ -24,7 +24,7 @@ export async function GET(req: Request) {
       whereCondition={user_id:parseInt(user_id)}
     }
     // Get current period sessions
-    const currentSessions = await prisma.session.findMany({
+    const currentSessions = await prisma.sessions.findMany({
       where: {
         ...whereCondition,
         startTime: {
@@ -40,7 +40,7 @@ export async function GET(req: Request) {
     });
 
     // Get previous period sessions
-    const previousSessions = await prisma.session.findMany({
+    const previousSessions = await prisma.sessions.findMany({
       where: {
         ...whereCondition,
         startTime: {
