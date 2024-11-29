@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Fetch all users except the logged-in user
-    const allUsers = await prisma.user.findMany({
+    const allUsers = await prisma.users.findMany({
       where: {
         id: {
           not: parseInt(loggedInUserId, 10),
@@ -55,7 +55,7 @@ async function updateUser(data: any) {
   const { id, firstName, lastName, email, phoneNumber, experience, specialty } =
     data;
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id },
     });
 
@@ -65,7 +65,7 @@ async function updateUser(data: any) {
         { status: 401 }
       );
     }
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id },
       data: {
         firstName,
@@ -94,7 +94,7 @@ async function updateUser(data: any) {
 async function activateOrDeactivate(data: any) {
   const { id, email, activate } = data;
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id, email },
     });
 
@@ -104,7 +104,7 @@ async function activateOrDeactivate(data: any) {
         { status: 401 }
       );
     }
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id },
       data: {
         isActive: activate ? true : false,
@@ -129,7 +129,7 @@ async function activateOrDeactivate(data: any) {
 async function upgradeUser(data: any) {
   const { id, email, action } = data;
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id, email },
     });
 
@@ -139,7 +139,7 @@ async function upgradeUser(data: any) {
         { status: 401 }
       );
     }
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id },
       data: {
         role : action === 'upgrade' ? 'expert' : 'broker',
