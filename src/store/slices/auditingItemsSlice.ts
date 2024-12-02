@@ -19,12 +19,12 @@ export type AuditingItems = {
   expert_update_timestamp: string | null;
   status: string | null;
   expert_status: string | null;
-  broker_id: number | null;
+  user_id: number | null;
   chapter: {
     id: number;
     chapterNames_id: number;
     chapter_name: string;
-    broker_id: number;
+    user_id: number;
     createdAt: string;
   };
   searchTest: string | null;
@@ -50,12 +50,12 @@ const initialState: AuditingItems[] = [
     expert_update_timestamp: null,
     status: "",
     expert_status: "",
-    broker_id: -1,
+    user_id: -1,
     chapter: {
       id: 6,
       chapterNames_id: 4,
       chapter_name: "",
-      broker_id: -1,
+      user_id: -1,
       createdAt: "",
     },
     searchTest: "",

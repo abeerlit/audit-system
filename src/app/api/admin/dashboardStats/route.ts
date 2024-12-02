@@ -4,23 +4,23 @@ import prisma from '../../../../../config/prisma';
 export const dynamic = 'force-dynamic';
 
 async function getStatsComparison(filter: any, previousFilter: any) {
-    const currentStats = await prisma.chapterItem.findMany({ where: filter });
-    const previousStats = await prisma.chapterItem.findMany({ where: previousFilter });
+    const currentStats = await prisma.chapterItems.findMany({ where: filter });
+    const previousStats = await prisma.chapterItems.findMany({ where: previousFilter });
 
     const current = {
         total: currentStats.length,
-        accepted: currentStats.filter(item => item.itemAction === 'accept').length,
-        edited: currentStats.filter(item => item.itemAction === 'edit').length,
-        skipped: currentStats.filter(item => item.itemAction === 'skip').length,
-        flagged: currentStats.filter(item => item.itemAction === 'flag').length,
+        accepted: currentStats.filter(item => item.status === 'accept').length,
+        edited: currentStats.filter(item => item.status === 'edit').length,
+        skipped: currentStats.filter(item => item.status === 'skip').length,
+        flagged: currentStats.filter(item => item.status === 'flag').length,
     };
 
     const previous = {
         total: previousStats.length,
-        accepted: previousStats.filter(item => item.itemAction === 'accept').length,
-        edited: previousStats.filter(item => item.itemAction === 'edit').length,
-        skipped: previousStats.filter(item => item.itemAction === 'skip').length,
-        flagged: previousStats.filter(item => item.itemAction === 'flag').length,
+        accepted: previousStats.filter(item => item.status === 'accept').length,
+        edited: previousStats.filter(item => item.status === 'edit').length,
+        skipped: previousStats.filter(item => item.status === 'skip').length,
+        flagged: previousStats.filter(item => item.status === 'flag').length,
     };
 
     const calculatePercentage = (current: number, previous: number) => {
@@ -88,7 +88,7 @@ export async function GET(req: NextRequest) {
 
         // Add user filter if provided
         if (userId) {
-            whereClause.broker_id = parseInt(userId, 10);
+            whereClause.user_id = parseInt(userId, 10);
         }
         if (userType) {
             whereClause = {

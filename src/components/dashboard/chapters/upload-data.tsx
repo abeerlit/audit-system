@@ -17,7 +17,7 @@ interface UploadDataProps {
 // Define Zod schema with validation and error messages
 const schema = z.object({
   chapterName: z.string().min(1, { message: "Please select a chapter" }),
-  brokerId: z.string().min(1, { message: "Please select a broker" }),
+  userId: z.string().min(1, { message: "Please select a broker" }),
   // File validation that checks for File instance
   file: z.any().refine((file) => file instanceof File, {
     message: "Please upload a file",
@@ -53,11 +53,11 @@ const UploadData = ({ onClose }: UploadDataProps) => {
       toast.loading("Uploading...");
       const formData = new FormData();
       formData.append("file", data.file); // Ensure file is uploaded properly
-      formData.append("brokerId", data.brokerId);
+      formData.append("userId", data.userId);
       formData.append("chapterName", data.chapterName);
       
       console.log("Form data:", formData);
-      const response = await axios.post("/api/admin/chapters", formData);
+      const response = await axios.post("/api/admin/chapterItems", formData);
       console.log("response", response.data);
 
       toast.dismiss();
@@ -75,9 +75,9 @@ const UploadData = ({ onClose }: UploadDataProps) => {
   };
 
   useEffect(() => {
-    const getChapterNames = async () => {
+    const getChapters = async () => {
       try {
-        const response = await axios.get("/api/admin/chapterNames");
+        const response = await axios.get("/api/admin/chapters");
         setChapters(response.data.chapters.map((chapter: any) => chapter.chapter_name));
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
@@ -88,7 +88,7 @@ const UploadData = ({ onClose }: UploadDataProps) => {
         console.log(error, "error in catch");
       }
     };
-    getChapterNames();
+    getChapters();
   },[])
 
   return (
@@ -141,7 +141,7 @@ const UploadData = ({ onClose }: UploadDataProps) => {
       )}
       <h4 className="mt-4">Select Broker</h4>
       <select
-        {...register("brokerId")}
+        {...register("userId")}
         className="p-2 w-full bg-[#F4F7FE] text-light-gray rounded-lg text-sm"
       >
         <option value="">Select Broker</option>
@@ -151,9 +151,9 @@ const UploadData = ({ onClose }: UploadDataProps) => {
           </option>
         ))}
       </select>
-      {errors.brokerId && (
+      {errors.userId && (
         <p className="text-red-500 font-normal text-sm">
-          {errors.brokerId.message}
+          {errors.userId.message}
         </p>
       )}
       <button

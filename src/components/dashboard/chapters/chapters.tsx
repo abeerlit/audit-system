@@ -10,7 +10,10 @@ import CollapsibleIcon from "@/components/icons/dashboard/chapters/collapsable-i
 import axios from "axios";
 import toast from "react-hot-toast";
 import EditIcon from "@/components/icons/dashboard/users/edit-icon";
-import DropdownIcon from "@/components/icons/dashboard/auditing/dropdown-icon";
+import sectionsTable from "../../../../sectionsTable.json";
+import chaptersTable from "../../../../chaptersTable.json";
+import ChaptersFilter from "../ChaptersFilter";
+import Link from "next/link";
 
 interface SectionProps {
   sectionTitle: string;
@@ -26,6 +29,8 @@ interface ItemProps {
   itemNumber: string;
   status: string;
   pendingCount: string;
+  totalItems: number;
+  userRole: string;
 }
 
 const Section: React.FC<SectionProps> = ({
@@ -39,10 +44,10 @@ const Section: React.FC<SectionProps> = ({
 }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isItemsVisible, setIsItemsVisible] = useState(true);
-  
+
   return (
     <div className="bg-white w-full rounded-2xl mt-4 p-4">
-      
+
       <div className="flex gap-4">
         <span className="font-semibold text-light-gray">
           Section {sectionNumber}
@@ -76,16 +81,19 @@ const Section: React.FC<SectionProps> = ({
   );
 };
 
-const Item: React.FC<ItemProps> = ({ itemNumber, status, pendingCount }) => (
-  <div className="flex gap-4 items-center p-2 border-t text-nowrap">
+const Item: React.FC<ItemProps> = ({ itemNumber, status, pendingCount, totalItems,userRole }) => (
+ <Link href= {userRole === "admin" ? "/dashboard/chapters" : `/dashboard/auditing${itemNumber ? "?chapter_no=" + itemNumber : ""}`}>
+
+ <div  className="flex gap-4 items-center p-2 border-t text-nowrap">
     <span className="bg-[#777777] text-white rounded-full ml-2 py-1 px-4 text-[12px] font-bold">
       {itemNumber}
     </span>
     <span>{status}</span>
     <span className="ms-auto border-[#B4984C] bg-[#FFEAB0] text-[#B4984C] rounded-full py-1 px-3 text-sm font-bold">
-      Pending Items: {pendingCount}
+      Pending Items: {pendingCount} out of {totalItems}
     </span>
   </div>
+ </Link>
 );
 
 const ChapterHeader: React.FC<{
@@ -118,23 +126,26 @@ const ChapterHeader: React.FC<{
 const Chapters: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const userData: User = useSelector((state: RootState) => state.user);
-  const [chapters, setChapters] = useState<any[]>([]);
-  const [chapterNames, setChapterNames] = useState<any[]>([]);
+  const [sections] = useState<any[]>(sectionsTable);
+  const [chapters, setChapters] = useState<any[]>(chaptersTable);
   const [loading, setLoading] = useState(false);
-  const [selectedChapters, setSelectedChapters] = useState({ chapterNames_id: 0, chapter_name: 'All Chapters' });
+  const [selectedChapters, setSelectedChapters] = useState({ chapter_no: 0, chapter_name: 'All Item' });
+  const [chapterNames] = useState<any[]>([{ chapter_no: 0, chapter_name: 'All ' },...chaptersTable]);
 
   const getAllChapters = async (userId: number = 0 , chapterId: number = 0) => {
     console.log("chapterId", chapterId);
-    setLoading(true);
+    // setLoading(true);
     try {
       const response = await axios.get(
-        `/api/admin/chapters${userId ? "?broker_id=" + userId : ""}${chapterId ? "&chapter_id=" + chapterId.toString() : ""}`
+        `/api/admin/chapters${userId ? "?user_id=" + userId : ""}${chapterId ? "&chapter_no=" + chapterId : ""}`
       );
-      setChapters(response.data.chapters);
-      if(chapterNames.length === 0){
-        setChapterNames(response.data.chapters);
-      }
-      console.log("getAllChapters response", response.data.chapters);
+      const updatedChapters = chapters?.map((item: any,index: number) => ({
+        ...item,
+        chapterItems: response?.data?.chapters[index]?.chapterItems
+      }));
+      setChapters(updatedChapters);
+      
+     
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -150,16 +161,16 @@ const Chapters: React.FC = () => {
     if (userData.role === "admin") {
       getAllChapters();
     } else if (userData.role && userData.id ) {
-      if(selectedChapters.chapterNames_id !== 0){
-        console.log("selectedChapters wali chali", selectedChapters.chapterNames_id);
-        getAllChapters(userData.id, selectedChapters.chapterNames_id);
+      if(selectedChapters?.chapter_no !== 0){
+        getAllChapters(userData.id, selectedChapters.chapter_no);
       }else{
         getAllChapters(userData.id);
       }
     }
   }, [userData.role, userData.id, selectedChapters]);
 
-  
+
+ 
   if (loading) {
     return (
       <div className="flex justify-center items-center ">
@@ -184,54 +195,35 @@ const Chapters: React.FC = () => {
           </button>
         </div>
       )}
-      {(userData.role ==="broker" || userData.role === "expert") && 
-       <div className="flex justify-end mb-4">
-       <button
-         type="button"
-         className="px-3 py-2 ms-auto flex items-center font-semibold rounded-full  bg-white text-auth-purple group relative"
-       >
-
-         <span className="text-sm mr-8">{selectedChapters?.chapter_name.charAt(0).toUpperCase() + selectedChapters?.chapter_name.slice(1)}</span>
-         <DropdownIcon />
-         <div className="absolute z-10 top-12 left-0 w-full bg-[#ececec] font-normal rounded-xl overflow-hidden shadow-md hidden group-focus:block">
-
-           {chapterNames.map((chapter: any) => (
-             <div
-               key={chapter.id}
-               onClick={() => setSelectedChapters(chapter)}
-               className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap"
-             >
-               {chapter?.chapter_name}
-             </div>
-           ))}
-         </div>
-       </button>
-     </div>}
-      {!chapters.length ? (
+      {(userData.role === "broker" || userData.role === "expert") &&
+       ChaptersFilter( selectedChapters, setSelectedChapters,chapterNames )}
+      {!sections.length ? (
         <div className="text-center text-auth-purple text-xl italic leading-[100px]">
           Nothing to show
         </div>
       ) : (
-        chapters.map((section, index) => (
+        sections.map((section, index) => (
           <Section
             key={index}
-            sectionTitle={section.chapter_name}
-            totalChapters={1}
-            totalItems={section?.chapterItems?.length}
+            sectionTitle={section.section_name.length > 100 ? section.section_name.substring(0, 100) + "..." : section.section_name}
+            totalChapters={chapters?.filter((item: any) => item?.section_no?.toString() === section?.section_no?.toString()).length}
+            totalItems={chapters?.filter((item: any) => item?.section_no?.toString() === section?.section_no?.toString()).map((item: any) => item?.chapterItems?.length).reduce((a: number, b: number) => a + b, 0)}
             sectionNumber={String(index + 1)}
             brokerName={
               section?.brokerName?.firstName +
               " " +
               section?.brokerName?.lastName
             }
-            isAdmin={userData.role === "admin"}
+            isAdmin={userData?.role === "admin"}
           >
-            {section?.chapterItems?.map((item: any, itemIndex: number) => (
+            {chapters?.filter((item: any) => item?.section_no?.toString() === section?.section_no?.toString()).map((item: any, itemIndex: number) => (
               <Item
                 key={itemIndex}
-                itemNumber={String(itemIndex + 1)}
-                status={item?.search_sentence}
-                pendingCount={String(0)}
+                itemNumber={item?.chapter_no.toString()}
+                status={item?.chapter_name.length > 100 ? item?.chapter_name.substring(0, 100) + "..." : item?.chapter_name}
+                pendingCount={item?.chapterItems?.filter((item: any) => item?.status === "new").length}
+                totalItems={item?.chapterItems?.length}
+                userRole={userData.role}
               />
             ))}
           </Section>

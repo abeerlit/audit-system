@@ -15,16 +15,15 @@ export async function GET(req: NextRequest) {
     }
     
     if (userId && userId !== '0') {
-      whereCondition.broker_id = parseInt(userId);
+      whereCondition.user_id = parseInt(userId);
     }
 
-    const chapterItems = await prisma.chapterItem.findMany({
+    const chapterItems = await prisma.chapterItems.findMany({
       where: whereCondition,
       select: {
         id: true,
         chapter_id: true,
         item_name: true,
-        itemAction: true,
         item_link: true,
         item_image: true,
         item_price: true,
@@ -38,7 +37,7 @@ export async function GET(req: NextRequest) {
         expert_update_timestamp: true,
         status: true,
         expert_status: true,
-        broker_id: true
+        user_id: true
       }
     });
 
@@ -55,9 +54,9 @@ export async function GET(req: NextRequest) {
         original_hs_code: item.original_hs_code || '',
         broker_hs_code: item.broker_hs_code || '',
         expert_hs_code: item.expert_hs_code || '',
-        status: item.itemAction || 'new', // Map status to itemAction
-        expert_status: item.expert_status || '',
-        broker_id: item.broker_id || ''
+        status: item.status || 'new', // Map status to itemAction
+        expert_status: item.expert_status || 'new',
+        user_id: item.user_id || ''
       }));
     // Create workbook and worksheet
     const workbook = XLSX.utils.book_new();

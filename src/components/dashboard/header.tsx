@@ -17,7 +17,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ route }) => {
 
   const dispatch = useDispatch();
-  const userData: User = useSelector((state: RootState) => state.user);
+  const userData: User = useSelector((state: RootState) => state).user;
 
   return (
     <div className="flex items-start gap-4 flex-wrap">
@@ -44,8 +44,9 @@ const Header: React.FC<HeaderProps> = ({ route }) => {
         <div className="relative w-full">
         <Link href={userData.role === "admin" ? "/" : "/dashboard/auditing"} >
           <input
-            type="search"
+            type="text"
             onChange={(e) => dispatch(setSearchTest(e.target.value))}
+            
             disabled={userData.role === "admin"}
             className="w-full pe-2 ps-8 py-2 bg-[#F4F7FE] rounded-full focus:outline-none"
             placeholder="Search"

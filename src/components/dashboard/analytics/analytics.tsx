@@ -12,13 +12,15 @@ import { User } from "@/store/slices/userSlice";
 import ExpertPerformanceGraph from "./expertPerformanceGraph";
 import UploadFileIconWhite from "@/components/icons/dashboard/chapters/upload-file-icon-white";
 import { toast } from "react-hot-toast";
-
+import ChaptersFilter from "../ChaptersFilter";
+import chaptersTable from "../../../../chaptersTable.json"
 const AnalyticsDashboard = () => {
   const usersData: Users[] = useSelector((state: RootState) => state.users);
   const userData: User = useSelector((state: RootState) => state.user);
 
-  const [chapters, setChapters] = useState([]);
-  const [selectedChapters, setSelectedChapters] = useState({ id: 0, chapter_name: 'All Chapters' });
+  const [selectedChapters, setSelectedChapters] = useState({ chapter_no: 0, chapter_name: 'All Chapters' });
+  const chapterNames = [{ chapter_no: 0, chapter_name: 'All ' }, ...chaptersTable];
+
   const [timePeriod, setTimePeriod] = useState<"today" | "week" | "month" | "">('month');
   const [itemsStatus, setItemsStatus] = useState<"accepted" | "edited" | "skipped" | "flagged" | "all" >('all');
   const [userType, setUserType] = useState<"broker" | "expert" | "user type">('user type');
@@ -43,28 +45,14 @@ const AnalyticsDashboard = () => {
     workingHoursIncreasePercentage?: number;
   }>({});
 
-  const getAllChapters = async (userId: number = 0) => {
-    try {
-      const response = await axios.get(
-        `/api/admin/chapters${userId ? "?broker_id=" + userId : ""}`
-      );
-      setChapters(response.data.chapters);
-
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        console.log(error.response.data);
-      } else {
-        console.log(error);
-      }
-    }
-  };
+ 
 
   const fetchDashboardStats = async () => {
     try {
       // Add 1 second delay before fetching stats
       const params = new URLSearchParams({
         time_period: timePeriod,
-        ...(selectedChapters.id !== 0 && { chapter_id: selectedChapters.id.toString() }),
+        ...(selectedChapters.chapter_no !== 0 && { chapter_id: selectedChapters.chapter_no.toString() }),
         ...(userData?.role === "broker" || userData?.role === "expert" ? { user_id: userData?.id?.toString() } : selectedUsers.id !== 0 && { user_id: selectedUsers.id.toString() }),
         ...(userType !== 'user type' && { user_type: userType })
       });
@@ -80,7 +68,7 @@ const AnalyticsDashboard = () => {
   const handleExport = async () => {
     try {
       const params = new URLSearchParams({
-        ...(selectedChapters.id !== 0 && { chapter_id: selectedChapters.id.toString() }),
+        ...(selectedChapters.chapter_no !== 0 && { chapter_id: selectedChapters.chapter_no.toString() }),
         ...(selectedUsers.id !== 0 && { user_id: selectedUsers.id.toString() }),
         ...(userType !== 'user type' && { user_type: userType })
       });
@@ -106,13 +94,7 @@ const AnalyticsDashboard = () => {
     }
   };
 
-  useEffect(() => {
-    if (userData.role === "admin") {
-      getAllChapters();
-    } else if (userData.role && userData.id) {
-      getAllChapters(userData.id);
-    }
-  }, [userData.role, userData.id]);
+ 
 
   useEffect(() => {
     if (userData.role && userData.id) {
@@ -170,28 +152,7 @@ const AnalyticsDashboard = () => {
           </button>
         </div>}
 
-        <div className="flex justify-end mb-4">
-          <button
-            type="button"
-            className="px-3 py-2 ms-auto flex items-center font-semibold rounded-full  bg-white text-auth-purple group relative"
-          >
-
-            <span className="text-sm mr-8">{selectedChapters?.chapter_name.charAt(0).toUpperCase() + selectedChapters?.chapter_name.slice(1)}</span>
-            <DropdownIcon />
-            <div className="absolute z-10 top-12 left-0 w-full bg-[#ececec] font-normal rounded-xl overflow-hidden shadow-md hidden group-focus:block">
-
-              {chapters.map((chapter: any) => (
-                <div
-                  key={chapter.id}
-                  onClick={() => setSelectedChapters(chapter)}
-                  className="py-1 px-4 hover:bg-white cursor-pointer text-nowrap"
-                >
-                  {chapter?.chapter_name}
-                </div>
-              ))}
-            </div>
-          </button>
-        </div>
+        {ChaptersFilter( selectedChapters, setSelectedChapters,chapterNames )}
         {userData.role === "admin" &&
           <div className="flex justify-end mb-4">
             <button

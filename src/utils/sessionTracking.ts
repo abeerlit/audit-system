@@ -40,7 +40,7 @@ const setupActivityTracking = (token: string) => {
     // Update lastActive timestamp with rate limiting
     if (sessionId) {
       const now = Date.now();
-      console.log(now, lastApiCall, "now - lastApiCall", now - lastApiCall >= API_CALL_INTERVAL);
+      // console.log(now, lastApiCall, "now - lastApiCall", now - lastApiCall >= API_CALL_INTERVAL);
 
       if (now - lastApiCall >= API_CALL_INTERVAL) {
         lastApiCall = now;

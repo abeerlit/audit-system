@@ -50,7 +50,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   const getAllChapterItems = async (userId: number) => {
     try {
-      const response = await axios.get(`/api/user/chapterItems?brokerId=${userId}`);
+      const response = await axios.get(`/api/user/chapterItems?user_id=${userId}`);
       dispatch(addAuditingItems(response.data.chapterItems));
       console.log("getAllChapterItems response", response.data.chapterItems);
     } catch (error) {

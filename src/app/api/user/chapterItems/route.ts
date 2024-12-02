@@ -4,25 +4,25 @@ import { NextRequest } from 'next/server';
 // GET: Fetch chapterItems based on broker_id
 export async function GET(
   req: NextRequest,
-  { params }: { params: { brokerId: string } }
+  { params }: { params: { userId: string } }
 ) {
-  const broker_id: any = req.nextUrl.searchParams.get('brokerId');
+  const userId: any = req.nextUrl.searchParams.get('user_id');
   try {
-    console.log(params, 'broker id', broker_id);
-    const brokerIdParsed = parseInt(broker_id, 10);
+    console.log(params, 'user id', userId);
+    const userIdParsed = parseInt(userId, 10);
 
     // Check if brokerId is a valid number
-    if (isNaN(brokerIdParsed)) {
+    if (isNaN(userIdParsed)) {
       return NextResponse.json(
-        { error: true, message: 'Invalid broker ID.' },
+        { error: true, message: 'Invalid user ID.' },
         { status: 400 }
       );
     }
 
-    // Fetch chapterItems where broker_id matches the provided brokerId
-    const chapterItems = await prisma.chapterItem.findMany({
+    // Fetch chapterItems where user_id matches the provided userId
+    const chapterItems = await prisma.chapterItems.findMany({
       where: {
-        broker_id: brokerIdParsed,
+        user_id: userIdParsed,
       },
       include: {
         chapter: true, // Include related sections if needed
@@ -31,10 +31,10 @@ export async function GET(
 
     // Return the chapterItems in the response
     return NextResponse.json({ chapterItems, error: false, status: 200 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching chapterItems:', error);
     return NextResponse.json(
-      { error: true, message: 'Error fetching chapter items.' },
+      { error: true, message: error.message || 'Error fetching chapter items.' },
       { status: 500 }
     );
   }
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const chapterItem = await prisma.chapterItem.findUnique({
+    const chapterItem = await prisma.chapterItems.findUnique({
       where: { id: itemIdParsed },
     });
     if (!chapterItem) {
@@ -70,19 +70,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const updatedItem = await prisma.chapterItem.update({
+    const updatedItem = await prisma.chapterItems.update({
       where: { id: itemIdParsed },
-      data: { itemAction: action },
+      data: { status: action },
     });
 
     return NextResponse.json(
       { updatedItem, error: false, message: 'Item updated successfully' },
       { status: 200 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error updating chapterItems:', error);
     return NextResponse.json(
-      { error: true, message: 'Error updating chapter items.' },
+      { error: true, message: error.message || 'Error updating chapter items.' },
       { status: 500 }
     );
   }

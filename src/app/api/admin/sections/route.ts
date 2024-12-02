@@ -5,12 +5,11 @@ export const dynamic = 'force-dynamic'; // New way to disable static optimizatio
 
 export async function GET() {
   try {
-    const chapters = await prisma.chapterNames.findMany();
-    return NextResponse.json({ chapters, error: false, status: 200 });
-  } catch (error) {
-    console.error(error);
+    const sections = await prisma.sections.findMany();
+    return NextResponse.json({ sections, error: false, status: 200 });
+  } catch (error: any) {
     return NextResponse.json(
-      { error: true, message: 'Error fetching chapters.' },
+      { error: true, message: error.message || 'Error fetching sections.' },
       { status: 500 }
     );
   }
