@@ -37,7 +37,7 @@ type ChartDataType = {
   }[];
 };
 
-const WorkingHoursChart = ({statsData, itemsStatus, setItemsStatus,userData }: { statsData: any, itemsStatus: "accepted" | "edited" | "skipped" | "flagged" | "all chapters" , setItemsStatus: (itemsStatus: "accepted" | "edited" | "skipped" | "flagged" | "all chapters" ) => void,userData:any }) => {
+const WorkingHoursChart = ({statsData,userData }: { statsData: any, itemsStatus: "accepted" | "edited" | "skipped" | "flagged" | "all chapters" , setItemsStatus: (itemsStatus: "accepted" | "edited" | "skipped" | "flagged" | "all chapters" ) => void,userData:any }) => {
   const [chartData, setChartData] = useState<ChartDataType | null>(null);
   const [timePeriod, setTimePeriod] = useState<"today" | "week" | "month" | "">('month');
 const [totalWorkingHours,setTotalWorkingHours]=useState<string>("0");
