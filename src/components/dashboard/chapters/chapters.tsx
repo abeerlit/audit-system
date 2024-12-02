@@ -130,7 +130,7 @@ const Chapters: React.FC = () => {
   const [chapters, setChapters] = useState<any[]>(chaptersTable);
   const [loading, setLoading] = useState(false);
   const [selectedChapters, setSelectedChapters] = useState({ chapter_no: 0, chapter_name: 'All Item' });
-  const [chapterNames] = useState<any[]>([{ chapter_no: 0, chapter_name: 'All ' },...chaptersTable]);
+  const [chapterNames] = useState<any[]>([{ chapter_no: 0, chapter_name: 'All Item' },...chaptersTable]);
 
   const getAllChapters = async (userId: number = 0 , chapterId: number = 0) => {
     console.log("chapterId", chapterId);

@@ -19,10 +19,10 @@ const AnalyticsDashboard = () => {
   const userData: User = useSelector((state: RootState) => state.user);
 
   const [selectedChapters, setSelectedChapters] = useState({ chapter_no: 0, chapter_name: 'All Chapters' });
-  const chapterNames = [{ chapter_no: 0, chapter_name: 'All ' }, ...chaptersTable];
+  const chapterNames = [{ chapter_no: 0, chapter_name: 'All Chapters' }, ...chaptersTable];
 
   const [timePeriod, setTimePeriod] = useState<"today" | "week" | "month" | "">('month');
-  const [itemsStatus, setItemsStatus] = useState<"accepted" | "edited" | "skipped" | "flagged" | "all" >('all');
+  const [itemsStatus, setItemsStatus] = useState<"accepted" | "edited" | "skipped" | "flagged" | "all chapters" >('all chapters');
   const [userType, setUserType] = useState<"broker" | "expert" | "user type">('user type');
 
   const [selectedUsers, setSelectedUsers] = useState({ id: 0, firstName: 'All Users', lastName: '' });

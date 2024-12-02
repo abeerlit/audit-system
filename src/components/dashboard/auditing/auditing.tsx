@@ -30,7 +30,7 @@ const Auditing = () => {
 
   const [view, setView] = useState<'table' | 'card'>('card');
   const [selectedChapters, setSelectedChapters] = useState({ chapter_no: 0, chapter_name: 'All Item' });
-  const [chapterNames] = useState<any[]>([{ chapter_no: 0, chapter_name: 'All ' },...chaptersTable]);
+  const [chapterNames] = useState<any[]>([{ chapter_no: 0, chapter_name: 'All Item' },...chaptersTable]);
 
   const [auditAction, setAuditAction] = useState<
     'new' | 'accept' | 'skip' | 'edit' | 'flag'

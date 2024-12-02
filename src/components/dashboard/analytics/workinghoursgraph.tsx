@@ -37,7 +37,7 @@ type ChartDataType = {
   }[];
 };
 
-const WorkingHoursChart = ({statsData, itemsStatus, setItemsStatus,userData }: { statsData: any, itemsStatus: "accepted" | "edited" | "skipped" | "flagged" | "all" , setItemsStatus: (itemsStatus: "accepted" | "edited" | "skipped" | "flagged" | "all" ) => void,userData:any }) => {
+const WorkingHoursChart = ({statsData, itemsStatus, setItemsStatus,userData }: { statsData: any, itemsStatus: "accepted" | "edited" | "skipped" | "flagged" | "all chapters" , setItemsStatus: (itemsStatus: "accepted" | "edited" | "skipped" | "flagged" | "all chapters" ) => void,userData:any }) => {
   const [chartData, setChartData] = useState<ChartDataType | null>(null);
   const [timePeriod, setTimePeriod] = useState<"today" | "week" | "month" | "">('month');
 const [totalWorkingHours,setTotalWorkingHours]=useState<string>("0");
@@ -154,7 +154,7 @@ console.log(userData,"userData in working hours graph");
             </div>
           </button>
         </div>
-        <div className="flex items-end w-full h-full mt-5 mr-[-10px]">
+        {/* <div className="flex items-end w-full h-full mt-5 mr-[-10px]">
 
           <button
             type="button"
@@ -178,7 +178,7 @@ console.log(userData,"userData in working hours graph");
 
             </div>
           </button>
-        </div>
+        </div> */}
       </div>
 
       <div className=" w-full flex max-sm:flex-col justify-between items-start">
