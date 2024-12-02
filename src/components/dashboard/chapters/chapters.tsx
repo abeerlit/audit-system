@@ -90,7 +90,7 @@ const Item: React.FC<ItemProps> = ({ itemNumber, status, pendingCount, totalItem
     </span>
     <span>{status}</span>
     <span className="ms-auto border-[#B4984C] bg-[#FFEAB0] text-[#B4984C] rounded-full py-1 px-3 text-sm font-bold">
-      Pending Items: {pendingCount} out of {totalItems}
+      Pending Items: {pendingCount || 0} out of {totalItems || 0}
     </span>
   </div>
  </Link>
@@ -207,7 +207,7 @@ const Chapters: React.FC = () => {
             key={index}
             sectionTitle={section.section_name.length > 100 ? section.section_name.substring(0, 100) + "..." : section.section_name}
             totalChapters={chapters?.filter((item: any) => item?.section_no?.toString() === section?.section_no?.toString()).length}
-            totalItems={chapters?.filter((item: any) => item?.section_no?.toString() === section?.section_no?.toString()).map((item: any) => item?.chapterItems?.length).reduce((a: number, b: number) => a + b, 0)}
+            totalItems={chapters?.filter((item: any) => item?.section_no?.toString() === section?.section_no?.toString()).map((item: any) => item?.chapterItems?.length).reduce((a: number, b: number) => a + b, 0) || 0}
             sectionNumber={String(index + 1)}
             brokerName={
               section?.brokerName?.firstName +

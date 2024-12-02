@@ -18,10 +18,10 @@ import CheckIcon from '@/components/icons/dashboard/auditing/check-icon';
 import { User } from '@/store/slices/userSlice';
 import ChaptersFilter from '../ChaptersFilter';
 import chaptersTable from "../../../../chaptersTable.json"
+import { useSearchParams } from 'next/navigation'
 const Auditing = () => {
-  const url = new URL(window.location.href); // or use a string URL
-  const chapterNo = url.searchParams.get('chapter_no');
-  console.log(chapterNo, 'chapterNo in auditing');
+  const searchParams = useSearchParams();
+  const chapterNo = searchParams.get('chapter_no');
   
   const dispatch = useDispatch();
   const userData: User = useSelector((state: RootState) => state.user);
