@@ -111,7 +111,7 @@ const ChapterHeader: React.FC<{
     </button>
     <div className="flex items-center gap-2 w-full text-nowrap">
       <span className="text-[20px] leading-[20px] font-semibold text-auth-purple">
-        {title}
+        {title.length > 70 ? title.substring(0, 70) + "..." : title}
       </span>
       <span className="ms-auto text-sm text-auth-purple font-bold bg-[#E7E7E7] px-3 py-1 rounded-full">
         Chapters: {totalChapters}

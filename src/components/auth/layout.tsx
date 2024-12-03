@@ -18,7 +18,9 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
           width={0}
           height={0}
         />
-        <Logo className="text-white absolute top-0 bottom-0 left-0 right-0 m-auto max-md:w-[150px] max-md:h-[150px]" />
+      <Image src={require("@/images/logo.png")} className=" text-white absolute top-0 bottom-0 left-0 right-0 m-auto  max-md:w-[150px] max-md:h-[70px]" alt="logo" width={300} height={300} />
+
+        {/* <Logo className="text-white absolute top-0 bottom-0 left-0 right-0 m-auto max-md:w-[150px] max-md:h-[150px]" /> */}
       </div>
     </div>
   );

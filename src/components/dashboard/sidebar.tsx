@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { closeSidebar } from "@/store/slices/toggleSidebarSlice";
 import { RootState } from "@/store/store";
 import { User } from "@/store/slices/userSlice";
+import Image from "next/image";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
@@ -41,7 +42,8 @@ const Sidebar = () => {
     <div className="relative max-h-screen min-h-screen overflow-auto">
       <div className="h-10" />
       <Link href="/dashboard" onClick={handleClose}>
-        <Logo className="text-light-blue ms-6 mb-10 w-[90px] h-[43px]" />
+      <Image src={require("@/images/logoDark.png")} className="ml-10 mb-2" alt="logo" width={90} height={43} />
+        {/* <Logo className="text-light-blue ms-6 mb-10 w-[90px] h-[43px]" /> */}
       </Link>
       <div className="border-b border-gray-100" />
       <div className="flex flex-col gap-2 mt-4">

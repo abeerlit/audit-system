@@ -5,7 +5,7 @@ import SkipIcon from '@/components/icons/dashboard/auditing/skip-icon';
 import EditIcon from '@/components/icons/dashboard/users/edit-icon';
 import AcceptIcon from '@/components/icons/dashboard/auditing/accept-icon';
 import Image from 'next/image';
-import {  useState, useMemo } from 'react';
+import {  useState, useMemo, useEffect } from 'react';
 import image from '@/images/mock-photo.jpg';
 import DropdownIcon from '@/components/icons/dashboard/auditing/dropdown-icon';
 import { RootState } from '@/store/store';
@@ -66,7 +66,33 @@ const Auditing = () => {
     );
   }, [auditingData, selectedChapters.chapter_no, searchTest,chapterNo]);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredAuditingData.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredAuditingData.length / itemsPerPage);
+
+  const getPageNumbers = () => {
+    const pages = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      pages.push(1, 2, 3);
+      
+      if (currentPage <= 4) {
+        pages.push(4, 5, '...', totalPages - 1, totalPages);
+      } else if (currentPage >= totalPages - 3) {
+        pages.push('...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push('...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages - 1, totalPages);
+      }
+    }
+    return pages;
+  };
 
   const handleAuditAction = async (
     action: 'new' | 'accept' | 'skip' | 'edit' | 'flag',
@@ -157,7 +183,7 @@ const Auditing = () => {
           Nothing to show
         </div>
       ) : (
-        <>
+        <div className='max-h-[calc(100vh-200px)] overflow-auto'>
           {view === 'table' ? (
             <div className="overflow-auto rounded-2xl text-gray-600">
               <table className="bg-white table-auto w-full">
@@ -173,7 +199,7 @@ const Auditing = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredAuditingData?.map((product: any) => (
+                  {currentItems?.map((product: any) => (
                     <tr key={product.id} className="hover:bg-gray-100 border-t">
                       <td className="p-4 text-nowrap"> {product.item_name.length > 20
                         ? product.item_name.substring(0, 20) + '...'
@@ -283,7 +309,7 @@ const Auditing = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols xl:grid-cols-3 2xl:grid-cols-4 xl:gap-8 md:gap-6 gap-4">
-              {filteredAuditingData.map((product: any) => (
+              {currentItems.map((product: any) => (
                 <div key={product.id} className="relative p-4 bg-white rounded-3xl">
                   <Image
                     src={
@@ -412,7 +438,58 @@ const Auditing = () => {
               ))}
             </div>
           )}
-        </>
+        </div>
+      )}
+      {totalPages > 1 && (
+        <div className="flex items-center gap-2 py-4">
+          <button 
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+            className="w-[32px] h-[32px] hover:bg-light-blue bg-white rounded-lg disabled:opacity-50"
+          >
+            «
+          </button>
+          <button 
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="w-[32px] h-[32px] hover:bg-light-blue bg-white rounded-lg disabled:opacity-50"
+          >
+            ‹
+          </button>
+          
+          {getPageNumbers().map((number, index) => (
+            number === '...' ? (
+              <span key={index} className="px-2">...</span>
+            ) : (
+              <button
+                key={index}
+                onClick={() => setCurrentPage(number as number)}
+                className={`w-[32px] h-[32px] rounded-lg ${
+                  currentPage === number 
+                    ? 'bg-light-blue text-white' 
+                    : 'hover:bg-light-blue bg-white'
+                }`}
+              >
+                {number}
+              </button>
+            )
+          ))}
+          
+          <button 
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="w-[32px] h-[32px] hover:bg-light-blue bg-white rounded-lg disabled:opacity-50"
+          >
+            ›
+          </button>
+          <button 
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+            className="w-[32px] h-[32px] hover:bg-light-blue bg-white rounded-lg disabled:opacity-50"
+          >
+            »
+          </button>
+        </div>
       )}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <div className="flex flex-col items-center justify-center gap-4 mx-[100px] my-[20px]">

@@ -371,42 +371,52 @@ console.log(user.specialty, "user specialty");
 };
 
 // Component for rendering profile view
-const ProfileView = ({ profile, handleFileChange }: any) => (
-  <div className="flex flex-col min-w-[300px] gap-3 p-4 md:p-7 bg-white md:rounded-[30px] rounded-[20px]">
-    <span className="text-light-gray" onClick={() => console.log(profile)}>
-      Joined {moment(profile.createdAt).format('DD/MM/YYYY')}
-    </span>
-    <label
-      htmlFor="file-input"
-      className="relative border rounded-full w-fit overflow-hidden cursor-pointer"
-    >
-      <Image
-        src={profile.profileImage}
-        alt={profile.firstName}
-        width={100}
-        height={100}
-        className="rounded-full object-cover w-[100px] h-[100px]"
-      />
-      <div className="absolute bottom-0 w-full bg-black/50 text-center text-white">
-        <CameraIcon className="mx-auto h-6 w-5" />
-      </div>
-      <input
-        id="file-input"
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={handleFileChange}
-      />
-    </label>
-    <h2 className="text-xl text-auth-purple font-semibold">
-      {profile.firstName + ' ' + profile.lastName}
-    </h2>
-    <ProfileInfo label="Phone Number" value={profile.phoneNumber} />
-    <ProfileInfo label="Email" value={profile.email} />
-    <ProfileInfo label="Experience" value={profile.experience} />
-    <ProfileInfo label="Specialization" value={profile.specialty} />
-  </div>
-);
+const ProfileView = ({ profile, handleFileChange }: any) => {
+  // Map the specialty codes to their labels
+  const specializationLabels = Array.isArray(profile.specialty)
+    ? profile.specialty.map((code: string) => {
+        const option = HS_CODE_OPTIONS.find(opt => opt.value === code);
+        return option ? option.label : code;
+      })
+    : [];
+
+  return (
+    <div className="flex flex-col min-w-[300px] gap-3 p-4 md:p-7 bg-white md:rounded-[30px] rounded-[20px]">
+      <span className="text-light-gray" onClick={() => console.log(profile)}>
+        Joined {moment(profile.createdAt).format('DD/MM/YYYY')}
+      </span>
+      <label
+        htmlFor="file-input"
+        className="relative border rounded-full w-fit overflow-hidden cursor-pointer"
+      >
+        <Image
+          src={profile.profileImage}
+          alt={profile.firstName}
+          width={100}
+          height={100}
+          className="rounded-full object-cover w-[100px] h-[100px]"
+        />
+        <div className="absolute bottom-0 w-full bg-black/50 text-center text-white">
+          <CameraIcon className="mx-auto h-6 w-5" />
+        </div>
+        <input
+          id="file-input"
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+      </label>
+      <h2 className="text-xl text-auth-purple font-semibold">
+        {profile.firstName + ' ' + profile.lastName}
+      </h2>
+      <ProfileInfo label="Phone Number" value={profile.phoneNumber} />
+      <ProfileInfo label="Email" value={profile.email} />
+      <ProfileInfo label="Experience" value={profile.experience} />
+      <ProfileInfo label="Specialization" value={specializationLabels.join(', ')} />
+    </div>
+  );
+};
 
 // Profile info display component
 const ProfileInfo = ({ label, value }: any) => (
