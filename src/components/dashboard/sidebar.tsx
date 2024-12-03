@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Logo from "../icons/logo";
+// import Logo from "../icons/logo";
 import { getRoutes } from "@/constants/sidebarLinks";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -42,7 +42,7 @@ const Sidebar = () => {
     <div className="relative max-h-screen min-h-screen overflow-auto">
       <div className="h-10" />
       <Link href="/dashboard" onClick={handleClose}>
-      <Image src={require("@/images/logoDark.png")} className="ml-10 mb-2" alt="logo" width={90} height={43} />
+      <Image src="/logoDark.png" className="ml-10 mb-2" alt="logo" width={90} height={43} />
         {/* <Logo className="text-light-blue ms-6 mb-10 w-[90px] h-[43px]" /> */}
       </Link>
       <div className="border-b border-gray-100" />

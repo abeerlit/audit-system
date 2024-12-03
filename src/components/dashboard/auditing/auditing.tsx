@@ -5,7 +5,7 @@ import SkipIcon from '@/components/icons/dashboard/auditing/skip-icon';
 import EditIcon from '@/components/icons/dashboard/users/edit-icon';
 import AcceptIcon from '@/components/icons/dashboard/auditing/accept-icon';
 import Image from 'next/image';
-import {  useState, useMemo, useEffect } from 'react';
+import {  useState, useMemo } from 'react';
 import image from '@/images/mock-photo.jpg';
 import DropdownIcon from '@/components/icons/dashboard/auditing/dropdown-icon';
 import { RootState } from '@/store/store';
