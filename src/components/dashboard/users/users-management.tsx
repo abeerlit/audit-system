@@ -163,9 +163,9 @@ const UsersManagement = () => {
                       </div>
                       <div
                         className={"text-lef py-1 px-4 hover:bg-gray-100"}
-                        onClick={() =>
-                          toast("This feature is not available yet!")
-                        }
+                        // onClick={() =>
+                        //   toast("This feature is not available yet!")
+                        // }
                       >
                         <EditIcon className="inline-block mr-2" />
                         Edit Info
