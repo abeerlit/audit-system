@@ -151,7 +151,7 @@ const Auditing = () => {
           broker_hs_code: userData.role == "broker" ? hs_code : null,
         }
       );
-
+      console.log('handleEditCode response', response.data);
       toast.dismiss();
       // toast.success('HS Code updated successfully');
 
