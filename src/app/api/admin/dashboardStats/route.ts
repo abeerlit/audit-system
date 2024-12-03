@@ -93,7 +93,7 @@ export async function GET(req: NextRequest) {
         if (userType) {
             whereClause = {
                 ...whereClause,
-                brokerName: {
+                user: {
                     role: userType
                 }
             };

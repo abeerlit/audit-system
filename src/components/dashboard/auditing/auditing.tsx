@@ -5,7 +5,7 @@ import SkipIcon from '@/components/icons/dashboard/auditing/skip-icon';
 import EditIcon from '@/components/icons/dashboard/users/edit-icon';
 import AcceptIcon from '@/components/icons/dashboard/auditing/accept-icon';
 import Image from 'next/image';
-import {  useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import image from '@/images/mock-photo.jpg';
 import DropdownIcon from '@/components/icons/dashboard/auditing/dropdown-icon';
 import { RootState } from '@/store/store';
@@ -22,7 +22,7 @@ import { useSearchParams } from 'next/navigation'
 const Auditing = () => {
   const searchParams = useSearchParams();
   const chapterNo = searchParams.get('chapter_no');
-  
+
   const dispatch = useDispatch();
   const userData: User = useSelector((state: RootState) => state.user);
 
@@ -30,8 +30,7 @@ const Auditing = () => {
 
   const [view, setView] = useState<'table' | 'card'>('card');
   const [selectedChapters, setSelectedChapters] = useState({ chapter_no: 0, chapter_name: 'All Item' });
-  const [chapterNames] = useState<any[]>([{ chapter_no: 0, chapter_name: 'All Item' },...chaptersTable]);
-
+  const [chapterNames] = useState<any[]>([{ chapter_no: 0, chapter_name: 'All Item' }, ...chaptersTable]);
   const [auditAction, setAuditAction] = useState<
     'new' | 'accept' | 'skip' | 'edit' | 'flag'
   >('new');
@@ -43,7 +42,7 @@ const Auditing = () => {
 
   const filteredAuditingData = useMemo(() => {
     console.log(chapterNo, 'chapterNo in params');
-    
+
     if (chapterNo) {
       return auditingData.filter((item: any) =>
         item?.chapter_id === Number(chapterNo)
@@ -64,7 +63,7 @@ const Auditing = () => {
     return auditingData.filter(item =>
       item?.chapter_id === selectedChapters?.chapter_no
     );
-  }, [auditingData, selectedChapters.chapter_no, searchTest,chapterNo]);
+  }, [auditingData, selectedChapters.chapter_no, searchTest, chapterNo]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -82,7 +81,7 @@ const Auditing = () => {
       }
     } else {
       pages.push(1, 2, 3);
-      
+
       if (currentPage <= 4) {
         pages.push(4, 5, '...', totalPages - 1, totalPages);
       } else if (currentPage >= totalPages - 3) {
@@ -131,8 +130,42 @@ const Auditing = () => {
       }
     }
   };
- 
- 
+
+  const handleEditCode = async (hs_code: string, itemId: number) => {
+    try {
+      if (hs_code.length < 2) {
+        toast.error('HS Code must be at least 2 digits');
+        return;
+      }
+      if (hs_code.length > 6) {
+        toast.error('HS Code cannot exceed 6 digits');
+        return;
+      }
+
+      // toast.loading('Updating Code...');
+
+      const response = await axios.put(
+        `/api/user/chapterItems?itemId=${itemId}`,
+        {
+          expert_hs_code: userData.role == "expert" ? hs_code : null,
+          broker_hs_code: userData.role == "broker" ? hs_code : null,
+        }
+      );
+
+      toast.dismiss();
+      // toast.success('HS Code updated successfully');
+
+    } catch (error) {
+      toast.dismiss();
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(error.response.data?.message || 'Something went wrong!');
+      } else {
+        toast.error('An unexpected error occurred');
+      }
+    }
+  };
+
+
 
   return (
     <div className="">
@@ -173,8 +206,8 @@ const Auditing = () => {
           </button>
         </div>
         {(userData.role === "broker" || userData.role === "expert") &&
-          ChaptersFilter( selectedChapters, setSelectedChapters,chapterNames )
-          }
+          ChaptersFilter(selectedChapters, setSelectedChapters, chapterNames)
+        }
 
       </div>
 
@@ -374,33 +407,55 @@ const Auditing = () => {
                     </div>
                     <div className='flex justify-between items-center gap-4 mt-4'>
 
-                      {userData.role == "expert" && (
-                        <label className="flex gap-1 flex-col overflow-hidden">
-                          Hs Code
-                          <input
-                            readOnly
-                            type="text"
-                            className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1"
-                            defaultValue={
-                              product?.original_hs_code
-                                ? product?.original_hs_code
-                                : 'No HS Code'
-                            }
-                          />
-                        </label>)}
-                      <label className="flex flex-1 gap-1  flex-col  text-nowrap   ">
-                        Edited Hs Code
+                      {/* {userData.role == "expert" && ( */}
+                      <label className="flex flex-1 gap-1 flex-col overflow-hidden">
+                        Hs Code
                         <input
                           readOnly
                           type="text"
-                          className="border  bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1"
+                          className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1"
                           defaultValue={
                             product?.original_hs_code
                               ? product?.original_hs_code
-                              : 'No Edited HS Code'
+                              : 'No HS Code'
                           }
                         />
                       </label>
+                      {/* )} */}
+                      <label className="flex flex-1 gap-1 flex-col text-nowrap">
+                        Edited HS Code
+
+                        <input
+                          type="text" // Keep it as text to handle manual validation
+                          maxLength={6} // Restrict input length to 6 characters
+                          onChange={(e) => {
+                            const inputValue = e.target.value;
+                            const numericValue = inputValue.replace(/\D/g, ""); // Remove non-numeric characters
+                            const originalCode = product?.original_hs_code.toString(); // Get original HS code as a string
+                            const fixedPart = originalCode.slice(0, 2); // Extract the first two digits
+
+                            // If the first two digits are altered, reset them
+                            if (!numericValue.startsWith(fixedPart)) {
+                              e.target.value = fixedPart + numericValue.slice(2);
+                            } else {
+                              e.target.value = numericValue;
+                            }
+
+                            // Call the API only when input is valid and numeric
+                            if (numericValue.length >= 2 && numericValue.length <= 6 && numericValue == e.target.value) {
+                              handleEditCode(numericValue, product?.id); // Trigger API only for valid numeric input
+                            }
+                          }}
+                          className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1"
+                          defaultValue={
+                            userData.role === "expert"
+                              ? product?.expert_hs_code || product?.original_hs_code.toString().slice(0, 2)
+                              : product?.broker_hs_code || product?.original_hs_code.toString().slice(0, 2)
+                          }
+                        />
+                      </label>
+
+
                     </div>
                   </div>
                   {/* actions */}
@@ -442,21 +497,21 @@ const Auditing = () => {
       )}
       {totalPages > 1 && (
         <div className="flex items-center gap-2 py-4">
-          <button 
+          <button
             onClick={() => setCurrentPage(1)}
             disabled={currentPage === 1}
             className="w-[32px] h-[32px] hover:bg-light-blue bg-white rounded-lg disabled:opacity-50"
           >
             «
           </button>
-          <button 
+          <button
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
             className="w-[32px] h-[32px] hover:bg-light-blue bg-white rounded-lg disabled:opacity-50"
           >
             ‹
           </button>
-          
+
           {getPageNumbers().map((number, index) => (
             number === '...' ? (
               <span key={index} className="px-2">...</span>
@@ -464,25 +519,24 @@ const Auditing = () => {
               <button
                 key={index}
                 onClick={() => setCurrentPage(number as number)}
-                className={`w-[32px] h-[32px] rounded-lg ${
-                  currentPage === number 
-                    ? 'bg-light-blue text-white' 
-                    : 'hover:bg-light-blue bg-white'
-                }`}
+                className={`w-[32px] h-[32px] rounded-lg ${currentPage === number
+                  ? 'bg-light-blue text-white'
+                  : 'hover:bg-light-blue bg-white'
+                  }`}
               >
                 {number}
               </button>
             )
           ))}
-          
-          <button 
+
+          <button
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
             className="w-[32px] h-[32px] hover:bg-light-blue bg-white rounded-lg disabled:opacity-50"
           >
             ›
           </button>
-          <button 
+          <button
             onClick={() => setCurrentPage(totalPages)}
             disabled={currentPage === totalPages}
             className="w-[32px] h-[32px] hover:bg-light-blue bg-white rounded-lg disabled:opacity-50"

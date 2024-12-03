@@ -14,6 +14,9 @@ export async function GET(request: Request) {
       const chapters = await prisma.chapters.findMany({
         include: {
           chapterItems: {
+            include:{
+              user:true
+            },
             where: {
               user_id: Number(userId)
             }
@@ -26,7 +29,7 @@ export async function GET(request: Request) {
     }
 
     else {
-      const chapters = await prisma.chapters.findMany({ include: { chapterItems: true } });
+      const chapters = await prisma.chapters.findMany({ include: { chapterItems: {include:{user:true}} } });
       return NextResponse.json({ chapters, error: false, status: 200 });
     }
   } catch (error: any) {

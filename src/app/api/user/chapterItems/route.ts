@@ -87,3 +87,34 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function PUT(req: NextRequest) {
+  const itemId: any = req.nextUrl.searchParams.get('itemId');
+  const itemIdParsed = parseInt(itemId, 10);
+  const { expert_hs_code, broker_hs_code } = await req.json();
+
+
+  const chapterItem = await prisma.chapterItems.findUnique({
+    where: { id: itemIdParsed },
+  });
+  if (!chapterItem) {
+    return NextResponse.json(
+      { error: true, message: 'No chapter items found for this broker.' },
+      { status: 404 }
+    );
+  }
+  let data = {}
+  if (expert_hs_code && expert_hs_code != null) {
+    data = { expert_hs_code: +expert_hs_code }
+  } else if (broker_hs_code && broker_hs_code != null) {
+    data = { broker_hs_code: +broker_hs_code }
+  }
+  const updatedItem = await prisma.chapterItems.update({
+    where: { id: itemIdParsed },
+    data: data,
+  });
+  return NextResponse.json(
+    { updatedItem, error: false, message: 'Code updated successfully' },
+    { status: 200 }
+  );
+}

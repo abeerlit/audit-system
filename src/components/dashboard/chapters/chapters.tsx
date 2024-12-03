@@ -4,8 +4,8 @@ import UploadData from "./upload-data";
 import { RootState } from "@/store/store";
 import { User } from "@/store/slices/userSlice";
 import { useSelector } from "react-redux";
-import HeartIcon from "@/components/icons/dashboard/chapters/heart-icon";
-import HeartFilledIcon from "@/components/icons/dashboard/chapters/heart-filled-icon";
+// import HeartIcon from "@/components/icons/dashboard/chapters/heart-icon";
+// import HeartFilledIcon from "@/components/icons/dashboard/chapters/heart-filled-icon";
 import CollapsibleIcon from "@/components/icons/dashboard/chapters/collapsable-icon";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -20,8 +20,7 @@ interface SectionProps {
   totalChapters: number;
   totalItems: number;
   sectionNumber: string;
-  brokerName: string;
-  isAdmin: boolean;
+ 
   children: React.ReactNode;
 }
 
@@ -31,6 +30,7 @@ interface ItemProps {
   pendingCount: string;
   totalItems: number;
   userRole: string;
+  isAdmin: boolean, brokerName: string
 }
 
 const Section: React.FC<SectionProps> = ({
@@ -39,10 +39,9 @@ const Section: React.FC<SectionProps> = ({
   totalItems,
   children,
   sectionNumber,
-  brokerName,
-  isAdmin,
+ 
 }) => {
-  const [isFavorite, setIsFavorite] = useState(false);
+  // const [isFavorite, setIsFavorite] = useState(false);
   const [isItemsVisible, setIsItemsVisible] = useState(true);
 
   return (
@@ -52,18 +51,7 @@ const Section: React.FC<SectionProps> = ({
         <span className="font-semibold text-light-gray">
           Section {sectionNumber}
         </span>
-        {isAdmin ? (
-          <span className="text-light-blue ms-6 capitalize border border-light-blue rounded-lg px-2">
-            {brokerName} <EditIcon className="w-4 h-4 ms-1 inline-block" />
-          </span>
-        ) : (
-          <button
-            className="ms-auto"
-            onClick={() => setIsFavorite(!isFavorite)}
-          >
-            {isFavorite ? <HeartFilledIcon /> : <HeartIcon />}
-          </button>
-        )}
+
       </div>
       <div className="border rounded-2xl mt-4 overflow-auto">
         <div className="min-w-fit">
@@ -81,19 +69,29 @@ const Section: React.FC<SectionProps> = ({
   );
 };
 
-const Item: React.FC<ItemProps> = ({ itemNumber, status, pendingCount, totalItems,userRole }) => (
- <Link href= {userRole === "admin" ? "/dashboard/chapters" : `/dashboard/auditing${itemNumber ? "?chapter_no=" + itemNumber : ""}`}>
+const Item: React.FC<ItemProps> = ({ itemNumber, status, pendingCount, totalItems, userRole, isAdmin, brokerName }) => (
+  <Link href={userRole === "admin" ? "/dashboard/chapters" : `/dashboard/auditing${itemNumber ? "?chapter_no=" + itemNumber : ""}`}>
 
- <div  className="flex gap-4 items-center p-2 border-t text-nowrap">
-    <span className="bg-[#777777] text-white rounded-full ml-2 py-1 px-4 text-[12px] font-bold">
-      {itemNumber}
-    </span>
-    <span>{status}</span>
-    <span className="ms-auto border-[#B4984C] bg-[#FFEAB0] text-[#B4984C] rounded-full py-1 px-3 text-sm font-bold">
-      Pending Items: {pendingCount || 0} out of {totalItems || 0}
-    </span>
-  </div>
- </Link>
+    <div className="flex gap-4 items-center justify-between p-2 border-t text-nowrap">
+      <div className="flex items-center gap-2">
+        <span className="bg-[#777777] text-white rounded-full ml-2 py-1 px-4 text-[12px] font-bold">
+          {itemNumber}
+        </span>
+
+        <span>{status}</span>
+      </div>
+      <div className="flex items-center gap-2">
+      {isAdmin && brokerName && brokerName !== "undefined undefined" && (
+        <span className="text-light-blue ms-6 capitalize border border-light-blue rounded-lg px-2">
+          {brokerName} <EditIcon className="w-4 h-4 ms-1 inline-block" />
+        </span>
+      )}
+      <span className="ms-auto border-[#B4984C] bg-[#FFEAB0] text-[#B4984C] rounded-full py-1 px-3 text-sm font-bold">
+        Pending Items: {pendingCount || 0} out of {totalItems || 0}
+        </span>
+      </div>
+    </div>
+  </Link>
 );
 
 const ChapterHeader: React.FC<{
@@ -130,22 +128,22 @@ const Chapters: React.FC = () => {
   const [chapters, setChapters] = useState<any[]>(chaptersTable);
   const [loading, setLoading] = useState(false);
   const [selectedChapters, setSelectedChapters] = useState({ chapter_no: 0, chapter_name: 'All Item' });
-  const [chapterNames] = useState<any[]>([{ chapter_no: 0, chapter_name: 'All Item' },...chaptersTable]);
+  const [chapterNames] = useState<any[]>([{ chapter_no: 0, chapter_name: 'All Item' }, ...chaptersTable]);
 
-  const getAllChapters = async (userId: number = 0 , chapterId: number = 0) => {
+  const getAllChapters = async (userId: number = 0, chapterId: number = 0) => {
     console.log("chapterId", chapterId);
     // setLoading(true);
     try {
       const response = await axios.get(
         `/api/admin/chapters${userId ? "?user_id=" + userId : ""}${chapterId ? "&chapter_no=" + chapterId : ""}`
       );
-      const updatedChapters = chapters?.map((item: any,index: number) => ({
+      const updatedChapters = chapters?.map((item: any, index: number) => ({
         ...item,
         chapterItems: response?.data?.chapters[index]?.chapterItems
       }));
       setChapters(updatedChapters);
-      
-     
+
+
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -160,17 +158,17 @@ const Chapters: React.FC = () => {
   useEffect(() => {
     if (userData.role === "admin") {
       getAllChapters();
-    } else if (userData.role && userData.id ) {
-      if(selectedChapters?.chapter_no !== 0){
+    } else if (userData.role && userData.id) {
+      if (selectedChapters?.chapter_no !== 0) {
         getAllChapters(userData.id, selectedChapters.chapter_no);
-      }else{
+      } else {
         getAllChapters(userData.id);
       }
     }
   }, [userData.role, userData.id, selectedChapters]);
 
 
- 
+
   if (loading) {
     return (
       <div className="flex justify-center items-center ">
@@ -196,7 +194,7 @@ const Chapters: React.FC = () => {
         </div>
       )}
       {(userData.role === "broker" || userData.role === "expert") &&
-       ChaptersFilter( selectedChapters, setSelectedChapters,chapterNames )}
+        ChaptersFilter(selectedChapters, setSelectedChapters, chapterNames)}
       {!sections.length ? (
         <div className="text-center text-auth-purple text-xl italic leading-[100px]">
           Nothing to show
@@ -209,12 +207,7 @@ const Chapters: React.FC = () => {
             totalChapters={chapters?.filter((item: any) => item?.section_no?.toString() === section?.section_no?.toString()).length}
             totalItems={chapters?.filter((item: any) => item?.section_no?.toString() === section?.section_no?.toString()).map((item: any) => item?.chapterItems?.length).reduce((a: number, b: number) => a + b, 0) || 0}
             sectionNumber={String(index + 1)}
-            brokerName={
-              section?.brokerName?.firstName +
-              " " +
-              section?.brokerName?.lastName
-            }
-            isAdmin={userData?.role === "admin"}
+
           >
             {chapters?.filter((item: any) => item?.section_no?.toString() === section?.section_no?.toString()).map((item: any, itemIndex: number) => (
               <Item
@@ -224,6 +217,12 @@ const Chapters: React.FC = () => {
                 pendingCount={item?.chapterItems?.filter((item: any) => item?.status === "new").length}
                 totalItems={item?.chapterItems?.length}
                 userRole={userData.role}
+                brokerName={
+                  item?.chapterItems && (item?.chapterItems[0]?.user?.firstName +
+                  " " +
+                  item?.chapterItems[0]?.user?.lastName)
+                }
+                isAdmin={userData?.role === "admin"}
               />
             ))}
           </Section>
