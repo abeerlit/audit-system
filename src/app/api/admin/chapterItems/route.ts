@@ -75,6 +75,18 @@ export async function POST(request: Request) {
     const sheetName = workbook.SheetNames[0]; // Assuming data is in the first sheet
     const worksheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
+    // Add this validation after reading the worksheet
+    const requiredFields = ['item_name', 'chapter_id', 'item_link', 'item_image', 'item_price', 'item_weight','original_hs_code','broker_hs_code','expert_hs_code'];
+    
+    // Validate first row (headers)
+    const firstRow :any= worksheet[0];
+    const missingFields = requiredFields.filter(field => !(field in firstRow));
+    if (missingFields.length > 0) {
+      return NextResponse.json({
+        error: true,
+        message: `Required fields missing in file: ${missingFields.join(', ')}`,
+      }, { status: 400 });
+    }
 
     // Step 5: Create a new section and add associated chapter items
     const newChapterItems = await Promise.all(
