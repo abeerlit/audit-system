@@ -238,7 +238,7 @@ const dashboardStats: dashboardStats = useSelector((state: RootState) => state.d
       <div className="flex flex-wrap max-xl:flex-col gap-6">
         <div className="flex-1">
 
-          <WorkingHoursGraph userData={userData}   timePeriod={timePeriod} setTimePeriod={setTimePeriod} />
+          <WorkingHoursGraph userData={userData} selectedUsers={selectedUsers}  timePeriod={timePeriod} setTimePeriod={setTimePeriod} />
 
         </div>
         <div className="flex-1">

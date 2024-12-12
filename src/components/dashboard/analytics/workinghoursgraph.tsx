@@ -39,7 +39,7 @@ type ChartDataType = {
   }[];
 };
 
-const WorkingHoursChart = ({userData,timePeriod,setTimePeriod }: { userData:any,timePeriod:string,setTimePeriod:any }) => {
+const WorkingHoursChart = ({userData,timePeriod,setTimePeriod ,selectedUsers}: { userData:any,timePeriod:string,setTimePeriod:any,selectedUsers:any }) => {
  const dispatch = useDispatch();
   const [chartData, setChartData] = useState<ChartDataType | null>(null);
 const [totalWorkingHours,setTotalWorkingHours]=useState<string>("0");
@@ -48,7 +48,7 @@ const [percentageIncrease,setPercentageIncrease]=useState<number>(0);
   useEffect(() => {
     const fetchSessionData = async () => {
       try {
-        const response:any = await axios.get(`/api/sessions/stats?period=${timePeriod}&user_id=${userData.role === "admin" ? "1" : userData.id.toString()}`);
+        const response:any = await axios.get(`/api/sessions/stats?period=${timePeriod}&user_id=${userData.role === "admin" && selectedUsers.id===0 ? "1" : selectedUsers.id !==0 ? selectedUsers.id.toString() : userData.id.toString()}`);
       console.log(response.data,"response in working hours graph");
       
         const hours=response?.data?.hours.map((hours:number)=>hours > 0 ? hours.toString().split(".")[0]  ==="0" ? hours.toFixed(2) : hours.toFixed(0) : 0);
@@ -97,7 +97,7 @@ const [percentageIncrease,setPercentageIncrease]=useState<number>(0);
     };
 
     fetchSessionData();
-  }, [timePeriod,userData]);
+  }, [timePeriod,userData,selectedUsers]);
 
   const data = {
     labels: ["1", "2", "3", "4"],
