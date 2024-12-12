@@ -5,12 +5,15 @@ import prisma from '../../../../../config/prisma';
 export async function GET(req: NextRequest) {
   try {
     const chapterIds = req.nextUrl.searchParams.get('chapter_ids');
-    
+    console.log(chapterIds);
     const whereCondition: any = {
-      chapter_id: {
+     
+    };
+    if(chapterIds){
+      whereCondition.chapter_id = {
         in: chapterIds ? chapterIds.split(',').map(id => parseInt(id)) : []
       }
-    };
+    }
 
     const chapterItems = await prisma.chapterItems.findMany({
       where: whereCondition,

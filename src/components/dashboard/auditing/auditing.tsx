@@ -480,28 +480,24 @@ const Auditing = () => {
                     >
                       Accept
                     </button>
-                    {(userData.role == "admin" || userData.role == "broker") && (
                       <button
                         onClick={() => handleAuditAction('skip', product?.id)}
                         className="bg-gray-500 text-white p-2 rounded-full px-2 py-1"
                       >
                         Skip
                       </button>
-                    )}
                     <button
                       onClick={() => handleAuditAction('edit', product?.id)}
                       className="bg-yellow-500 text-white p-2 rounded-full px-2 py-1"
                     >
                       Edit
                     </button>
-                    {(userData.role == "admin" || userData.role == "broker") && (
                       <button
                         onClick={() => handleAuditAction('flag', product?.id)}
                         className="bg-red-500 text-white p-2 rounded-full px-2 py-1"
                       >
                         Flag Item
                       </button>
-                    )}
                   </div>
                 </div>
               ))}

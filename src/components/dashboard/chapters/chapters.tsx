@@ -50,7 +50,7 @@ const Section: React.FC<SectionProps> = ({
   // const [isFavorite, setIsFavorite] = useState(false);
   const [isItemsVisible, setIsItemsVisible] = useState(true);
 
- 
+
 
   return (
     <div className="bg-white w-full rounded-2xl mt-4 p-4">
@@ -168,10 +168,11 @@ const Chapters: React.FC = () => {
   const [selectedChapters, setSelectedChapters] = useState({ chapter_no: 0, chapter_name: 'All Item' });
   const [chapterNames] = useState<any[]>([{ chapter_no: 0, chapter_name: 'All Item' }, ...chaptersTable]);
 
-  const handleExport = async (chapterIds: number[]) => {
+  const handleExport = async (chapterIds: number[] | null) => {
     try {
+
       const params = new URLSearchParams({
-          ...(chapterIds.length > 0 && { chapter_ids: chapterIds.toString() }),
+        ...(chapterIds && chapterIds?.length > 0 && { chapter_ids: chapterIds?.toString() }),
       });
 
       const response = await axios.get(`/api/admin/downloadChapters?${params}`, {
@@ -247,8 +248,9 @@ const Chapters: React.FC = () => {
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <UploadData onClose={() => setIsOpen(false)} />
       </Modal>
-      {/* userData.role === "admin" */}
       {userData.role === "admin" && (
+
+      <div className="flex justify-end gap-2">
         <div className="text-right">
           <button
             onClick={() => setIsOpen(true)}
@@ -257,7 +259,20 @@ const Chapters: React.FC = () => {
             + Upload Data
           </button>
         </div>
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={() => handleExport(null)}
+            className="px-3 py-2 text-white ms-auto flex items-center font-semibold rounded-2xl border bg-[#2AB3E7] group relative"
+          >
+            <Image src="/arrow-down-circle.png" alt="Upload File Icon" width={20} height={20} />
+            {/* <UploadFileIconWhite /> */}
+              <span className="text-sm ml-2">Download All Chapters</span>
+            </button>
+          </div>
+        </div>
       )}
+
       {(userData.role === "broker" || userData.role === "expert") &&
         ChaptersFilter(selectedChapters, setSelectedChapters, chapterNames)}
       {!sections.length ? (

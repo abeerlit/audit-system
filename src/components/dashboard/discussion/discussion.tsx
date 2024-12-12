@@ -120,13 +120,13 @@ const Discussion = () => {
             <th className="p-4 text-left text-nowrap">Weight</th>
             <th className="p-4 text-left text-nowrap">HS Code</th>
             <th className="p-4 text-left text-nowrap">Discussion</th>
-            <th className="p-4 text-left text-nowrap">Status</th>
+            {/* <th className="p-4 text-left text-nowrap">Status</th> */}
 
             <th className="p-4 text-left text-nowrap">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {auditingData.map((product:any) => (
+          {auditingData.filter((product:any) => product.status === 'flag').map((product:any) => (
             <Fragment key={product.id}>
               <tr className="border-t">
                 <td className="p-4 text-nowrap">{product.item_name}</td>
@@ -183,7 +183,7 @@ const Discussion = () => {
                     {/* {product.discussions.length} */}
                   </button>
                 </td>
-                <td className="p-4 text-nowrap flex  items-end ">
+                {/* <td className="p-4 text-nowrap flex  items-end ">
                         <div className={`rounded-[40px] text-[12px] font-bold text-white px-[10px] py-[4px] ${product.status === 'accept'
                           ? 'bg-green-500'
                           : product?.status === 'skip'
@@ -196,7 +196,7 @@ const Discussion = () => {
                           }`}>
                           {product?.status?.charAt(0).toUpperCase() + product?.status?.slice(1)}
                         </div>
-                      </td>
+                      </td> */}
                 <td className="p-4 text-nowrap relative">
                   <button
                     type="button"
