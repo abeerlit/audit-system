@@ -137,10 +137,10 @@ export async function GET(req: NextRequest) {
         };
 
         const { current, percentages } = await getStatsComparison(currentFilter, previousFilter);
-        const chapters = await prisma.chapters.findMany();
+        // const chapters = await prisma.chapters.findMany();
 
         const chaptersDetails = {
-            totalChapters: chapters.length,
+            totalChapters: current.total,
             chapterIncreasePercentage: percentages.total,
             totalItems: current.total,
             acceptedItems: current.accepted,

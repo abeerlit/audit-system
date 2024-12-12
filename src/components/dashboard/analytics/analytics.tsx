@@ -14,15 +14,15 @@ import UploadFileIconWhite from "@/components/icons/dashboard/chapters/upload-fi
 import { toast } from "react-hot-toast";
 import ChaptersFilter from "../ChaptersFilter";
 import chaptersTable from "../../../../chaptersTable.json"
+import { dashboardStats } from "@/store/slices/dashboardStatsSlice";
 const AnalyticsDashboard = () => {
   const usersData: Users[] = useSelector((state: RootState) => state.users);
   const userData: User = useSelector((state: RootState) => state.user);
-
+const dashboardStats: dashboardStats = useSelector((state: RootState) => state.dashboardStats);
   const [selectedChapters, setSelectedChapters] = useState({ chapter_no: 0, chapter_name: 'All Chapters' });
   const chapterNames = [{ chapter_no: 0, chapter_name: 'All Chapters' }, ...chaptersTable];
 
   const [timePeriod, setTimePeriod] = useState<"today" | "week" | "month" | "">('month');
-  const [itemsStatus, setItemsStatus] = useState<"accepted" | "edited" | "skipped" | "flagged" | "all chapters" >('all chapters');
   const [userType, setUserType] = useState<"broker" | "expert" | "user type">('user type');
 
   const [selectedUsers, setSelectedUsers] = useState({ id: 0, firstName: 'All Users', lastName: '' });
@@ -43,9 +43,9 @@ const AnalyticsDashboard = () => {
     totalItems?: number;
     workingHoursAvg?: number;
     workingHoursIncreasePercentage?: number;
-  }>({});
+  } | any>({});
 
- 
+
 
   const fetchDashboardStats = async () => {
     try {
@@ -94,7 +94,7 @@ const AnalyticsDashboard = () => {
     }
   };
 
- 
+
 
   useEffect(() => {
     if (userData.role && userData.id) {
@@ -152,18 +152,18 @@ const AnalyticsDashboard = () => {
           </button>
         </div>}
 
-        {ChaptersFilter( selectedChapters, setSelectedChapters,chapterNames )}
+        {ChaptersFilter(selectedChapters, setSelectedChapters, chapterNames)}
         {userData.role === "admin" &&
           <div className="flex justify-end mb-4">
             <button
-            type="button"
-            onClick={handleExport}
-            className="px-3 py-2 text-white ms-auto flex items-center font-semibold rounded-full border bg-[#2AB3E7] group relative"
-          >
-            <UploadFileIconWhite />
-            <span className="text-sm ml-2">Export in Excel</span>
-          </button>
-        </div>}
+              type="button"
+              onClick={handleExport}
+              className="px-3 py-2 text-white ms-auto flex items-center font-semibold rounded-full border bg-[#2AB3E7] group relative"
+            >
+              <UploadFileIconWhite />
+              <span className="text-sm ml-2">Export in Excel</span>
+            </button>
+          </div>}
       </div>
 
       <div className="flex flex-wrap gap-4 mb-6">
@@ -171,7 +171,7 @@ const AnalyticsDashboard = () => {
         <>
           <StatCard
             userData={userData}
-            title={`Total ${userData.role === "admin" ? "Chapters Uploaded" : "Audited"}`}
+            title={`Total ${userData.role === "admin" ? "Items Uploaded" : "Audited"}`}
             value={userData.role === "admin" ? statsData?.totalChapters?.toString() || "0" : statsData?.totalItems?.toString() || "0"}
             timePeriod={timePeriod}
             setTimePeriod={setTimePeriod}
@@ -193,40 +193,44 @@ const AnalyticsDashboard = () => {
             setTimePeriod={setTimePeriod}
             increase={statsData?.editedIncreasePercentage || 0}
           />
-          <StatCard
-            userData={userData}
-            title="Skipped Items"
-            value={statsData?.skippedItems?.toString() || "0"}
-            timePeriod={timePeriod}
-            setTimePeriod={setTimePeriod}
-            increase={statsData?.skippedIncreasePercentage || 0}
-          />
-          <StatCard
-            userData={userData}
-            title="Flagged Items"
-            value={statsData?.flaggedItems?.toString() || "0"}
-            timePeriod={timePeriod}
-            setTimePeriod={setTimePeriod}
-            increase={statsData?.flaggedIncreasePercentage || 0}
-          />
+          {userData.role !== "expert" &&
+
+            <StatCard
+              userData={userData}
+              title="Skipped Items"
+              value={statsData?.skippedItems?.toString() || "0"}
+              timePeriod={timePeriod}
+              setTimePeriod={setTimePeriod}
+              increase={statsData?.skippedIncreasePercentage || 0}
+            />}
+          {userData.role !== "expert" &&
+
+            <StatCard
+              userData={userData}
+              title="Flagged Items"
+              value={statsData?.flaggedItems?.toString() || "0"}
+              timePeriod={timePeriod}
+              setTimePeriod={setTimePeriod}
+              increase={statsData?.flaggedIncreasePercentage || 0}
+            />}
           <StatCard
             userData={userData}
             title="Each Audit Time (Avg)"
-            value={`${statsData?.auditTimeAvg || 0}min`}
+            value={statsData?.totalItems ? `${Math.floor(dashboardStats.eachAuditTimeAvg/(statsData.acceptedItems+statsData.skippedItems + statsData.editedItems + statsData.flaggedItems))}min ${Math.round((dashboardStats.eachAuditTimeAvg/(statsData.acceptedItems+statsData.skippedItems + statsData.editedItems + statsData.flaggedItems) % 1) * 60) > 0 ? `${Math.round((dashboardStats.eachAuditTimeAvg/(statsData.acceptedItems+statsData.skippedItems + statsData.editedItems + statsData.flaggedItems) % 1) * 60)}sec` : ""}` : "0min"}
             timePeriod={timePeriod}
             setTimePeriod={setTimePeriod}
             increase={statsData?.auditTimeIncreasePercentage || 0}
           />
-          {userData.role === "broker" &&
-            <StatCard
-              userData={userData}
-              title="Daily Working Hours (Avg)"
-              value={`${statsData?.workingHoursAvg || 0}hrs`}
-              timePeriod={timePeriod}
-              setTimePeriod={setTimePeriod}
-              increase={statsData?.workingHoursIncreasePercentage || 0}
-            />
-          }
+          {userData.role !== "admin" &&
+          <StatCard
+            userData={userData}
+            title="Daily Working Hours (Avg)"
+            value={`${dashboardStats?.dailyWorkingHoursAvg || "0"}mins`}
+            timePeriod={timePeriod}
+            setTimePeriod={setTimePeriod}
+            increase={statsData?.workingHoursIncreasePercentage || 0}
+          />}
+
 
         </>
       </div>
@@ -234,7 +238,7 @@ const AnalyticsDashboard = () => {
       <div className="flex flex-wrap max-xl:flex-col gap-6">
         <div className="flex-1">
 
-          <WorkingHoursGraph userData={userData} statsData={statsData} itemsStatus={itemsStatus} setItemsStatus={setItemsStatus} />
+          <WorkingHoursGraph userData={userData}   timePeriod={timePeriod} setTimePeriod={setTimePeriod} />
 
         </div>
         <div className="flex-1">

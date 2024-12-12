@@ -16,8 +16,6 @@ import axios from 'axios';
 import Modal from '@/components/modal';
 import CheckIcon from '@/components/icons/dashboard/auditing/check-icon';
 import { User } from '@/store/slices/userSlice';
-import ChaptersFilter from '../ChaptersFilter';
-import chaptersTable from "../../../../chaptersTable.json"
 import { useSearchParams } from 'next/navigation'
 const Auditing = () => {
   const searchParams = useSearchParams();
@@ -29,8 +27,7 @@ const Auditing = () => {
   const searchTest: string = useSelector((state: RootState) => state?.auditingItems[0]?.searchTest || "");
 
   const [view, setView] = useState<'table' | 'card'>('card');
-  const [selectedChapters, setSelectedChapters] = useState({ chapter_no: 0, chapter_name: 'All Item' });
-  const [chapterNames] = useState<any[]>([{ chapter_no: 0, chapter_name: 'All Item' }, ...chaptersTable]);
+  const [selectedChapters] = useState({ chapter_no: 0, chapter_name: 'All Item' });
   const [auditAction, setAuditAction] = useState<
     'new' | 'accept' | 'skip' | 'edit' | 'flag'
   >('new');
@@ -39,6 +36,9 @@ const Auditing = () => {
   const auditingData: AuditingItems[] = useSelector(
     (state: RootState) => state.auditingItems
   );
+
+  const [selectedAction, setSelectedAction] = useState('all');
+  const actionOptions = ['all', 'new', 'accept', 'skip', 'edit', 'flag'];
 
   const filteredAuditingData = useMemo(() => {
     console.log(chapterNo, 'chapterNo in params');
@@ -57,13 +57,11 @@ const Auditing = () => {
         item.expert_hs_code?.toString().includes(searchTest.toString())
       );
     }
-    if (selectedChapters?.chapter_no === 0) {
+    if (selectedAction === 'all') {
       return auditingData;
     }
-    return auditingData.filter(item =>
-      item?.chapter_id === selectedChapters?.chapter_no
-    );
-  }, [auditingData, selectedChapters.chapter_no, searchTest, chapterNo]);
+    return auditingData.filter(item => item.status === selectedAction);
+  }, [auditingData, selectedChapters.chapter_no, searchTest, chapterNo, selectedAction]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -205,9 +203,33 @@ const Auditing = () => {
             </div>
           </button>
         </div>
-        {(userData.role === "broker" || userData.role === "expert") &&
-          ChaptersFilter(selectedChapters, setSelectedChapters, chapterNames)
-        }
+        <div className="flex justify-end mb-4 ">
+          <button
+            type="button"
+            className="max-w-[500px] whitespace-nowrap px-3 py-2 ms-auto flex items-center font-semibold rounded-full  bg-white text-auth-purple group relative"
+          >
+
+            <span className="text-sm mr-8"> {selectedAction.toUpperCase()}</span>
+            <div>
+
+              <DropdownIcon />
+            </div>
+            <div className="max-w-[500px] absolute z-10 top-12 left-0 w-full bg-[#ececec] font-normal rounded-xl overflow-hidden shadow-md hidden group-focus:block">
+
+              {actionOptions?.map((action: any) => (
+                <div
+                  title={action}
+                  key={action}
+                  onClick={() => setSelectedAction(action)}
+                  className="py-1 px-4 truncate hover:bg-white cursor-pointer text-nowrap text-start"
+                >
+                  {action.charAt(0).toUpperCase() + action.slice(1)}
+                </div>
+              ))}
+            </div>
+          </button>
+        </div>
+        
 
       </div>
 
@@ -234,9 +256,7 @@ const Auditing = () => {
                 <tbody>
                   {currentItems?.map((product: any) => (
                     <tr key={product.id} className="hover:bg-gray-100 border-t">
-                      <td className="p-4 text-nowrap"> {product.item_name.length > 20
-                        ? product.item_name.substring(0, 20) + '...'
-                        : product.item_name}</td>
+                      <td className="p-4 text-nowrap"> {product.item_name}</td>
                       <td className="p-4 text-nowrap">
                         <Image
                           src={
@@ -373,27 +393,32 @@ const Auditing = () => {
                   >
                     {product?.status?.charAt(0).toUpperCase() + product?.status?.slice(1)}
                   </p>
-                  <h2 className="text-auth-purple text-xl text-nowrap truncate w-full pt-4 font-bold">
-                    {product?.item_name.length > 20
-                      ? product?.item_name.substring(0, 20) + '...'
-                      : product?.item_name}
+                  <style jsx>{`
+                    ::-webkit-scrollbar {
+                      display: none;
+                    }
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                  `}</style>
+                  <h2 className="text-auth-purple text-xl text-nowrap overflow-scroll w-full pt-4 font-bold">
+                    {product?.item_name}
                   </h2>
                   {/* values */}
-                  <div className="mt-8 w-full text-auth-purple font-medium  gap-4">
-                    <div className='flex justify-between items-center gap-4'>
+                  <div className="mt-8 w-full text-auth-purple font-medium   gap-4">
+                    <div className='flex justify-between items-center gap-4 w-full'>
 
-                      <label className="flex gap-1 flex-col overflow-hidden">
+                      <label className="flex flex-1 gap-1 min-w-0 flex-col overflow-hidden">
                         Price
                         <input
                           readOnly
                           type="text"
-                          className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1"
+                          className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1 w-full"
                           defaultValue={
                             product?.item_price ? product?.item_price : 'No Price'
                           }
                         />
                       </label>
-                      <label className="flex gap-1 flex-col overflow-hidden">
+                      <label className="flex flex-1 gap-1 min-w-0  flex-col overflow-hidden">
                         Weight
                         <input
                           readOnly
@@ -405,57 +430,46 @@ const Auditing = () => {
                         />
                       </label>
                     </div>
-                    <div className='flex justify-between items-center gap-4 mt-4'>
-
-                      {/* {userData.role == "expert" && ( */}
-                      <label className="flex flex-1 gap-1 flex-col overflow-hidden">
+                    
+                    <div className='flex justify-between items-center gap-4 mt-4 w-full'>
+                      <label className="flex flex-1 gap-1 min-w-0 flex-col overflow-hidden">
                         Hs Code
                         <input
                           readOnly
                           type="text"
-                          className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1"
-                          defaultValue={
-                            product?.original_hs_code
-                              ? product?.original_hs_code
-                              : 'No HS Code'
-                          }
+                          className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1 w-full"
+                          defaultValue={product?.original_hs_code ?? 'No HS Code'}
                         />
                       </label>
-                      {/* )} */}
-                      <label className="flex flex-1 gap-1 flex-col text-nowrap">
+                      <label className="flex flex-1 gap-1 min-w-0 flex-col text-nowrap">
                         Edited HS Code
-
                         <input
-                          type="text" // Keep it as text to handle manual validation
-                          maxLength={6} // Restrict input length to 6 characters
+                          type="text"
+                          maxLength={6}
                           onChange={(e) => {
                             const inputValue = e.target.value;
-                            const numericValue = inputValue.replace(/\D/g, ""); // Remove non-numeric characters
-                            const originalCode = product?.original_hs_code.toString(); // Get original HS code as a string
-                            const fixedPart = originalCode.slice(0, 2); // Extract the first two digits
+                            const numericValue = inputValue.replace(/\D/g, "");
+                            const originalCode = product?.original_hs_code.toString();
+                            const fixedPart = originalCode.slice(0, 2);
 
-                            // If the first two digits are altered, reset them
                             if (!numericValue.startsWith(fixedPart)) {
                               e.target.value = fixedPart + numericValue.slice(2);
                             } else {
                               e.target.value = numericValue;
                             }
 
-                            // Call the API only when input is valid and numeric
                             if (numericValue.length >= 2 && numericValue.length <= 6 && numericValue == e.target.value) {
-                              handleEditCode(numericValue, product?.id); // Trigger API only for valid numeric input
+                              handleEditCode(numericValue, product?.id);
                             }
                           }}
-                          className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1"
                           defaultValue={
                             userData.role === "expert"
                               ? product?.expert_hs_code || product?.original_hs_code.toString().slice(0, 2)
                               : product?.broker_hs_code || product?.original_hs_code.toString().slice(0, 2)
                           }
+                          className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1 w-full"
                         />
                       </label>
-
-
                     </div>
                   </div>
                   {/* actions */}

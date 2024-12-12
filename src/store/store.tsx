@@ -3,6 +3,7 @@ import userSlice from "./slices/userSlice";
 import usersSlice from "./slices/usersSlice";
 import toggleSidebarSlice from "./slices/toggleSidebarSlice";
 import auditingItemsSlice from "./slices/auditingItemsSlice";
+import dashboardStatsSlice from "./slices/dashboardStatsSlice";
 
 export const makeStore = () => {
   return configureStore({
@@ -11,6 +12,7 @@ export const makeStore = () => {
       users: usersSlice,
       toggleSidebar: toggleSidebarSlice,
       auditingItems: auditingItemsSlice,
+      dashboardStats: dashboardStatsSlice,
     },
   });
 };

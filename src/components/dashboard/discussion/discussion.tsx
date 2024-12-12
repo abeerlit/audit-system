@@ -120,14 +120,16 @@ const Discussion = () => {
             <th className="p-4 text-left text-nowrap">Weight</th>
             <th className="p-4 text-left text-nowrap">HS Code</th>
             <th className="p-4 text-left text-nowrap">Discussion</th>
+            <th className="p-4 text-left text-nowrap">Status</th>
+
             <th className="p-4 text-left text-nowrap">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {auditingData.map((product) => (
+          {auditingData.map((product:any) => (
             <Fragment key={product.id}>
               <tr className="border-t">
-                <td className="p-4 text-nowrap">{product.search_sentence}</td>
+                <td className="p-4 text-nowrap">{product.item_name}</td>
                 <td className="p-4 text-nowrap">
                   <Image
                     src={
@@ -158,6 +160,7 @@ const Discussion = () => {
                       : "No HS Code"}
                   </div>
                 </td>
+               
                 <td className="p-4 text-nowrap">
                   <button
                     type="button"
@@ -180,6 +183,20 @@ const Discussion = () => {
                     {/* {product.discussions.length} */}
                   </button>
                 </td>
+                <td className="p-4 text-nowrap flex  items-end ">
+                        <div className={`rounded-[40px] text-[12px] font-bold text-white px-[10px] py-[4px] ${product.status === 'accept'
+                          ? 'bg-green-500'
+                          : product?.status === 'skip'
+                            ? 'bg-gray-500'
+                            : product?.status === 'edit'
+                              ? 'bg-yellow-500'
+                              : product?.status === 'flag'
+                                ? 'bg-red-500'
+                                : 'bg-[#2AB3E7]'
+                          }`}>
+                          {product?.status?.charAt(0).toUpperCase() + product?.status?.slice(1)}
+                        </div>
+                      </td>
                 <td className="p-4 text-nowrap relative">
                   <button
                     type="button"

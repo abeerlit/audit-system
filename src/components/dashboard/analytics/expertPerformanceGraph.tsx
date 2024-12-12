@@ -30,7 +30,7 @@ const WorkingHoursChart = ({ timePeriod, setTimePeriod ,statsData}: { timePeriod
     <div className="bg-white p-6 rounded-2xl shadow-lg  flex flex-col justify-between items-start gap-10 h-full">
       <div className="flex justify-between items-center gap-4 w-full mt-[-10px]">
 
-      <h2 className="text-xl font-semibold text-auth-purple ">Performance</h2>
+      <h2 className="text-xl font-semibold text-auth-purple whitespace-nowrap">My Performance</h2>
 
         <div className="flex items-end w-full h-full  mr-[-10px]">
 
@@ -63,10 +63,10 @@ const WorkingHoursChart = ({ timePeriod, setTimePeriod ,statsData}: { timePeriod
 
         <div className="mb-4">
           <div className="flex items-center text-sm text-nowrap">
-          <h2 className="text-2xl font-bold">72hrs</h2>
-            <span className="ml-2 text-green-500">+2.45%</span>
+          <h2 className="text-2xl font-bold">{statsData.acceptedItems + statsData.editedItems}</h2>
+            <span className="ml-2 text-green-500">+{statsData.acceptedIncreasePercentage}%</span>
           </div>
-            <p   className="text-[12px] text-gray-600">Total Spent ▲ </p>
+            <p   className="text-[12px] text-gray-600">Task Completed ▲ </p>
         </div>
         <div className="w-full max-w-sm">
         </div>

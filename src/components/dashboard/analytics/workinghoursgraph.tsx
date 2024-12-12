@@ -10,8 +10,10 @@ import {
   Legend,
   CategoryScale, // Import CategoryScale
 } from "chart.js";
+import { useDispatch } from "react-redux";
 import DropdownIconFill from "@/components/icons/dashboard/auditing/dropdown-icon-fill";
 import axios from 'axios';
+import { addDashboardStats } from "@/store/slices/dashboardStatsSlice";
 
 // Register the required components
 ChartJS.register(
@@ -37,12 +39,11 @@ type ChartDataType = {
   }[];
 };
 
-const WorkingHoursChart = ({statsData,userData }: { statsData: any, itemsStatus: "accepted" | "edited" | "skipped" | "flagged" | "all chapters" , setItemsStatus: (itemsStatus: "accepted" | "edited" | "skipped" | "flagged" | "all chapters" ) => void,userData:any }) => {
+const WorkingHoursChart = ({userData,timePeriod,setTimePeriod }: { userData:any,timePeriod:string,setTimePeriod:any }) => {
+ const dispatch = useDispatch();
   const [chartData, setChartData] = useState<ChartDataType | null>(null);
-  const [timePeriod, setTimePeriod] = useState<"today" | "week" | "month" | "">('month');
 const [totalWorkingHours,setTotalWorkingHours]=useState<string>("0");
 const [percentageIncrease,setPercentageIncrease]=useState<number>(0);
-console.log(userData,"userData in working hours graph");
 
   useEffect(() => {
     const fetchSessionData = async () => {
@@ -54,10 +55,30 @@ console.log(userData,"userData in working hours graph");
         // Convert total hours to hours and minutes format
         const totalHoursNum = parseFloat(response?.data?.totalHours || "0");
         const totalHoursWhole = Math.floor(totalHoursNum);
+
         const totalMinutes = Math.round((totalHoursNum - totalHoursWhole) * 60);
+
         const formattedTotalHours = `${totalHoursWhole}hrs ${totalMinutes > 0 ? `${totalMinutes}min ` : ""}`;
         setTotalWorkingHours(formattedTotalHours);
 
+        let dailyWorkingHoursAvg = "0";
+        if(timePeriod === "today"){
+          dailyWorkingHoursAvg = (totalMinutes + totalHoursWhole * 60).toFixed(0);
+        }else if(timePeriod === "week"){
+          dailyWorkingHoursAvg = ((totalMinutes + totalHoursWhole * 60)/7).toFixed(2);
+        }else if(timePeriod === "month"){
+          dailyWorkingHoursAvg = ((totalMinutes + totalHoursWhole * 60)/30).toFixed(2);
+        }else if(timePeriod === "All Time"){
+          dailyWorkingHoursAvg = ((totalMinutes + totalHoursWhole * 60)/365).toFixed(2);
+        }
+
+       
+
+        dispatch(addDashboardStats({
+          
+          eachAuditTimeAvg: totalMinutes + totalHoursNum * 60,
+          dailyWorkingHoursAvg: dailyWorkingHoursAvg,
+        }));
         setPercentageIncrease(response?.data?.percentageIncrease);
         setChartData({
           labels: response.data.labels,
@@ -78,7 +99,6 @@ console.log(userData,"userData in working hours graph");
     fetchSessionData();
   }, [timePeriod,userData]);
 
-  console.log(statsData, "statsData");
   const data = {
     labels: ["1", "2", "3", "4"],
     datasets: [
