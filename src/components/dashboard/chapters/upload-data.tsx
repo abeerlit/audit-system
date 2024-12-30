@@ -26,7 +26,7 @@ const schema = z.object({
   }),
 }).refine((data) => {
   const hasBrokerId = !!data.brokerId;
-  const hasExpertId = !!data.expertId;
+  // const hasExpertId = !!data.expertId;
   // Ensure single chapter for broker, allow multiple for expert
   if (hasBrokerId) {
     return typeof data.chapterName === 'string';

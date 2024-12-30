@@ -62,11 +62,11 @@ export async function POST(request: Request) {
       chapterNameArray = chapterName.split('|');
     }
 
-    let chapter_name: any = [];
+    const chapter_name: any = [];
     if (expertId) {
       await Promise.all(chapterNameArray.map(async (chapter: any) => {
         // Step 3: Look up the chapter_id based on the chapterName
-        let chapterFound = await prisma.chapters.findFirst({
+        const chapterFound = await prisma.chapters.findFirst({
           where: { chapter_name: chapter },
         });
         console.log("chapter_name", chapter_name);
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
         chapter_name.push(chapterFound);
       }))
     } else {
-      let chapterFound = await prisma.chapters.findFirst({
+      const chapterFound = await prisma.chapters.findFirst({
         where: { chapter_name: chapterName },
       });
       if (!chapterFound) {

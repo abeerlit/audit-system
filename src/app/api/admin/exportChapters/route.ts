@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
-import prisma from '../../../../../config/prisma';
+// import prisma from '../../../../../config/prisma';
 export async function POST(req: NextRequest) {
   try {
     const chapterId = req.nextUrl.searchParams.get('chapter_id');
@@ -16,28 +16,28 @@ export async function POST(req: NextRequest) {
       whereCondition.user_id = parseInt(userId);
     }
 
-    const chapterItems = await prisma.chapterItems.findMany({
-      where: whereCondition,
-      select: {
-        id: true,
-        chapter_id: true,
-        item_name: true,
-        item_link: true,
-        item_image: true,
-        item_price: true,
-        item_weight: true,
-        item_detail: true,
-        search_sentence: true,
-        original_hs_code: true,
-        broker_hs_code: true,
-        expert_hs_code: true,
-        broker_update_timestamp: true,
-        expert_update_timestamp: true,
-        status: true,
-        expert_status: true,
-        user_id: true,
-      },
-    });
+    // const chapterItems = await prisma.chapterItems.findMany({
+    //   where: whereCondition,
+    //   select: {
+    //     id: true,
+    //     chapter_id: true,
+    //     item_name: true,
+    //     item_link: true,
+    //     item_image: true,
+    //     item_price: true,
+    //     item_weight: true,
+    //     item_detail: true,
+    //     search_sentence: true,
+    //     original_hs_code: true,
+    //     broker_hs_code: true,
+    //     expert_hs_code: true,
+    //     broker_update_timestamp: true,
+    //     expert_update_timestamp: true,
+    //     status: true,
+    //     expert_status: true,
+    //     user_id: true,
+    //   },
+    // });
 
     const mappedItems=[]
     // const mappedItems:any = chapterItems.map(item => ({

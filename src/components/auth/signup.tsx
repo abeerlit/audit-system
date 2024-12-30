@@ -3,13 +3,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ShowPasswordIcon from "../icons/auth/show-password";
 import axios from "axios";
-import Cookies from "js-cookie";
-import { useDispatch } from "react-redux";
-import { addUser } from "@/store/slices/userSlice";
+// import Cookies from "js-cookie";
+// import { useDispatch } from "react-redux";
+// import { addUser } from "@/store/slices/userSlice";
 // import { Check, Search } from "lucide-react";
 import SearchIcon from "@/components/icons/auth/search-icon-big";
 import { HS_CODE_OPTIONS } from "@/helpers/hsCodeOptions";
@@ -42,8 +42,8 @@ const schema = z.object({
 
 const SignUpScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
-  const dispatch = useDispatch();
+  // const router = useRouter();
+  // const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [verificationPending, setVerificationPending] = useState(false);
