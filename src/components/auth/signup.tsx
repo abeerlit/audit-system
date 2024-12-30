@@ -46,7 +46,7 @@ const SignUpScreen = () => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-
+  const [verificationPending, setVerificationPending] = useState(false);
   const {
     register,
     handleSubmit,
@@ -77,12 +77,13 @@ const SignUpScreen = () => {
         action: "register",
       });
       console.log(response.data, "response");
-      localStorage.setItem('user', JSON.stringify(response?.data?.user));
-      dispatch(addUser(response.data.user));
-      Cookies.set("auditToken", response.data.token);
+      // localStorage.setItem('user', JSON.stringify(response?.data?.user));
+      // dispatch(addUser(response.data.user));
+      // Cookies.set("auditToken", response.data.token);
       toast.dismiss();
       toast.success("Sign Up successful!");
-      router.replace("/dashboard");
+      setVerificationPending(true);
+      // router.replace("/dashboard");
     } catch (error) {
       toast.dismiss();
       if (axios.isAxiosError(error) && error.response) {
@@ -95,6 +96,12 @@ const SignUpScreen = () => {
   };
 
   return (
+    <>
+      {verificationPending ? (
+        <div className=" w-full flex flex-col items-center justify-center h-screen">
+          <h2 className="text-4xl text-auth-purple font-bold mb-4">Verification Pending</h2>
+      </div>
+    ) : (
     <div className="w-full max-w-lg">
       <h2 className="text-4xl text-auth-purple font-bold mb-4">Sign Up</h2>
       <p className="text-light-gray mb-6">Enter your details to sign up!</p>
@@ -336,6 +343,8 @@ const SignUpScreen = () => {
         </p>
       </form>
     </div>
+    )}
+    </>
   );
 };
 

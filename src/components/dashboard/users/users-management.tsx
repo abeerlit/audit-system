@@ -179,7 +179,7 @@ const UsersManagement = () => {
                         }
                         onClick={() =>
                           user.isActive
-                            ? console.log("User is already active!")
+                            ? toast.error("User is already active!")
                             : activateOrDeactivate(user, true)
                         }
                       >
@@ -195,7 +195,7 @@ const UsersManagement = () => {
                         }
                         onClick={() =>
                           !user.isActive
-                            ? console.log("user is already deactivated")
+                            ? toast.error("User is already deactivated")
                             : activateOrDeactivate(user, false)
                         }
                       >

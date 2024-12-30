@@ -436,10 +436,16 @@ const Auditing = () => {
                         Hs Code
                         <input
                           readOnly
+                          type="text" 
+                          className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1 w-full"
+                          defaultValue={product?.original_hs_code ? product?.original_hs_code.toString().padStart(6, '0') : 'No HS Code'}
+                        />
+                        {/* <input
+                          readOnly
                           type="text"
                           className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1 w-full"
                           defaultValue={product?.original_hs_code ?? 'No HS Code'}
-                        />
+                        /> */}
                       </label>
                       <label className="flex flex-1 gap-1 min-w-0 flex-col text-nowrap">
                         Edited HS Code
@@ -449,7 +455,7 @@ const Auditing = () => {
                           onChange={(e) => {
                             const inputValue = e.target.value;
                             const numericValue = inputValue.replace(/\D/g, "");
-                            const originalCode = product?.original_hs_code.toString();
+                            const originalCode = product?.original_hs_code.toString().padStart(6, '0');
                             const fixedPart = originalCode.slice(0, 2);
 
                             if (!numericValue.startsWith(fixedPart)) {
@@ -464,8 +470,8 @@ const Auditing = () => {
                           }}
                           defaultValue={
                             userData.role === "expert"
-                              ? product?.expert_hs_code || product?.original_hs_code.toString().slice(0, 2)
-                              : product?.broker_hs_code || product?.original_hs_code.toString().slice(0, 2)
+                              ? product?.expert_hs_code || product?.original_hs_code.toString().padStart(6, '0').slice(0, 2)
+                              : product?.broker_hs_code || product?.original_hs_code.toString().padStart(6, '0').slice(0, 2)
                           }
                           className="border bg-gray-100 focus:bg-white focus:outline-none text-gray-400 focus:text-inherit rounded-full px-2 py-1 w-full"
                         />

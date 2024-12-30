@@ -73,9 +73,13 @@ const dashboardStats: dashboardStats = useSelector((state: RootState) => state.d
         ...(userType !== 'user type' && { user_type: userType })
       });
 
-      const response = await axios.get(`/api/admin/exportChapters?${params}`, {
-        responseType: 'blob' // Important for handling binary data
+      // Send statsData as part of the request
+      const response = await axios.post(`/api/admin/exportChapters?${params}`, {
+        statsData: { ...statsData, workingHoursAvg: dashboardStats?.dailyWorkingHoursAvg ,auditTimeAvg:dashboardStats.eachAuditTimeAvg/(statsData.acceptedItems+statsData.skippedItems + statsData.editedItems + statsData.flaggedItems)}, // Pass statsData in the request body
+      }, {
+        responseType: 'blob', // Important for handling binary data
       });
+
 
       // Create blob link to download
       const url = window.URL.createObjectURL(new Blob([response.data]));

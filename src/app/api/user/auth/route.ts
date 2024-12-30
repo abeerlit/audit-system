@@ -148,6 +148,7 @@ async function registerUser(data: any) {
         experience,
         specialty,
         otpVerified: true,
+        isActive: false,
 
         // otp: otp,
         password: hashedPassword,
@@ -215,6 +216,12 @@ async function loginUser(data: any) {
       );
     }
 
+    if(user.isActive === false){
+      return NextResponse.json(
+        { error: true, message: 'Your account is not active. Please contact the admin.' },
+        { status: 401 }
+      );
+    }
     const token = jwt.sign(
       {
         id: user.id,
