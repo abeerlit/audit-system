@@ -15,35 +15,19 @@ interface UploadDataProps {
 }
 // Define Zod schema with validation and error messages
 const schema = z.object({
-  chapterName: z.union([
-    z.string().min(1, { message: "Please select a chapter" }),
-    z.array(z.string()).min(1, { message: "Please select at least one chapter" })
-  ]),
-  brokerId: z.string().optional(),
-  expertId: z.string().optional(),
+  chapterName: z.string().min(1, { message: "Please select a chapter" }),
+  userId: z.string().min(1, { message: "Please select a broker" }),
+  // File validation that checks for File instance
   file: z.any().refine((file) => file instanceof File, {
-    message: "Please upload a file", 
+    message: "Please upload a file",
   }),
-}).refine((data) => {
-  const hasBrokerId = !!data.brokerId;
-  // const hasExpertId = !!data.expertId;
-  // Ensure single chapter for broker, allow multiple for expert
-  if (hasBrokerId) {
-    return typeof data.chapterName === 'string';
-  }
-  return true;
-}, {
-  message: "Broker can only select one chapter",
-  path: ["chapterName"]
 });
-  
 
 const UploadData = ({ onClose }: UploadDataProps) => {
   const [uploadStatus, setUploadStatus] = useState("");
   const [chapters, setChapters] = useState<string[]>([]);;
   const usersData: Users[] = useSelector((state: RootState) => state.users);
-  const [selectedRole, setSelectedRole] = useState<'broker' | 'expert' | null>(null);
-
+  const [selectedRole, setSelectedRole] = useState<"broker" | "expert" | null>(null);
   const {
     register,
     handleSubmit,
@@ -62,41 +46,15 @@ const UploadData = ({ onClose }: UploadDataProps) => {
     }
   };
 
-  // Add handler for role selection
-  const handleRoleChange = (role: 'broker' | 'expert' | null, value: string) => {
-    if (value) {
-      setSelectedRole(role);
-      // Clear the other field
-      setValue(role === 'broker' ? 'expertId' : 'brokerId', '');
-      // Reset chapter selection when switching roles
-      setValue('chapterName', role === 'broker' ? '' : []);
-    } else {
-      setSelectedRole(null);
-    }
-  };
-
   // Form submission handler
   const onSubmit = async (data: z.infer<typeof schema>) => {
     try {
       toast.loading("Uploading...");
       const formData = new FormData();
-      formData.append("file", data.file);
-      if (data.brokerId) formData.append("brokerId", data.brokerId);
-      if (data.expertId) formData.append("expertId", data.expertId);
-      // Append the complete chapterName array
-      
-      if (Array.isArray(data.chapterName)) {
-        formData.append("chapterName", data.chapterName.join('|'));
-      }
-      // Handle both single and multiple chapters
-      if (Array.isArray(data.chapterName)) {
-        data.chapterName.forEach((chapter, index) => {
-          formData.append(`chapterName[${index}]`, chapter);
-        });
-      } else {
-        formData.append("chapterName", data.chapterName);
-      }
-      
+      formData.append("file", data.file); // Ensure file is uploaded properly
+      formData.append("userId", data.userId);
+      formData.append("chapterName", data.chapterName);
+
       console.log("Form data:", formData);
       const response = await axios.post("/api/admin/chapterItems", formData);
       console.log("response", response.data);
@@ -132,6 +90,11 @@ const UploadData = ({ onClose }: UploadDataProps) => {
     getChapters();
   },[])
 
+  const handleUserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedUser = usersData.find(user => user.id === parseInt(e.target.value));
+    setSelectedRole(selectedUser?.role as "broker" | "expert" | null);
+  };
+
   return (
     <form
       className="sm:min-w-[400px] text-auth-purple font-semibold"
@@ -164,64 +127,39 @@ const UploadData = ({ onClose }: UploadDataProps) => {
       )}
       <h2 className="text-xl my-4">Assign Chapters</h2>
       <h4>Select Chapter</h4>
-     
-        <select
-          multiple={selectedRole === 'expert'}
-          {...register("chapterName")}
-          className="p-2 w-full max-w-[400px] bg-[#F4F7FE] text-light-gray rounded-lg text-sm"
-        >
-          {selectedRole === 'broker' ? <option value="">Select Chapter</option> : null}
-          {chapters.map((item, index) => (
-            <option className="max-w-[400px]" key={index} value={item}>
-              {item}
-            </option>
-          ))}
-        </select>
+      <select
+        {...register("chapterName")}
+        className="p-2 w-full max-w-[400px] bg-[#F4F7FE] text-light-gray rounded-lg text-sm"
+      >
+        <option value="">Select Chapter</option>
+        {selectedRole === 'expert' ? <option value="all">Multiple Chapters</option> : null}
+        {chapters.map((item, index) => (
+          <option className="max-w-[400px]" key={index} value={item}>
+            {item}
+          </option>
+        ))}
+      </select>
       {errors.chapterName && (
         <p className="text-red-500 font-normal text-sm">
           {errors.chapterName.message}
         </p>
       )}
-      <h4 className="mt-4">Select Broker</h4>
+      <h4 className="mt-4">Select Broker or Expert</h4>
       <select
-        {...register("brokerId")}
-        onChange={(e) => {
-          register("brokerId").onChange(e);
-          handleRoleChange('broker', e.target.value);
-        }}
+        {...register("userId")}
         className="p-2 w-full bg-[#F4F7FE] text-light-gray rounded-lg text-sm"
+        onChange={handleUserChange}
       >
-        <option value="">Select Broker</option>
-        {usersData.filter((user) => user.role === "broker").map((user) => (
+        <option value="">Select Broker or Expert</option>
+        {usersData.map((user) => (
           <option key={user.id} value={user.id}>
-            {user.firstName} {user.lastName}
+            {user.firstName} {user.lastName} ({user.role})
           </option>
         ))}
       </select>
-      {errors.brokerId && (
+      {errors.userId && (
         <p className="text-red-500 font-normal text-sm">
-          {errors.brokerId.message}
-        </p>
-      )}
-       <h4 className="mt-4">Select Expert</h4>
-      <select
-        {...register("expertId")}
-        onChange={(e) => {
-          register("expertId").onChange(e);
-          handleRoleChange('expert', e.target.value);
-        }}
-        className="p-2 w-full bg-[#F4F7FE] text-light-gray rounded-lg text-sm"
-      >
-        <option value="">Select Expert</option>
-        {usersData.filter((user) => user.role === "expert").map((user) => (
-          <option key={user.id} value={user.id}>
-            {user.firstName} {user.lastName}
-          </option>
-        ))}
-      </select>
-      {errors.expertId && (
-        <p className="text-red-500 font-normal text-sm">
-          {errors.expertId.message}
+          {errors.userId.message}
         </p>
       )}
       <button
