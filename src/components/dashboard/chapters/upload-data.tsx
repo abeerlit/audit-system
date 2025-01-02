@@ -88,7 +88,7 @@ const UploadData = ({ onClose }: UploadDataProps) => {
       }
     };
     getChapters();
-  },[])
+  }, [])
 
   const handleUserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedUser = usersData.find(user => user.id === parseInt(e.target.value));
@@ -97,7 +97,7 @@ const UploadData = ({ onClose }: UploadDataProps) => {
 
   return (
     <form
-      className="sm:min-w-[400px] text-auth-purple font-semibold"
+      className="sm:min-w-[400px] text-auth-purple font-semibold flex flex-col "
       onSubmit={handleSubmit(onSubmit)}
     >
       <h1 className="text-xl font-bold mb-4">Upload files</h1>
@@ -126,25 +126,8 @@ const UploadData = ({ onClose }: UploadDataProps) => {
         </p>
       )}
       <h2 className="text-xl my-4">Assign Chapters</h2>
-      <h4>Select Chapter</h4>
-      <select
-        {...register("chapterName")}
-        className="p-2 w-full max-w-[400px] bg-[#F4F7FE] text-light-gray rounded-lg text-sm"
-      >
-        <option value="">Select Chapter</option>
-        {selectedRole === 'expert' ? <option value="all">Multiple Chapters</option> : null}
-        {chapters.map((item, index) => (
-          <option className="max-w-[400px]" key={index} value={item}>
-            {item}
-          </option>
-        ))}
-      </select>
-      {errors.chapterName && (
-        <p className="text-red-500 font-normal text-sm">
-          {errors.chapterName.message}
-        </p>
-      )}
-      <h4 className="mt-4">Select Broker or Expert</h4>
+
+      <h4 className="">Select Broker or Expert</h4>
       <select
         {...register("userId")}
         className="p-2 w-full bg-[#F4F7FE] text-light-gray rounded-lg text-sm"
@@ -162,9 +145,27 @@ const UploadData = ({ onClose }: UploadDataProps) => {
           {errors.userId.message}
         </p>
       )}
+      <h4 className="mt-4">Select Chapter</h4>
+      <select
+        {...register("chapterName")}
+        className="p-2 w-full max-w-[400px] bg-[#F4F7FE] text-light-gray rounded-lg text-sm"
+      >
+        <option value="">Select Chapter</option>
+        {selectedRole === 'expert' ? <option value="all">Multiple Chapters</option> : null}
+        {chapters.map((item, index) => (
+          <option className="max-w-[400px]" key={index} value={item}>
+            {item}
+          </option>
+        ))}
+      </select>
+      {errors.chapterName && (
+        <p className="text-red-500 font-normal text-sm">
+          {errors.chapterName.message}
+        </p>
+      )}
       <button
         type="submit"
-        className="mt-4 bg-light-blue text-white font-bold py-2 px-6 rounded-xl"
+        className="mt-4 bg-light-blue text-white font-bold py-2 px-6 rounded-xl w-fit"
       >
         Submit
       </button>
